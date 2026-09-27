@@ -1,0 +1,30 @@
+:root {
+  // Surfaces
+  --canvas: #08080a;
+  --panel: #101014;
+  --raised: #17171d;
+  --interactive: #1e1e26;
+  --line: #2a2a35;
+
+  // Text
+  --text: #f6f6f8;
+  --text-secondary: #a8a8b8;
+  --muted: #717184;
+
+  // Meaning (red = action, gold = rank, violet = AI only)
+  --brand: #e8192c;
+  --mastery: #d7b75c;
+  --agent: #8a7cf6;
+  --success: #26c76f;
+  --warning: #f6a63b;
+  --danger: #ef4053;
+  --info: #4c8dff;
+
+  // Sizing
+  --control-height: 40px;
+  --touch-height: 48px;
+  --radius-control: 10px;
+  --radius-card: 16px;
+  --radius-leaf: 18px;
+  --radius-tray: 22px;
+}

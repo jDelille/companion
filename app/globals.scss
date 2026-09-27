@@ -1,0 +1,9 @@
+@use "../styles/variables" as var;
+@use "../styles/breakpoints" as bp;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
