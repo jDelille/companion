@@ -10,6 +10,8 @@ const WorkspaceHeader = () => {
     <div className={styles.workspaceHeader}>
       <LocationSwitcher />
       <CommandBar />
+      <div className={styles.keyBtn}>⌘K</div>
+      <div className={styles.addBtn}>+</div>
     </div>
   )
 }

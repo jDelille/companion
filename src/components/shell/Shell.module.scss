@@ -47,6 +47,14 @@
     }
   }
 
+  &[data-companion-open="true"] {
+  @include bp.below-wide {
+    .workspaceSlot {
+      margin-right: min(325px, 90vw);
+    }
+  }
+}
+
   .workspaceSlot {
     display: flex;
     flex-direction: column;
@@ -72,6 +80,68 @@
         font-size: 18px;
         cursor: pointer;
       }
+    }
+  }
+
+  .companionSlot {
+    @include bp.below-wide {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      width: min(325px, 90vw);
+      z-index: 20;
+      background: var(--panel);
+      transform: translateX(100%); // parked off-screen to the right
+      transition: transform 200ms ease;
+    }
+
+    .companionClose {
+      display: none;
+      @include bp.below-wide {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: var(--radius-control);
+        background: var(--interactive);
+        color: var(--text);
+        cursor: pointer;
+        z-index: 1;
+        
+      }
+    }
+  }
+
+  &[data-companion-open="true"] .companionSlot {
+    @include bp.below-wide {
+      transform: translateX(0);
+    }
+  }
+
+  .companionTrigger {
+    display: none;
+    @include bp.below-wide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 15;
+      width: 45px;
+      height: 45px;
+      border: none;
+      border-radius: 50%;
+      background: var(--agent);
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
     }
   }
 }

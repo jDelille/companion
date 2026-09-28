@@ -58,8 +58,23 @@ const AdaptiveShell = ({ children, context, companion }: Props) => {
       </div>
 
       <div className={styles.companionSlot}>
+        <button
+          className={styles.companionClose}
+          onClick={() => setCompanionOpen(false)}
+          aria-label="Close companion"
+        >
+          ✕
+        </button>
         <CompanionRail>{companion}</CompanionRail>
       </div>
+
+      <button
+        className={styles.companionTrigger}
+        onClick={() => setCompanionOpen(true)}
+        aria-label="Open companion"
+      >
+        ✦
+      </button>
     </div>
   );
 };
