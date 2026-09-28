@@ -1,0 +1,73 @@
+.rail {
+  width: 100px;
+  height: 100vh;
+  background: var(--canvas);
+  border-right: 1px solid var(--dark-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.5rem;
+
+  &__logo {
+    width: 50px;
+    height: 50px;
+    border: 1px solid var(--dark-border);
+    border-radius: 12px;
+  }
+
+  &__links {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    width: 100%;
+    gap: 5px;
+    margin-top: 2rem;
+
+
+    &__link {
+      width: 100%;
+      color: var(--text-secondary);
+      font-weight: 300;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 5px;
+      border-radius: 8px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: var(--line);
+        color: var(--text);
+      }
+
+
+      span {
+        font-size: 13px;
+      }
+
+      p {
+        font-size: 11px;
+      }
+    }
+
+    .active {
+      background-color: var(--line);
+      color: var(--mastery);
+    }
+  }
+
+  &__user {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--line);
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+}

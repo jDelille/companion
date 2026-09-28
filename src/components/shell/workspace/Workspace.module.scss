@@ -1,0 +1,38 @@
+.workspace {
+
+    &__tabs {
+        border-bottom: 1px solid var(--dark-border);
+        height: 65px;
+    }
+}
+
+
+.workspaceHeader {
+    height: 65px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--dark-border);
+    padding: 0.5rem 0;
+    padding-right: 2rem;
+    .location {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        padding: 0 2rem;
+    }
+
+    .commandBar {
+        background-color: #17171D;
+        flex: 1;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        font-size: 12px;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        border: 1px solid var(--dark-border);
+        font-weight: 600;
+        color: var(--text-secondary);
+    }
+}

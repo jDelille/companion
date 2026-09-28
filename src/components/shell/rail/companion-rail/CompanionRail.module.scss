@@ -1,0 +1,16 @@
+.companionRail {
+  width: 350px;
+  background: var(--panel);
+  border-left: 1px solid var(--dark-border);
+  height: 100%;
+
+  &__header {
+    height: 65px;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+  }
+}
