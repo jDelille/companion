@@ -1,5 +1,8 @@
-export default function Home() {
-  return (
-    <main></main>
-  )
+import FrontDeskView from "@/components/operations/front-desk/FrontDeskView";
+import { getMember } from "@/integrations/member";
+
+
+export default async function Home() {
+  const activeMember = await getMember("m-001"); // Maya Chen, as on slide 12
+  return <FrontDeskView activeMember={activeMember} />;
 }
