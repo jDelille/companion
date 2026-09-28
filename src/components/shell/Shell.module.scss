@@ -6,6 +6,21 @@
   height: 100dvh;
   background: var(--canvas);
 
+  // Phones: stack workspace above the bottom nav
+  @include bp.compact {
+    flex-direction: column;
+  }
+
+  /* ---------- Rail ---------- */
+
+  .railSlot {
+    @include bp.compact {
+      display: none; // replaced by the bottom nav on phones
+    }
+  }
+
+  /* ---------- Context pane ---------- */
+
   .contextSlot {
     @include bp.below-expanded {
       position: fixed;
@@ -15,7 +30,7 @@
       width: min(300px, 85vw);
       z-index: 20;
       background: var(--panel);
-      transform: translateX(-100%);
+      transform: translateX(-100%); // parked off-screen to the left
       transition: transform 200ms ease;
     }
 
@@ -43,61 +58,59 @@
 
   &[data-context-open="true"] .contextSlot {
     @include bp.below-expanded {
-      transform: translateX(0);
+      transform: none;
     }
   }
 
-  &[data-companion-open="true"] {
-  @include bp.below-wide {
-    .workspaceSlot {
-      margin-right: min(325px, 90vw);
-    }
-  }
-}
+  /* ---------- Workspace ---------- */
 
   .workspaceSlot {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-width: 0;
+    min-height: 0;
     height: 100%;
+  }
 
-    .contextTrigger {
-      display: none;
-
-      @include bp.below-expanded {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        align-self: flex-start;
-        margin: 12px;
-        width: 40px;
-        height: 40px;
-        border: 1px solid var(--line);
-        border-radius: var(--radius-control);
-        background: var(--interactive);
-        color: var(--text);
-        font-size: 18px;
-        cursor: pointer;
-      }
+  // Expanded only: the open Companion shares the space instead of covering it
+  &[data-companion-open="true"] .workspaceSlot {
+    @include bp.expanded {
+      margin-right: var(--companion-width);
     }
   }
 
+  /* ---------- Companion ---------- */
+
   .companionSlot {
+    // Below wide: side panel parked off-screen to the right
     @include bp.below-wide {
       position: fixed;
       top: 0;
       bottom: 0;
       right: 0;
-      width: min(325px, 90vw);
+      width: min(var(--companion-width), 90vw);
       z-index: 20;
       background: var(--panel);
-      transform: translateX(100%); // parked off-screen to the right
+      transform: translateX(100%);
       transition: transform 200ms ease;
+    }
+
+    // Phones: bottom tray parked below the screen (overrides the side panel above)
+    @include bp.compact {
+      top: auto;
+      left: 0;
+      right: 0;
+      width: 100%;
+      height: 60dvh; // real height, not just a cap
+      max-height: 75dvh;
+      border-radius: var(--radius-tray) var(--radius-tray) 0 0;
+      transform: translateY(100%);
     }
 
     .companionClose {
       display: none;
+
       @include bp.below-wide {
         display: inline-flex;
         align-items: center;
@@ -113,19 +126,20 @@
         color: var(--text);
         cursor: pointer;
         z-index: 1;
-        
       }
     }
   }
 
+  // Open = no offset, whether it came in from the side or the bottom
   &[data-companion-open="true"] .companionSlot {
     @include bp.below-wide {
-      transform: translateX(0);
+      transform: none;
     }
   }
 
   .companionTrigger {
     display: none;
+
     @include bp.below-wide {
       display: flex;
       align-items: center;
@@ -142,6 +156,20 @@
       color: var(--text);
       font-size: 20px;
       cursor: pointer;
+    }
+
+    @include bp.compact {
+      bottom: 88px; // sits above the bottom nav
+    }
+  }
+
+  /* ---------- Bottom nav (phones only) ---------- */
+
+  .bottomNavSlot {
+    display: none;
+
+    @include bp.compact {
+      display: block;
     }
   }
 }

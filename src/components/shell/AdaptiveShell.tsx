@@ -8,6 +8,7 @@ import styles from "./Shell.module.scss";
 import WorkspaceHeader from "./workspace/WorkspaceHeader";
 import WorkspaceTabs from "./workspace/WorkspaceTabs";
 import CompanionRail from "./rail/companion-rail/CompanionRail";
+import AdaptiveBottomNav from "./bottom-nav/AdaptiveBottomNav";
 
 type Layout = "compact" | "standard" | "expanded" | "wide";
 type Environment = { layout: Layout; panes: 1 | 2 | 3 | 4 };
@@ -44,15 +45,10 @@ const AdaptiveShell = ({ children, context, companion }: Props) => {
       </div>
 
       <div className={styles.workspaceSlot}>
-        <button
-          className={styles.contextTrigger}
-          onClick={() => setContextOpen((open) => !open)}
-          aria-label="Toggle context panel"
-          aria-expanded={contextOpen}
-        >
-          ☰
-        </button>
-        <WorkspaceHeader />
+        <WorkspaceHeader
+          onToggleContext={() => setContextOpen((open) => !open)}
+          contextOpen
+        />
         <WorkspaceTabs />
         <div className={styles.workspaceBody}>{children}</div>
       </div>
@@ -75,6 +71,10 @@ const AdaptiveShell = ({ children, context, companion }: Props) => {
       >
         ✦
       </button>
+
+      <div className={styles.bottomNavSlot}>
+        <AdaptiveBottomNav />
+      </div>
     </div>
   );
 };

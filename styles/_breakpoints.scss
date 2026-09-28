@@ -1,2 +1,9 @@
-@mixin below-expanded { @media (max-width: 1023px) { @content; } }
-@mixin below-wide { @media (max-width: 1439px) { @content; } }
+// Single layouts: match exactly one size
+@mixin compact  { @media (max-width: 599px) { @content; } }
+@mixin standard { @media (min-width: 600px) and (max-width: 1023px) { @content; } }
+@mixin expanded { @media (min-width: 1024px) and (max-width: 1439px) { @content; } }
+@mixin wide     { @media (min-width: 1440px) { @content; } }
+
+// Ranges: everything narrower than the named layout
+@mixin below-expanded { @media (max-width: 1023px) { @content; } } // standard + compact
+@mixin below-wide     { @media (max-width: 1439px) { @content; } } // expanded + standard + compact
