@@ -1,0 +1,1 @@
+@mixin below-expanded { @media (max-width: 1023px) { @content; } }

@@ -7,10 +7,23 @@
   &__header {
     height: 65px;
     color: var(--text);
-    font-size: 12px;
-    font-weight: 500;
     display: flex;
     align-items: center;
     padding: 1rem;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 500;
+      font-size: 16px;
+    }
+
+    &__icon {
+      color: var(--agent);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
   }
 }

@@ -1,6 +1,11 @@
+import type { ReactNode } from "react";
 import styles from "./ContextPane.module.scss";
 
-const ContextPane = () => {
+type Props = {
+  children: ReactNode;
+}
+
+const ContextPane = ({children}: Props) => {
   return (
     <div className={styles.contextPane}>
       <div className={styles.contextPane__header}>
