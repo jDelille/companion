@@ -65,8 +65,8 @@ export function getCompanionContext(pathname: string): CompanionContext {
 
 // Scripted responses for the "Ask the agent" box
 export function matchRequest(text: string): Suggestion | null {
-  const t = text.toLowerCase();
-  if (t.includes("email") || t.includes("meeting")) {
+  const t = text.toLowerCase().replace(/-/g, "");
+  if (t.includes("email") || t.includes("meeting") || t.includes("parents")) {
     return {
       id: "req-email", title: "Draft email to Linda Chen",
       explanation: "About Maya's upcoming belt test.",
@@ -79,4 +79,24 @@ export function matchRequest(text: string): Suggestion | null {
     };
   }
   return null;
+}
+
+// Words too generic to pick out one task ("prepare", "send", ...)
+const GENERIC = new Set(["prepare", "send", "review", "form", "the", "for", "and"]);
+const keywords = (text: string) =>
+  text.toLowerCase().replace(/-/g, "").match(/[a-z]+/g)?.filter((w) => w.length > 2 && !GENERIC.has(w)) ?? [];
+
+// Finds the task already on screen that a request is talking about 
+export function matchExisting(text: string, suggestions: Suggestion[]): Suggestion | null {
+  const asked = new Set(keywords(text));
+  let best: Suggestion | null = null;
+  let bestScore = 0;
+  for (const s of suggestions) {
+    const score = new Set(keywords(`${s.title} ${s.actionLabel}`).filter((w) => asked.has(w))).size;
+    if (score > bestScore) {
+      best = s;
+      bestScore = score;
+    }
+  }
+  return best;
 }

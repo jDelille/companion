@@ -1,0 +1,14 @@
+.history {
+  margin-bottom: 1rem;
+
+  .historyItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 15px 0;
+    flex-wrap: wrap;
+  }
+}

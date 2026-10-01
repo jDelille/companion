@@ -1,0 +1,23 @@
+.task {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text);
+  font-size: 12px;
+  border-bottom: 1px solid var(--line);
+  padding: 15px 0;
+  flex-wrap: wrap;
+
+  button {
+    all: unset;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .details {
+    background-color: var(--raised);
+    padding: 10px;
+    margin: 1rem 0;
+    border-radius: 8px;
+  }
+}

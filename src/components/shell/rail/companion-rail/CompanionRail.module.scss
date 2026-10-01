@@ -54,70 +54,8 @@
       margin: 1rem 0;
     }
 
-    .tasks,
-    .history {
+    .tasks {
       margin-bottom: 1rem;
-      .task,
-      .historyItem {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        color: var(--text);
-        font-size: 12px;
-        border-bottom: 1px solid var(--line);
-        padding: 15px 0;
-        flex-wrap: wrap;
-
-        button {
-          all: unset;
-          color: var(--muted);
-          font-size: 11px;
-        }
-
-        .details {
-          background-color: var(--raised);
-          padding: 10px;
-          margin: 1rem 0;
-          border-radius: 8px;
-        }
-      }
-    }
-
-
-  }
-
-  &__agentComposer {
-    margin-top: auto;
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 40px;
-    padding: 0 6px 0 12px;
-    border: 1px solid var(--dark-border);
-    border-radius: 8px;
-    background-color: var(--raised);
-
-    input {
-      flex: 1;
-      min-width: 0;
-      height: 100%;
-      border: none;
-      outline: none;
-      background: transparent;
-      color: var(--text);
-    }
-
-    .agentBtn {
-      all: unset;
-      background-color: var(--agent);
-      border-radius: 8px;
-      height: 30px;
-      width: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
     }
   }
 }
