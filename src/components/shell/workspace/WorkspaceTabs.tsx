@@ -7,7 +7,8 @@ import styles from "./Workspace.module.scss";
 const WorkspaceTabs = () => {
   const [activeTab, setActiveTab] = useState("Today");
 
-  const [tabs, setTabs] = useState(["Today", "Maya Chen", "September Test"]);
+  // "Maya Chen" and "September Test" hidden for now; add them back here when they have views
+  const [tabs, setTabs] = useState(["Today"]);
 
   const closeTab = (tab: string) => setTabs((t) => t.filter((x) => x !== tab));
 
