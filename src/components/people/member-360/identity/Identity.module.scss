@@ -1,3 +1,5 @@
+@use "../../../../../styles/breakpoints" as bp;
+
 .identity {
   display: flex;
   width: 100%;
@@ -12,6 +14,21 @@
     gap: 1rem;
     justify-content: space-between;
     width: 100%;
+
+    // Narrow: avatar + name on top, pill on its own row lined up with the buttons
+    @include bp.workspace-narrow {
+      display: grid;
+      grid-template-columns: auto 1fr;
+
+      .memberName {
+        display: contents; // its name block and pill become grid items of .member
+      }
+
+      .status {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+    }
 
     &__avatar {
       color: var(--text);

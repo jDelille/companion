@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import type { Receipt, Suggestion } from "@/domain/companion";
-import { getCompanionContext, matchExisting, matchRequest } from "@/integrations/mock/companion";
+import {
+  getCompanionContext,
+  matchExisting,
+  matchRequest,
+} from "@/integrations/mock/companion";
 
 export type TaskStatus = "working" | "done";
 
@@ -43,13 +47,19 @@ const useCompanion = () => {
   const request = (text: string) => {
     const suggestion = matchRequest(text);
     if (suggestion) {
-      setRequested((r) => [suggestion, ...r.filter((x) => x.id !== suggestion.id)]);
+      setRequested((r) => [
+        suggestion,
+        ...r.filter((x) => x.id !== suggestion.id),
+      ]);
       setOpenId(suggestion.id); // arrives already open
       return true;
     }
 
     // Otherwise open the task already listed that it's asking about
-    const existing = matchExisting(text, suggestions);
+    const existing = matchExisting(text, [
+      ...suggestions,
+      ...(context.featured ? [context.featured.suggestion] : []),
+    ]);
     if (!existing) return false;
     setOpenId(existing.id);
     return true;
@@ -59,6 +69,8 @@ const useCompanion = () => {
     label: context.label,
     heading: context.heading,
     suggestions,
+    intel: context.intel,
+    featured: context.featured,
     openId,
     toggle,
     status,

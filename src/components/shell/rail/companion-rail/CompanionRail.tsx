@@ -5,14 +5,17 @@ import useCompanion from "./useCompanion";
 import TaskItem from "./TaskItem";
 import ReceiptHistory from "./ReceiptHistory";
 import AgentComposer from "./AgentComposer";
+import MemberIntel from "./MemberIntel";
+import SuggestedCard from "./SuggestedCard";
 import styles from "./CompanionRail.module.scss";
 
 type Props = {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 const CompanionRail = ({ children }: Props) => {
   const companion = useCompanion();
+  const featured = companion.featured;
 
   return (
     <div className={styles.companionRail}>
@@ -23,24 +26,39 @@ const CompanionRail = ({ children }: Props) => {
       </div>
 
       <div className={styles.companionRail__state}>
-        <div className={styles.statusLine}>
-          <div className={styles.statusIcon}></div>
-          {companion.label}
-        </div>
+        {companion.label && (
+          <div className={styles.statusLine}>
+            <div className={styles.statusIcon}></div>
+            {companion.label}
+          </div>
+        )}
+        {companion.heading && <h3>{companion.heading}</h3>}
 
-        <h3>{companion.heading}</h3>
-        <div className={styles.tasks}>
-          {companion.suggestions.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              open={companion.openId === task.id}
-              status={companion.status[task.id]}
-              onToggle={() => companion.toggle(task.id)}
-              onApprove={() => companion.approve(task)}
-            />
-          ))}
-        </div>
+        {companion.intel && <MemberIntel items={companion.intel} />}
+        {featured && (
+          <SuggestedCard
+            suggestion={featured.suggestion}
+            summary={featured.summary}
+            open={companion.openId === featured.suggestion.id}
+            status={companion.status[featured.suggestion.id]}
+            onApprove={() => companion.approve(featured.suggestion)}
+          />
+        )}
+
+        {companion.suggestions.length > 0 && (
+          <div className={styles.tasks}>
+            {companion.suggestions.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                open={companion.openId === task.id}
+                status={companion.status[task.id]}
+                onToggle={() => companion.toggle(task.id)}
+                onApprove={() => companion.approve(task)}
+              />
+            ))}
+          </div>
+        )}
 
         <ReceiptHistory receipts={companion.receipts} />
       </div>
