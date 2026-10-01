@@ -1,27 +1,45 @@
-import { Member } from "@/domain/member";
+"use client"; // ← new: the card now has state
+
+import { useState } from "react";
+import type { Member } from "@/domain/member";
+import Modal from "@/components/primitives/modal/Modal";
 import styles from "./MemberCard.module.scss";
+import { modals, ModalType } from "./memberModals";
 
 type Props = {
   member: Member;
 };
 
-const MemberCard = ({ member }: Props) => {
-  console.log(member);
+// ← new: each action says what it opens
+const actions: { id: number; label: string; modal?: ModalType }[] = [
+  { id: 1, label: "Check in" },
+  { id: 2, label: "Book", modal: "book" },
+  { id: 3, label: "Payment", modal: "payment" },
+  { id: 4, label: "Message", modal: "message" },
+  { id: 5, label: "✎ Edit", modal: "edit" },
+  { id: 6, label: "+", modal: "ask" },
+];
 
-  const actions = [
-    {id: 1, label: "Check in"},
-    {id: 2, label: "Book"},
-    {id: 3, label: "Payment"},
-    {id: 4, label: "Message"},
-    {id: 5, label: "Edit", icon: ""},
-    {id: 6, label: "+"}
-  ]
+const MemberCard = ({ member }: Props) => {
+  const [open, setOpen] = useState<ModalType | null>(null); // ← new
+  const [checkedIn, setCheckedIn] = useState(false); // ← new
+  const current = open ? modals[open] : null;
+
+  const initials = member.name
+    .split(" ")
+    .map((n) => n[0])
+    .join(""); // ← "MC" from the name
+
+  const handleAction = (a: (typeof actions)[number]) => {
+    if (a.label === "Check in") setCheckedIn(true);
+    else if (a.modal) setOpen(a.modal);
+  };
 
   return (
     <div className={styles.memberCard}>
       <p className={styles.label}>active context</p>
       <div className={styles.member}>
-        <div className={styles.member__avatar}>MC</div>
+        <div className={styles.member__avatar}>{initials}</div>
 
         <div className={styles.memberName}>
           <div className={styles.text}>
@@ -30,7 +48,9 @@ const MemberCard = ({ member }: Props) => {
               {member.rank.name} · {member.householdName}
             </p>
           </div>
-          <div className={styles.status}>{member.membershipState} </div>
+          <div className={styles.status}>
+            {checkedIn ? "checked in" : member.membershipState}
+          </div>
         </div>
       </div>
 
@@ -51,11 +71,36 @@ const MemberCard = ({ member }: Props) => {
 
       <div className={styles.memberActions}>
         <ul>
-          {actions.map(a => (
-            <li key={a.id}>{a.label}</li>
+          {actions.map((a) => (
+            <li key={a.id}>
+              <button
+                className={a.label === "Check in" ? styles.checkInBtn : ""}
+                onClick={() => handleAction(a)}
+                disabled={a.label === "Check in" && checkedIn}
+              >
+                {a.label === "Check in" && checkedIn ? "✓ Checked in" : a.label}
+              </button>
+            </li>
           ))}
         </ul>
       </div>
+
+      {/* ← new: one modal, content depends on which button was clicked */}
+      <Modal
+        open={!!current}
+        label={current?.label ?? ""}
+        title={current?.title ?? ""}
+        description={current?.description ?? ""}
+        onClose={() => setOpen(null)}
+      >
+        {current && (
+          <current.Body
+            onDone={() => setOpen(null)}
+            onCancel={() => setOpen(null)}
+            onAskAI={() => setOpen("ask")}
+          />
+        )}
+      </Modal>
     </div>
   );
 };

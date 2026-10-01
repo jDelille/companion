@@ -1,0 +1,144 @@
+// Book
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--raised);
+  font-size: 14px;
+  color: var(--text);
+
+  .optionText {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    p {
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+  }
+
+  .optionValue {
+    font-weight: 500;
+  }
+}
+
+// Payment
+.currentMembership {
+  background-color: var(--raised);
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  gap: 10px;
+
+  span,
+  small {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+// edit
+.row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+
+  // the labels are the flex items, so they're what needs to grow
+  label {
+    flex: 1;
+    min-width: 0; // lets them shrink below the input's default ~20-character width
+  }
+
+  input,
+  select {
+    width: 100%;
+  }
+}
+
+.eligibility {
+  background-color: var(--raised);
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  span {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  p {
+    font-size: 12px;
+  }
+}
+
+// askAI
+.scope {
+  background-color: var(--raised);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .scopeText {
+    color: var(--muted);
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .scopeValue {
+    font-weight: 500;
+    font-size: 18px;
+  }
+}
+
+.permissionBox,
+.checkpoint {
+  background-color: var(--raised);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  span {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  p {
+    font-size: 12px;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    li {
+      font-size: 12px;
+    }
+  }
+}
+

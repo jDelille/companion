@@ -94,11 +94,20 @@
       gap: 10px;
 
       li {
-        border: 1px solid var(--dark-border);
-        font-size: 12px;
-        font-weight: 600;
-        padding: 8px 12px;
-        border-radius: 8px;
+        button {
+          all: unset;
+          border: 1px solid var(--dark-border);
+          font-size: 12px;
+          font-weight: 600;
+          padding: 10px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+        }
+
+        .checkInBtn {
+          background-color: var(--brand);
+
+        }
       }
     }
   }

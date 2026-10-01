@@ -21,32 +21,33 @@
     flex-direction: column;
     padding-top: 1rem;
     .queueCard {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      border-bottom: 1px solid var(--dark-border);
+      padding: 1rem 0;
+
+      p {
+        font-weight: 500;
+      }
+
+      span {
         font-size: 12px;
-        border-bottom: 1px solid var(--dark-border);
-        padding: 1rem 0;
-
-        p {
-            font-weight: 500;
-        }
-
-        span {
-            font-size: 12px;
-            color: var(--muted);
-        }
+        color: var(--muted);
+      }
     }
   }
 
   .openQueueBtn {
-        all: unset;
-        font-size: 11px;
-        font-weight: 500;
-        border: 1px solid var(--dark-border);
-        width: fit-content;
-        padding: 8px 12px;
-        border-radius: 8px;
-        margin-top: 1rem;
-    }
+    all: unset;
+    border: 1px solid var(--dark-border);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 1.45rem;
+    width: fit-content;
+  }
 }

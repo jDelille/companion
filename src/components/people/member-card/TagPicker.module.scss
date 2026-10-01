@@ -1,0 +1,114 @@
+.tagPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+// matches the modal's field labels
+.label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+// looks like the inputs around it
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 6px 6px 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+}
+
+.chips {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 12px;
+  color: var(--text);
+
+  button {
+    all: unset;
+    font-size: 9px;
+    color: var(--muted);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+}
+
+.empty {
+  padding-left: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.add {
+  position: relative;
+  align-self: flex-start;
+}
+
+.addBtn {
+  all: unset;
+  padding: 6px 10px;
+  border-radius: var(--radius-control);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--text);
+    background: var(--panel);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 1;
+  min-width: 180px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+
+  button {
+    all: unset;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--raised);
+    }
+  }
+}

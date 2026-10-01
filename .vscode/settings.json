@@ -1,0 +1,6 @@
+{
+  // Allow "×" (close buttons) without the "could be confused with x" warning
+  "editor.unicodeHighlight.allowedCharacters": {
+    "×": true
+  }
+}
