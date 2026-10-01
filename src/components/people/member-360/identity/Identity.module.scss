@@ -1,7 +1,7 @@
 .identity {
   display: flex;
   width: 100%;
-  padding-top: 1rem;
+  padding: 1rem;
 
   .member {
     color: var(--text);
@@ -58,7 +58,7 @@
 }
 
 .memberActions {
-  padding: 1rem;
+  padding: 1rem 2rem;
   border-bottom: 1px solid var(--dark-border);
   padding-bottom: 1.5rem;
   ul {

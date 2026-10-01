@@ -2,6 +2,7 @@ import { Member } from "@/domain/member";
 import styles from "./Member360View.module.scss";
 import Identity from "./identity/Identity";
 import Tabs from "./tabs/Tabs";
+import MemberGrid from "./member-grid/MemberGrid";
 
 type Props = {
   member: Member;
@@ -17,18 +18,9 @@ const Member360View = ({ member }: Props) => {
       <Identity member={member}/>
       <Tabs />
 
-      
+      <MemberGrid />
 
-      <section aria-label="Status">
-        {/* membership, attendance, readiness */}
-      </section>
-      <section aria-label="Actions">
-        {/* check in, book, payment, message */}
-      </section>
-      <section aria-label="Relationships">{/* household, guardians */}</section>
-      <section aria-label="History">
-        {/* attendance, payments, rank changes */}
-      </section>
+    
     </article>
   );
 };

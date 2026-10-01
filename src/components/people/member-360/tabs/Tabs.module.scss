@@ -1,7 +1,7 @@
 .objectTabs {
   display: flex;
   gap: 4px;
-  padding: 0 1rem;
+  padding: 0 2rem;
   border-bottom: 1px solid var(--dark-border);
   overflow-x: auto; // 10 tabs: scroll sideways on small screens instead of wrapping
   scrollbar-width: none;
