@@ -91,11 +91,13 @@
     ul {
       list-style-type: none;
       display: flex;
+      flex-wrap: wrap; // on the row, not the li: buttons drop to the next line instead of squishing
       gap: 10px;
 
       li {
         button {
           all: unset;
+          white-space: nowrap; // labels stay on one line
           border: 1px solid var(--dark-border);
           font-size: 12px;
           font-weight: 600;

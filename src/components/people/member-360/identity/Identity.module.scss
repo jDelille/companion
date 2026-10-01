@@ -15,19 +15,8 @@
     justify-content: space-between;
     width: 100%;
 
-    // Narrow: avatar + name on top, pill on its own row lined up with the buttons
-    @include bp.workspace-narrow {
-      display: grid;
-      grid-template-columns: auto 1fr;
-
-      .memberName {
-        display: contents; // its name block and pill become grid items of .member
-      }
-
-      .status {
-        grid-column: 1 / -1;
-        justify-self: start;
-      }
+    @include bp.compact {
+      padding-inline: 0; // phones: .identity's 1rem alone, same edge as the buttons
     }
 
     &__avatar {
@@ -71,6 +60,22 @@
         padding: 8px 13px;
       }
     }
+
+    // Last on purpose: must come after .memberName to override its display: flex
+    // Phones: avatar + name on top, pill on its own row lined up with the buttons
+    @include bp.compact {
+      display: grid;
+      grid-template-columns: auto 1fr;
+
+      .memberName {
+        display: contents; // its name block and pill become grid items of .member
+      }
+
+      .status {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+    }
   }
 }
 
@@ -78,6 +83,10 @@
   padding: 1rem 2rem;
   border-bottom: 1px solid var(--dark-border);
   padding-bottom: 1.5rem;
+
+  @include bp.compact {
+    padding-inline: 1rem;
+  }
   ul {
     list-style-type: none;
     display: flex;

@@ -1,6 +1,7 @@
 .agentComposer {
   margin-top: auto;
   margin-bottom: 1rem;
+  flex-shrink: 0; // always full size at the bottom of the rail
   display: flex;
   align-items: center;
   gap: 8px;

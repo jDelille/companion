@@ -1,3 +1,5 @@
+@use "../../../../../styles/breakpoints" as bp;
+
 .companionRail {
   width: 325px;
   background: var(--panel);
@@ -7,8 +9,15 @@
   display: flex;
   flex-direction: column;
 
+  // Phones: the rail is a full-width bottom tray, so fill it
+  @include bp.compact {
+    width: 100%;
+    border-left: none;
+  }
+
   &__header {
     height: 65px;
+    flex-shrink: 0;
     color: var(--text);
     display: flex;
     align-items: center;
@@ -29,9 +38,21 @@
     }
   }
 
+  // Everything between the header and the composer scrolls, so an expanded task
+  // never pushes the composer out of the rail
   &__state {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0; // lets it shrink to the space left and scroll instead of growing
+    overflow-y: auto;
+    padding-bottom: 12px; // breathing room above the composer
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
     .statusLine {
       text-transform: uppercase;
       color: var(--success);

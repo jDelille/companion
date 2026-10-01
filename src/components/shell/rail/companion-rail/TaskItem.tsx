@@ -14,7 +14,9 @@ const TaskItem = ({ task, open, status, onToggle, onApprove }: Props) => {
   return (
     <div className={styles.task}>
       <span>{task.title}</span>
-      <button onClick={onToggle}>{open ? "Close" : "Open"}</button>
+      <button className={styles.toggle} onClick={onToggle}>
+        {open ? "Close" : "Open"}
+      </button>
 
       {open && (
         <div className={styles.details}>

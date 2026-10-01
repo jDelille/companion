@@ -5,6 +5,10 @@
   flex-direction: column;
   gap: 16px;
   padding: 24px;
+
+  @include bp.compact {
+    padding: 1rem;
+  }
 }
 
 .header {

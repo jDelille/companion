@@ -78,6 +78,11 @@
     min-height: 0;
     overflow-y: auto;
     container: workspace / inline-size; // pages size themselves to this, see bp.workspace-split
+    scrollbar-width: none; // still scrolls (wheel, trackpad, touch), just no visible bar
+
+    &::-webkit-scrollbar {
+      display: none; // older Safari
+    }
   }
 
   // Expanded only: the open Companion shares the space instead of covering it
@@ -100,18 +105,27 @@
       z-index: 20;
       background: var(--panel);
       transform: translateX(100%);
-      transition: transform 200ms ease;
+      // Closed = hidden, not just off-screen. Otherwise switching between the side panel and the
+      // bottom tray (crossing the phone breakpoint) animates it across the page.
+      // visibility waits for the 200ms slide-out before hiding.
+      visibility: hidden;
+      transition:
+        transform 200ms ease,
+        visibility 0s linear 200ms;
     }
 
     // Phones: bottom tray parked below the screen (overrides the side panel above)
     @include bp.compact {
       top: auto;
-      left: 0;
-      right: 0;
-      width: 100%;
+      left: 1rem; // same 1rem side gap and border as the modal bottom sheet
+      right: 1rem;
+      width: auto;
       height: 60dvh; // real height, not just a cap
       max-height: 75dvh;
+      border: 1px solid var(--line);
+      border-bottom: none;
       border-radius: var(--radius-tray) var(--radius-tray) 0 0;
+      overflow: hidden; // clip the rail's square corners to the rounded top
       transform: translateY(100%);
     }
 
@@ -141,6 +155,10 @@
   &[data-companion-open="true"] .companionSlot {
     @include bp.below-wide {
       transform: none;
+      visibility: visible;
+      transition:
+        transform 200ms ease,
+        visibility 0s; // show right away, then slide in
     }
   }
 

@@ -1,3 +1,5 @@
+@use "../../../../styles/breakpoints" as bp;
+
 .modal {
   padding: 0;
   border: 1px solid var(--line);
@@ -10,6 +12,49 @@
   &::backdrop {
     background: rgb(0 0 0 / 0.4);
     backdrop-filter: blur(6px);
+  }
+
+  // Phones: bottom sheet. Pinned to the bottom edge, full width, slides up when it opens.
+  @include bp.compact {
+    width: calc(100% - 2rem); // 1rem gap on each side
+    max-width: none; // the browser caps dialogs a bit narrower than the screen by default
+    max-height: 90dvh;
+    margin: auto 1rem 0; // auto top margin pushes it down to the bottom edge
+    border-bottom: none;
+    border-radius: var(--radius-tray) var(--radius-tray) 0 0;
+    padding-bottom: env(safe-area-inset-bottom); // clear the iPhone home bar
+    overflow-y: auto;
+
+    // grab handle, like iOS sheets
+    &::before {
+      content: "";
+      display: block;
+      width: 36px;
+      height: 4px;
+      margin: 8px auto 0;
+      border-radius: 2px;
+      background: var(--line);
+    }
+
+    &[open] {
+      animation: sheet-up 280ms cubic-bezier(0.32, 0.72, 0, 1); // iOS-like ease
+    }
+
+    &[open]::backdrop {
+      animation: backdrop-in 280ms ease;
+    }
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
   }
 }
 
