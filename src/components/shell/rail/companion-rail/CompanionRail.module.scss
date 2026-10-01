@@ -18,7 +18,7 @@
       align-items: center;
       gap: 7px;
       font-weight: 500;
-      font-size: 16px;
+      font-size: 15px;
     }
 
     &__icon {
@@ -32,7 +32,6 @@
   &__state {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
     .statusLine {
       text-transform: uppercase;
       color: var(--success);
@@ -40,6 +39,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      margin: 1rem 0;
 
       .statusIcon {
         width: 10px;
@@ -51,25 +51,39 @@
 
     h3 {
       color: var(--text);
+      margin: 1rem 0;
     }
 
-    .tasks {
-      .task {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text);
-      font-size: 12px;
-      border-bottom: 1px solid var(--line);
-      padding: 15px 0;
+    .tasks,
+    .history {
+      margin-bottom: 1rem;
+      .task,
+      .historyItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: var(--text);
+        font-size: 12px;
+        border-bottom: 1px solid var(--line);
+        padding: 15px 0;
+        flex-wrap: wrap;
 
-      button {
-        all: unset;
-        color: var(--muted);
-        font-size: 11px;
+        button {
+          all: unset;
+          color: var(--muted);
+          font-size: 11px;
+        }
+
+        .details {
+          background-color: var(--raised);
+          padding: 10px;
+          margin: 1rem 0;
+          border-radius: 8px;
+        }
       }
     }
-    }
+
+
   }
 
   &__agentComposer {
