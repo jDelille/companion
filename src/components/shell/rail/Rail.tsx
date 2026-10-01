@@ -15,7 +15,7 @@ export default function Rail() {
 
   return (
     <nav className={styles.rail} aria-label="Main">
-      <div className={styles.rail__logo} />
+      <div className={styles.rail__logo}>D</div>
       <ul className={styles.rail__links}>
         {navItems.map((item) => (
           <RailItem key={item.id} item={item} isActive={isActive(item.href)} />

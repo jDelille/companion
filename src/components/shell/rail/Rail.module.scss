@@ -15,6 +15,12 @@
     height: 50px;
     border: 1px solid var(--dark-border);
     border-radius: 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 500;
   }
 
   &__links {
