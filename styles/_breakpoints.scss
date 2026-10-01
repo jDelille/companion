@@ -7,3 +7,7 @@
 // Ranges: everything narrower than the named layout
 @mixin below-expanded { @media (max-width: 1023px) { @content; } } // standard + compact
 @mixin below-wide     { @media (max-width: 1439px) { @content; } } // expanded + standard + compact
+
+// Workspace: respond to the workspace's width, not the screen (container set on .workspaceBody in Shell)
+@mixin workspace-split  { @container workspace (width >= 720px) { @content; } } // room for two columns
+@mixin workspace-narrow { @container workspace (width < 540px) { @content; } }

@@ -1,5 +1,6 @@
+@use "../../../../styles/breakpoints" as bp;
+
 .frontDesk {
-  container-type: inline-size; // section 48: respond to the workspace, not the screen
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -27,7 +28,7 @@
   font-size: 12px;
   color: var(--muted);
 
-  @container (width < 540px) { display: none; } // no room on narrow workspaces
+  @include bp.workspace-narrow { display: none; } // no room on narrow workspaces
 }
 
 .search {
@@ -51,7 +52,7 @@
   gap: 16px;
   grid-template-columns: 1fr;                   // narrow: stacked
 
-  @container (width >= 720px) {
+  @include bp.workspace-split {
     grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); // card + queue side by side
   }
 }

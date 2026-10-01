@@ -77,6 +77,7 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+    container: workspace / inline-size; // pages size themselves to this, see bp.workspace-split
   }
 
   // Expanded only: the open Companion shares the space instead of covering it
