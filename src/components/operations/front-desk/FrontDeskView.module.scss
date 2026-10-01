@@ -13,9 +13,11 @@
 
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
+
+  
+
 }
 
 .eyebrow {
@@ -32,7 +34,10 @@
   font-size: 12px;
   color: var(--muted);
 
-  @include bp.workspace-narrow { display: none; } // no room on narrow workspaces
+  @include bp.workspace-narrow { 
+
+   } 
+
 }
 
 .search {

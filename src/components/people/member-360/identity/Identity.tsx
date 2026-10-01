@@ -17,7 +17,7 @@ const btns: { label: string; modal?: ModalType }[] = [
   { label: "Book", modal: "book" },
   { label: "Payment", modal: "payment" },
   { label: "✎ Edit", modal: "edit" },
-  { label: "..." },
+  { label: "...", modal: "quickActions" }, // the hold-menu from the member card
   { label: "✦ Do For Me", modal: "ask" },
 ];
 
@@ -77,6 +77,11 @@ const Identity = ({ member }: Props) => {
             onDone={() => setOpen(null)}
             onCancel={() => setOpen(null)}
             onAskAI={() => setOpen("ask")}
+            onOpen={setOpen}
+            onCheckIn={() => {
+              setCheckedIn(true);
+              setOpen(null);
+            }}
           />
         )}
       </Modal>

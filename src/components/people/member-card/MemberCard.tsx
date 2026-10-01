@@ -5,6 +5,7 @@ import type { Member } from "@/domain/member";
 import Modal from "@/components/primitives/modal/Modal";
 import styles from "./MemberCard.module.scss";
 import { modals, ModalType } from "./memberModals";
+import useLongPress from "./useLongPress";
 
 type Props = {
   member: Member;
@@ -25,6 +26,12 @@ const MemberCard = ({ member }: Props) => {
   const [checkedIn, setCheckedIn] = useState(false); // ← new
   const current = open ? modals[open] : null;
 
+  // tap = details, hold = quick actions
+  const memberPress = useLongPress(
+    () => setOpen("quickActions"),
+    () => setOpen("details"),
+  );
+
   const initials = member.name
     .split(" ")
     .map((n) => n[0])
@@ -37,8 +44,22 @@ const MemberCard = ({ member }: Props) => {
 
   return (
     <div className={styles.memberCard}>
-      <p className={styles.label}>active context</p>
-      <div className={styles.member}>
+      <div className={styles.cardHeader}>
+        <p className={styles.label}>active context</p>
+        <span className={styles.hint}>Tap for details · hold for actions</span>
+      </div>
+      <div
+        className={styles.member}
+        role="button"
+        tabIndex={0}
+        {...memberPress}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            setOpen("details");
+          }
+        }}
+      >
         <div className={styles.member__avatar}>{initials}</div>
 
         <div className={styles.memberName}>
@@ -98,6 +119,11 @@ const MemberCard = ({ member }: Props) => {
             onDone={() => setOpen(null)}
             onCancel={() => setOpen(null)}
             onAskAI={() => setOpen("ask")}
+            onOpen={setOpen}
+            onCheckIn={() => {
+              setCheckedIn(true);
+              setOpen(null); // close so the card shows "checked in"
+            }}
           />
         )}
       </Modal>

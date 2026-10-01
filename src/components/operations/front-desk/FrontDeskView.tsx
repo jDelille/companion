@@ -12,9 +12,9 @@ export default function FrontDeskView({ activeMember }: Props) {
     <section className={styles.frontDesk}>
       <div className={styles.header}>
         <p className={styles.eyebrow}>Front desk · Current work</p>
-        <p className={styles.hint}>
+        {/* <p className={styles.hint}>
           Tap a member for details · hold for actions
-        </p>
+        </p> */}
       </div>
 
       <input

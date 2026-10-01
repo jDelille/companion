@@ -1,3 +1,5 @@
+@use "../../../../styles/breakpoints" as bp;
+
 // Book
 .list {
   display: flex;
@@ -8,6 +10,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
   padding: 12px 14px;
   border-bottom: 1px solid var(--line);
   background: var(--raised);
@@ -56,6 +59,11 @@
   display: flex;
   gap: 10px;
   width: 100%;
+
+  // Phones: stack (fields in Profile & Training, Will do / Will not in the AI modal)
+  @include bp.compact {
+    flex-direction: column;
+  }
 
   // the labels are the flex items, so they're what needs to grow
   label {
@@ -142,3 +150,151 @@
   }
 }
 
+// Details: 2 x 2 grid of boxes (same look as the member card's info boxes)
+.details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
+  }
+
+  dt {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  dd {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+}
+
+// Details
+.detailActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  button {
+    padding: 10px 12px;
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--raised);
+    }
+  }
+
+  .checkInBtn {
+    border-color: transparent;
+    background: var(--brand); // red = action
+
+    &:hover {
+      background: var(--brand);
+      filter: brightness(1.1);
+    }
+  }
+  
+}
+
+.tip {
+  font-size: 12px;
+  padding: 15px;
+  background-color: var(--raised);
+  border-radius: 6px;
+  line-height: 20px;
+
+  strong {
+    color: var(--text);
+  }
+
+  p {
+    color: var(--text-secondary);
+  }
+}
+
+// Context menu (hold on the member): sections of title + description rows
+.menuSection {
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+
+  & + & {
+    margin-top: 12px;
+  }
+
+  // the modal header already draws a line above the first section
+  &:first-child {
+    padding-top: 0;
+    border-top: none;
+  }
+
+  h3 {
+    margin-bottom: 10px;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: 100%;
+    min-height: 52px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: var(--radius-control);
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: var(--interactive);
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+}
+
+.menuLabel {
+  flex-shrink: 0;
+  max-width: 45%;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.menuHint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  text-align: right;
+}

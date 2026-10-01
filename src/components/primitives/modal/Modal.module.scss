@@ -19,10 +19,9 @@
     width: calc(100% - 2rem); // 1rem gap on each side
     max-width: none; // the browser caps dialogs a bit narrower than the screen by default
     max-height: 90dvh;
-    margin: auto 1rem 0; // auto top margin pushes it down to the bottom edge
-    border-bottom: none;
-    border-radius: var(--radius-tray) var(--radius-tray) 0 0;
-    padding-bottom: env(safe-area-inset-bottom); // clear the iPhone home bar
+    // auto top margin pushes it to the bottom; floats 1rem above it (plus the iPhone home bar)
+    margin: auto 1rem calc(1rem + env(safe-area-inset-bottom));
+    border-radius: var(--radius-tray); // all four corners, since the bottom is visible now
     overflow-y: auto;
 
     // grab handle, like iOS sheets
@@ -48,7 +47,7 @@
 
 @keyframes sheet-up {
   from {
-    transform: translateY(100%);
+    transform: translateY(calc(100% + 1rem)); // start fully below the screen, past the 1rem gap
   }
 }
 
@@ -140,7 +139,11 @@
     color: var(--text);
     font: inherit;
     font-size: 14px;
-    width: 50%
+    width: 50%;
+
+    @include bp.compact {
+      width: 100%; // phones: every field spans the sheet
+    }
   }
 
   textarea {

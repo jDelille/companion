@@ -4,13 +4,22 @@ import ModalActions from "@/components/primitives/modal/ModalActions";
 import styles from "./memberModals.module.scss";
 import TagPicker from "./TagPicker";
 
-export type ModalType = "message" | "book" | "payment" | "edit" | "ask" | "serviceQueue";
+export type ModalType =
+  | "message"
+  | "book"
+  | "payment"
+  | "edit"
+  | "ask"
+  | "serviceQueue"
+  | "details"
+  | "quickActions";
 
 type BodyProps = {
   onDone: () => void;
   onCancel: () => void;
   onAskAI?: () => void;
   onOpen?: (type: ModalType) => void; // open another modal from this one
+  onCheckIn?: () => void;
 };
 
 const MessageBody = ({ onDone, onCancel }: BodyProps) => (
@@ -205,7 +214,98 @@ const ServiceQueueBody = ({ onOpen }: BodyProps) => (
       </li>
     </ul>
   </>
-)
+);
+
+const memberDetails = [
+  { label: "Membership", value: "Current" },
+  { label: "Next class", value: "Today · 5:45 PM" },
+  { label: "Readiness", value: "92% " },
+  { label: "Attendance", value: "88% " },
+];
+
+const DetailsBody = ({ onOpen, onCheckIn }: BodyProps) => (
+  <>
+    <dl className={styles.details}>
+      {memberDetails.map((d) => (
+        <div key={d.label}>
+          <dt>{d.label}</dt>
+          <dd>{d.value}</dd>
+        </div>
+      ))}
+    </dl>
+    <div className={styles.detailActions}>
+      <button type="button" className={styles.checkInBtn} onClick={onCheckIn}>
+        Check in
+      </button>
+      <button type="button" onClick={() => onOpen?.("book")}>
+        Book class
+      </button>
+      <button type="button" onClick={() => onOpen?.("message")}>
+        Message
+      </button>
+      <button type="button" onClick={() => onOpen?.("edit")}>
+        Edit profile
+      </button>
+    </div>
+
+    <div className={styles.tip}>
+      <p><strong>Tip:</strong> long-press the member name—or right-click with a mouse—for the full action menu.</p>
+    </div>
+  </>
+);
+
+// Context menu (hold on the member): grouped actions, each opening its modal.
+// Items without a modal yet (Timeline, Photo) show but do nothing.
+type MenuItem = { label: string; hint: string; modal?: ModalType };
+
+const contextMenu: { section: string; items: MenuItem[] }[] = [
+  {
+    section: "Open",
+    items: [
+      { label: "Member overview", hint: "Identity, membership, attendance and readiness", modal: "details" },
+      { label: "Timeline", hint: "Recent changes and recorded activity" },
+    ],
+  },
+  {
+    section: "Edit",
+    items: [
+      { label: "Profile & training", hint: "Name, program, instructor and tags", modal: "edit" },
+      { label: "Photo", hint: "Replace or remove the member image" },
+      { label: "Contract & billing", hint: "Review current obligations in Odoo", modal: "payment" },
+    ],
+  },
+  {
+    section: "Assist",
+    items: [
+      { label: "✦ Do For Me", hint: "Prepare governed work for review", modal: "ask" },
+      { label: "Create message", hint: "Start from approved communication tools", modal: "message" },
+    ],
+  },
+];
+
+const QuickActionsBody = ({ onOpen }: BodyProps) => (
+  <div>
+    {contextMenu.map((group) => (
+      <section key={group.section} className={styles.menuSection}>
+        <h3>{group.section}</h3>
+        <ul>
+          {group.items.map((item) => (
+            <li key={item.label}>
+              <button
+                type="button"
+                onClick={() => item.modal && onOpen?.(item.modal)}
+                disabled={!item.modal}
+              >
+                <span className={styles.menuLabel}>{item.label}</span>
+                <span className={styles.menuHint}>{item.hint}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </div>
+);
 
 export const modals: Record<
   ModalType,
@@ -251,7 +351,20 @@ export const modals: Record<
   serviceQueue: {
     label: "Service queue",
     title: "Three focused tasks",
-    description:"Open one task at a time; completed work returns to this view.",
+    description:
+      "Open one task at a time; completed work returns to this view.",
     Body: ServiceQueueBody,
+  },
+  details: {
+    label: "Member sub-view",
+    title: "Maya Chen",
+    description: "Children Advanced · Chen Family",
+    Body: DetailsBody,
+  },
+  quickActions: {
+    label: "Context menu",
+    title: "Work with Maya",
+    description: "Actions stay attached to the member instead of opening a new page.",
+    Body: QuickActionsBody,
   },
 };

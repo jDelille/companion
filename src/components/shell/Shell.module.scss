@@ -117,16 +117,16 @@
     // Phones: bottom tray parked below the screen (overrides the side panel above)
     @include bp.compact {
       top: auto;
-      left: 1rem; // same 1rem side gap and border as the modal bottom sheet
+      left: 1rem; // same 1rem gaps and border as the modal bottom sheet
       right: 1rem;
+      bottom: calc(1rem + env(safe-area-inset-bottom)); // floats above the bottom edge
       width: auto;
       height: 60dvh; // real height, not just a cap
       max-height: 75dvh;
       border: 1px solid var(--line);
-      border-bottom: none;
-      border-radius: var(--radius-tray) var(--radius-tray) 0 0;
-      overflow: hidden; // clip the rail's square corners to the rounded top
-      transform: translateY(100%);
+      border-radius: var(--radius-tray);
+      overflow: hidden; // clip the rail's square corners to the rounded ones
+      transform: translateY(calc(100% + 2rem)); // parked fully below the screen, past the gap
     }
 
     .companionClose {

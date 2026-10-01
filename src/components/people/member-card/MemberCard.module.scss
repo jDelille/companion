@@ -17,11 +17,33 @@
     letter-spacing: 1px;
   }
 
+  .cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+
+  .hint {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
   .member {
     padding: 1rem;
     display: flex;
     align-items: center;
     gap: 1rem;
+    border-radius: var(--radius-control);
+    cursor: pointer;
+    transition: background-color 150ms ease;
+    user-select: none; // holding shouldn't select the name
+    -webkit-touch-callout: none; // no iOS "copy / look up" popup on hold
+
+    &:hover {
+      background-color: var(--raised); // one step up from the card's --panel
+    }
+
     &__avatar {
       color: var(--text);
       background-color: var(--canvas);
