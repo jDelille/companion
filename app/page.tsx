@@ -1,8 +1,6 @@
-import FrontDeskView from "@/components/operations/front-desk/FrontDeskView";
-import { getMember } from "@/integrations/member";
+import { redirect } from "next/navigation";
 
-
-export default async function Home() {
-  const activeMember = await getMember("m-001"); // Maya Chen, as on slide 12
-  return <FrontDeskView activeMember={activeMember} />;
+// No Today page yet: send "/" to People for now (307, temporary, so it's easy to undo)
+export default function Home() {
+  redirect("/people/m-001");
 }
