@@ -130,7 +130,7 @@ const EditBody = ({ onDone, onCancel, onAskAI }: BodyProps) => (
       <p>✓ Rank valid</p>
     </div>
     <ModalActions
-      confirmLabel="Save"
+      confirmLabel="Save changes"
       askAILabel="Ask AI to prepare edit"
       onConfirm={onDone}
       onCancel={onCancel}
@@ -218,7 +218,7 @@ export const modals: Record<
 > = {
   message: {
     label: "Message",
-    title: "Message Linda Chen",
+    title: "Contact the Chen family",
     description:
       "The recipient and member context stay attached to this sub-view.",
     Body: MessageBody,
