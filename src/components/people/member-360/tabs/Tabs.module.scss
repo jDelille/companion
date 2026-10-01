@@ -1,0 +1,28 @@
+.objectTabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 1rem;
+  border-bottom: 1px solid var(--dark-border);
+  overflow-x: auto; // 10 tabs: scroll sideways on small screens instead of wrapping
+  scrollbar-width: none;
+
+  button {
+    all: unset;
+    padding: 12px 10px;
+    border-bottom: 2px solid transparent; // same height as the active tab, so nothing shifts
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+
+  .isActive {
+    color: var(--text);
+    border-bottom-color: var(--brand);
+  }
+}
