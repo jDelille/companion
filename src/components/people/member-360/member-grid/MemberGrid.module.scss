@@ -1,10 +1,15 @@
 .memberGrid {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr; // narrow: stacked
   gap: 1rem;
   padding: 1rem 2rem;
+
+  @container (width >= 720px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); // side by side
+  }
+
   article {
     background-color: var(--raised);
-    flex: 1;
     border-radius: 12px;
     border: 1px solid var(--line);
     padding: 1rem;

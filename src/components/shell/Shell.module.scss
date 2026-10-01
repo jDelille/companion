@@ -67,10 +67,16 @@
   .workspaceSlot {
     display: flex;
     flex-direction: column;
-    flex: 1;
+    flex: 1; // fills what's left: beside the panes on desktop, above the bottom nav on phones
     min-width: 0;
     min-height: 0;
-    height: 100%;
+  }
+
+  // The page content scrolls here, so tall pages stay inside the shell
+  .workspaceBody {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   // Expanded only: the open Companion shares the space instead of covering it

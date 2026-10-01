@@ -12,6 +12,7 @@
       height: 100%;
       padding: 0 1rem;
       list-style: none;
+      height: 49px;
     }
 
     .tab {
@@ -24,7 +25,7 @@
       border: 1px solid transparent; // same box size as the active tab, so nothing shifts
       border-bottom: none;
       border-radius: var(--radius-control) var(--radius-control) 0 0;
-
+      
       button {
         all: unset;
         cursor: pointer;
