@@ -1,9 +1,70 @@
-@use '../../../../styles/breakpoints' as bp;
+@use "../../../../styles/breakpoints" as bp;
 
 .workspace {
   &__tabs {
     border-bottom: 1px solid var(--dark-border);
-    height: 65px;
+    height: 50px;
+
+    ul {
+      display: flex;
+      align-items: stretch; // tabs fill the bar, so all tab text lines up near its center
+      gap: 1rem;
+      height: 100%;
+      padding: 0 1rem;
+      list-style: none;
+    }
+
+    .tab {
+      display: flex;
+      align-items: center;
+      margin-top: 7px; // small gap above the active tab's background
+      padding: 0 1rem;
+      color: var(--text-secondary);
+      font-size: 12px;
+      border: 1px solid transparent; // same box size as the active tab, so nothing shifts
+      border-bottom: none;
+      border-radius: var(--radius-control) var(--radius-control) 0 0;
+
+      button {
+        all: unset;
+        cursor: pointer;
+
+        &:disabled {
+          cursor: default;
+        }
+      }
+
+      .tabClose {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 16px;
+        height: 16px;
+        margin-left: 6px;
+        border-radius: 4px;
+        font-size: 9px;
+        color: var(--muted);
+        display: none;
+
+        &:hover {
+          color: var(--text);
+          background: var(--raised);
+        }
+      }
+
+      &:hover {
+        color: var(--text);
+      }
+    }
+
+    .active {
+      color: var(--text);
+      background: var(--raised);
+      border-color: var(--line);
+      margin-bottom: -1px; // covers the bar's bottom border
+      padding-bottom: 1px;
+      border-bottom: 1px solid var(--line);
+    }
   }
 }
 
@@ -24,7 +85,7 @@
       align-items: center;
       justify-content: center;
       align-self: flex-start;
-      
+
       height: 40px;
       // border: 1px solid var(--line);
       border: none;

@@ -1,12 +1,47 @@
 // Today, Maya Chen, September test
+"use client";
 
-import React from 'react'
-import styles from './Workspace.module.scss';
+import React, { useState } from "react";
+import styles from "./Workspace.module.scss";
 
 const WorkspaceTabs = () => {
-  return (
-    <div className={styles.workspace__tabs}>WorkspaceTabs</div>
-  )
-}
+  const [activeTab, setActiveTab] = useState("Today");
 
-export default WorkspaceTabs
+  const [tabs, setTabs] = useState(["Today", "Maya Chen", "September Test"]);
+
+  const closeTab = (tab: string) => setTabs((t) => t.filter((x) => x !== tab));
+
+  // Only Today has a view to switch to for now
+  const clickable = (tab: string) => tab === "Today";
+
+  return (
+    <div className={styles.workspace__tabs}>
+      <ul>
+        {tabs.map((tab) => (
+          <li
+            key={tab}
+            className={`${styles.tab} ${activeTab === tab ? styles.active : ""}`}
+          >
+            <button
+              onClick={() => setActiveTab(tab)}
+              disabled={!clickable(tab)}
+            >
+              {tab}
+            </button>
+            {activeTab !== tab && (
+              <button
+                className={styles.tabClose}
+                onClick={() => closeTab(tab)}
+                aria-label={`Close ${tab}`}
+              >
+                ✕
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default WorkspaceTabs;
