@@ -1,35 +1,27 @@
 // left nav column
 
-import styles from './Rail.module.scss';
-import RailItem from './RailItem';
+"use client";
 
-const Rail = () => {
-  
-  const linkItems = [
-    {id: 1, abbrv: "TO", label: "Today"},
-    {id: 2, abbrv: "PE", label: "People"},
-    {id: 3, abbrv: "OP", label: "Ops"},
-    {id: 4, abbrv: "MA", label: "MA"},
-    {id: 5, abbrv: "RE", label: "Revenue"},
-    {id: 6, abbrv: "EN", label: "Engage"},
-    {id: 7, abbrv: "IN", label: "Intel"},
-    {id: 8, abbrv: "PL", label: "Platform"}
-  ]
+import { usePathname } from "next/navigation";
+import { navItems } from "../navItems";
+import RailItem from "./RailItem";
+import styles from "./Rail.module.scss";
+
+export default function Rail() {
+  const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <div className={styles.rail}>
-      <div className={styles.rail__logo}></div>
+    <nav className={styles.rail} aria-label="Main">
+      <div className={styles.rail__logo} />
       <ul className={styles.rail__links}>
-        {linkItems.map((item, index) => (
-          <RailItem key={item.id} item={item} isActive={index == 2}/>
+        {navItems.map((item) => (
+          <RailItem key={item.id} item={item} isActive={isActive(item.href)} />
         ))}
       </ul>
-
-      <div className={styles.rail__user}>
-        <p>MK</p>
-      </div>
-    </div>
-  )
+      <div className={styles.rail__user}>MK</div>
+    </nav>
+  );
 }
-
-export default Rail

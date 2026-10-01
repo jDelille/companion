@@ -30,7 +30,7 @@ const MemberCard = ({ member }: Props) => {
               {member.rank.name} · {member.householdName}
             </p>
           </div>
-          <div className={styles.status}>{member.membershipState}</div>
+          <div className={styles.status}>{member.membershipState} </div>
         </div>
       </div>
 

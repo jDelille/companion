@@ -1,5 +1,5 @@
 .rail {
-  width: 100px;
+  width: 80px;
   height: 100vh;
   background: var(--canvas);
   border-right: 1px solid var(--dark-border);
@@ -37,15 +37,16 @@
       padding: 7px 5px;
       border-radius: 8px;
       cursor: pointer;
+      text-decoration: none;
 
       &:hover {
-        background-color: var(--line);
+        background-color: #1e1e26;
         color: var(--text);
       }
 
 
       span {
-        font-size: 13px;
+        font-size: 12px;
       }
 
       p {
