@@ -1,0 +1,62 @@
+.row {
+  all: unset;
+  box-sizing: border-box; // all: unset resets this to content-box
+  display: grid;
+  grid-template-columns: 8rem 1fr auto; // time | name + duration | capacity
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  min-height: var(--touch-height);
+  padding: 1.75rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  color: var(--text);
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    background: var(--raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: -2px;
+  }
+}
+
+.time {
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.period {
+  margin-left: 0.35rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0; 
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.duration {
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.capacity {
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}

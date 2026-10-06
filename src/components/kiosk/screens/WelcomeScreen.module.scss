@@ -1,7 +1,5 @@
 .screen {
-  height: 100vh;
-  width: 1215px;
-  margin: 0 auto;
+  flex: 1; // fills the shell's column; width comes from the shell
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -38,8 +36,8 @@
   .tertiaryActions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    width: 25%;
+    justify-content: center;
+    gap: 2.5rem; // fixed spacing, so it doesn't collapse in the narrower column
     margin: 0 auto;
     margin-top: 3rem;
 

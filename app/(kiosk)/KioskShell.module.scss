@@ -8,8 +8,13 @@
   container-name: kiosk;
 }
 
+// The one centered column every screen lives in, so screens never set their own width
 .main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: var(--kiosk-column-width);
+  margin: 0 auto;
+  padding: 0 16px;
 }

@@ -61,6 +61,7 @@ Unattended public mode. Large targets. No public debt or balance. No member edit
 
 ## Layout (§22, §48, §49)
 - Build portrait/compact first. Landscape after the full flow works in portrait.
+- Screens never set their own width. The kiosk shell (`app/(kiosk)/KioskShell.module.scss`) owns one centered column, sized by `--kiosk-column-width` in `app/(kiosk)/kiosk.scss`. Every portrait screen inherits it.
 - Portrait/compact: one task at a time; secondary info in a Tray or Dialog.
 - Landscape/expanded: two regions: CHECK IN (left) and TODAY session list (right). Tapping a session in TODAY selects it; identify controls stay locked until a session is selected.
 - Use container queries (breakpoints ~540px and ~960px), not device media queries.

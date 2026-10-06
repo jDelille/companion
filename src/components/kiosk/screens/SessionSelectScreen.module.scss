@@ -1,0 +1,151 @@
+.screen {
+  padding: 2rem 0; // width comes from the shell
+  display: flex;
+  flex-direction: column;
+
+  .topBar {
+    display: flex;
+    align-items: center;
+    min-height: var(
+      --touch-height
+    ); // keeps the layout still when Back is hidden
+  }
+
+  .heading {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    h1 {
+      font-size: 3rem;
+    }
+  }
+
+  .today {
+    margin-top: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .message {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 3rem 0;
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+  }
+
+  // Loading placeholders, same size and layout as SessionRow
+  .skeletonRow {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.75rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  .skeletonTime,
+  .skeletonTitle,
+  .skeletonDuration {
+    display: block;
+    border-radius: var(--radius-control);
+    background: var(--raised);
+  }
+
+  .skeletonTime {
+    width: 5rem;
+    height: 1.75rem;
+  }
+
+  .skeletonDetails {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3.4rem; // same height as a real row's name + duration, so nothing jumps on load
+  }
+
+  .skeletonTitle {
+    width: 40%;
+    height: 1.25rem;
+  }
+
+  .skeletonDuration {
+    width: 15%;
+    height: 0.9rem;
+  }
+}
+
+// Subtle pulse is allowed by the motion rules. Off for people who ask for less motion.
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen .skeletonRow {
+    animation: none;
+  }
+}
+
+// Read by screen readers, not shown on screen
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.messageActions {
+  display: flex;
+  gap: 1rem;
+}
+
+// Plain secondary button (Back, Try again)
+.button {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-height);
+  padding: 0 1.25rem;
+  // border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  font-size: 1rem;
+  color: var(--text);
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    background: var(--raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
+}

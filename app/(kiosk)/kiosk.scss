@@ -2,6 +2,12 @@
 // but not the Companion's globals (reset, body layout).
 @use "../../styles/variables";
 
+// Kiosk-only layout token. Every portrait screen sits in one centered column this wide.
+// Landscape (Check In left, Today right) will get its own layout later.
+:root {
+  --kiosk-column-width: 600px;
+}
+
 * {
   margin: 0;
   padding: 0;
