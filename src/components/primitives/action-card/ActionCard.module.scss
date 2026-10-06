@@ -1,0 +1,71 @@
+.card {
+  all: unset;
+  box-sizing: border-box; // all: unset resets this to content-box
+  position: relative; // so .arrow is placed inside the card
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  color: var(--text);
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    color: var(--muted);
+
+    .description {
+      color: var(--muted);
+    }
+  }
+}
+
+.label {
+  font-weight: 600;
+}
+
+.description {
+  color: var(--text-secondary);
+}
+
+.arrow {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%); // centers it vertically
+}
+
+// Sizes
+
+.large {
+  height: 164px;
+  gap: 0.75rem;
+
+  .label {
+    font-size: 26px;
+  }
+  .description {
+    font-size: 16px;
+  }
+  .arrow {
+    font-size: 2rem;
+  }
+}
+
+.normal {
+  height: 130px;
+  gap: 0.75rem;
+
+  .label {
+    font-size: 22px;
+    font-weight: 500;
+  }
+  .description {
+    font-size: 14px;
+  }
+  .arrow {
+    font-size: 1.5rem;
+  }
+}
