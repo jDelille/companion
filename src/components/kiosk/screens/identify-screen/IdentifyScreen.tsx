@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import type { RosterMember, SessionOption } from "@/contracts/kiosk-attendance";
 import MemberMatch from "@/components/kiosk/member-match/MemberMatch";
 import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
@@ -32,6 +35,16 @@ const IdentifyScreen = ({
   onChangeSession,
   onBack,
 }: Props) => {
+  const searchField = useRef<HTMLInputElement>(null);
+  const canSearch = rosterStatus !== "unavailable";
+
+  // Put the cursor in the field whenever it's usable: on arrival, and again
+  // after Try again recovers, so nobody has to tap it first. Focusing also
+  // opens the on-screen keyboard, which is what this screen is for.
+  useEffect(() => {
+    if (canSearch) searchField.current?.focus();
+  }, [canSearch]);
+
   return (
     <div className={styles.screen}>
       <div className={styles.topBar}>
@@ -45,15 +58,14 @@ const IdentifyScreen = ({
       </h1>
 
       <input
+        ref={searchField}
         className={styles.search}
         type="text"
         value={query}
         onChange={(event) => onQueryChange(event.target.value)}
         placeholder="Start typing your first name"
         aria-labelledby="find-your-name"
-        disabled={rosterStatus === "unavailable"}
-        // Opens the on-screen keyboard straight away: this screen has one job
-        autoFocus
+        disabled={!canSearch}
         autoComplete="off"
         autoCorrect="off"
         autoCapitalize="off"
