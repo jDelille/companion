@@ -8,21 +8,6 @@
   container-name: kiosk;
 }
 
-.topBar {
-  display: flex;
-  align-items: center;
-  min-height: var(--touch-height);
-  padding: 0 24px;
-  background: var(--panel);
-  border-bottom: 1px solid var(--line);
-}
-
-.schoolName {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text);
-}
-
 .main {
   flex: 1;
   display: flex;

@@ -1,6 +1,6 @@
 // Kiosk-only base styles. Shares the token variables with the Companion,
 // but not the Companion's globals (reset, body layout).
-@use "../../../styles/variables";
+@use "../../styles/variables";
 
 * {
   margin: 0;
