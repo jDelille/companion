@@ -1,5 +1,5 @@
 import React from "react";
-import Greeting from "@/components/kiosk/Greeting";
+import Greeting from "@/components/kiosk/greeting/Greeting";
 import ActionCard from "@/components/primitives/action-card/ActionCard";
 import type { SecondaryAction } from "@/domain/kiosk/kioskConfig";
 import styles from "./WelcomeScreen.module.scss";

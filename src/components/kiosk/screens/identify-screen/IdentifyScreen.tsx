@@ -1,7 +1,7 @@
 import type { RosterMember, SessionOption } from "@/contracts/kiosk-attendance";
-import MemberMatch from "@/components/kiosk/MemberMatch";
-import SessionHeader from "@/components/kiosk/SessionHeader";
-import StatusMessage from "@/components/kiosk/StatusMessage";
+import MemberMatch from "@/components/kiosk/member-match/MemberMatch";
+import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
+import StatusMessage from "@/components/kiosk/status-message/StatusMessage";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { RosterLoad } from "@/domain/kiosk/checkInFlow";
 import type { RosterSearch } from "@/domain/kiosk/rosterSearch";

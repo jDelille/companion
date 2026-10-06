@@ -1,6 +1,6 @@
 import type { SessionOption } from "@/contracts/kiosk-attendance";
-import SessionRow from "@/components/kiosk/SessionRow";
-import StatusMessage from "@/components/kiosk/StatusMessage";
+import SessionRow from "@/components/kiosk/session-row/SessionRow";
+import StatusMessage from "@/components/kiosk/status-message/StatusMessage";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { SessionsLoad } from "@/domain/kiosk/checkInFlow";
 import styles from "./SessionSelectScreen.module.scss";

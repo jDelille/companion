@@ -1,9 +1,9 @@
 "use client";
 
 import { startTransition, useEffect, useReducer } from "react";
-import IdentifyScreen from "@/components/kiosk/screens/IdentifyScreen";
-import SessionSelectScreen from "@/components/kiosk/screens/SessionSelectScreen";
-import WelcomeScreen from "@/components/kiosk/screens/WelcomeScreen";
+import IdentifyScreen from "@/components/kiosk/screens/identify-screen/IdentifyScreen";
+import SessionSelectScreen from "@/components/kiosk/screens/session-select-screen/SessionSelectScreen";
+import WelcomeScreen from "@/components/kiosk/screens/welcome-screen/WelcomeScreen";
 import {
   checkInFlowReducer,
   initialCheckInFlow,
