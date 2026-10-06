@@ -1,0 +1,44 @@
+.match {
+  all: unset;
+  box-sizing: border-box; // all: unset resets this to content-box
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  min-height: var(--touch-height);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  color: var(--text);
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    background: var(--raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: -2px;
+  }
+}
+
+// Neutral circle: no brand red, it isn't an action on its own
+.initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--interactive);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.name {
+  font-size: 1.25rem;
+  font-weight: 600;
+}

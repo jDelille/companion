@@ -1,0 +1,43 @@
+// Same grid, border and type as SessionRow, so the morph from the row looks like one object
+.header {
+  display: grid;
+  grid-template-columns: 8rem 1fr auto; // time | name + duration | Change class
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  padding: 1.25rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.time {
+  font-size: 24px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.period {
+  margin-left: 0.35rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.duration {
+  font-size: 15px;
+  color: var(--text-secondary);
+}

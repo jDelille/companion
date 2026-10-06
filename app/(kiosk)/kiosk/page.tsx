@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useReducer } from "react";
+import { startTransition, useEffect, useReducer } from "react";
+import IdentifyScreen from "@/components/kiosk/screens/IdentifyScreen";
 import SessionSelectScreen from "@/components/kiosk/screens/SessionSelectScreen";
 import WelcomeScreen from "@/components/kiosk/screens/WelcomeScreen";
 import {
@@ -8,7 +9,8 @@ import {
   initialCheckInFlow,
 } from "@/domain/kiosk/checkInFlow";
 import { SCHOOL_NAME, SECONDARY_ACTIONS } from "@/domain/kiosk/kioskConfig";
-import { getSessions } from "@/integrations/kiosk";
+import { searchRoster } from "@/domain/kiosk/rosterSearch";
+import { getRoster, getSessions } from "@/integrations/kiosk";
 
 export default function KioskPage() {
   const [flow, dispatch] = useReducer(checkInFlowReducer, initialCheckInFlow);
@@ -34,6 +36,32 @@ export default function KioskPage() {
     };
   }, [isLoadingSessions]);
 
+  // Fetch the selected session's roster whenever the identify step is loading
+  const rosterSessionId =
+    flow.step === "identify" && flow.roster.status === "loading"
+      ? flow.session.sessionId
+      : null;
+
+  useEffect(() => {
+    if (!rosterSessionId) return;
+
+    // Same late-response guard as sessions. The reducer also checks the sessionId.
+    let cancelled = false;
+    getRoster(rosterSessionId)
+      .then((roster) => {
+        if (!cancelled) {
+          dispatch({ type: "rosterLoaded", sessionId: rosterSessionId, roster });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) dispatch({ type: "rosterFailed", sessionId: rosterSessionId });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [rosterSessionId]);
+
   if (flow.step === "welcome") {
     return (
       <WelcomeScreen
@@ -48,16 +76,44 @@ export default function KioskPage() {
     return (
       <SessionSelectScreen
         sessions={flow.sessions}
-        onSelect={(session) => dispatch({ type: "selectSession", session })}
+        // startTransition lets the picked row morph into the K03 header
+        onSelect={(session) =>
+          startTransition(() => dispatch({ type: "selectSession", session }))
+        }
         onRetry={() => dispatch({ type: "retrySessions" })}
         onBack={() => dispatch({ type: "back" })}
       />
     );
   }
 
-  // TODO: IdentifyScreen (K03). Placeholder so you can see the picked session arrive.
   if (flow.step === "identify") {
-    return <p>Identify: {flow.session.title}</p>;
+    const search =
+      flow.roster.status === "ready"
+        ? searchRoster(flow.roster.list, flow.query)
+        : ({ status: "tooShort" } as const);
+
+    return (
+      <IdentifyScreen
+        session={flow.session}
+        rosterStatus={flow.roster.status}
+        query={flow.query}
+        search={search}
+        onQueryChange={(query) => dispatch({ type: "searchChanged", query })}
+        onSelectMember={(member) => dispatch({ type: "selectMember", member })}
+        onRetry={() => dispatch({ type: "retryRoster" })}
+        onChangeSession={() => dispatch({ type: "changeSession" })}
+        onBack={() => dispatch({ type: "back" })}
+      />
+    );
+  }
+
+  // TODO: ConfirmScreen (K05). Placeholder so you can see the session and student arrive.
+  if (flow.step === "confirm") {
+    return (
+      <p>
+        Confirm: {flow.member.displayName} → {flow.session.title}
+      </p>
+    );
   }
 
   return <p>Step: {flow.step}</p>;

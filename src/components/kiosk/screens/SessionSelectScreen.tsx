@@ -1,5 +1,7 @@
 import type { SessionOption } from "@/contracts/kiosk-attendance";
 import SessionRow from "@/components/kiosk/SessionRow";
+import StatusMessage from "@/components/kiosk/StatusMessage";
+import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { SessionsLoad } from "@/domain/kiosk/checkInFlow";
 import styles from "./SessionSelectScreen.module.scss";
 
@@ -22,9 +24,7 @@ const SessionSelectScreen = ({
       {/* When unavailable, Back sits next to Try again instead, so there's only one */}
       <div className={styles.topBar}>
         {sessions.status !== "unavailable" && (
-          <button type="button" className={styles.button} onClick={onBack}>
-            ← Back
-          </button>
+          <PlainButton onClick={onBack}>← Back</PlainButton>
         )}
       </div>
 
@@ -56,23 +56,20 @@ const SessionSelectScreen = ({
       )}
 
       {sessions.status === "unavailable" && (
-        <div className={styles.message} role="status">
-          <p>Classes can&apos;t be loaded right now.</p>
-          <div className={styles.messageActions}>
-            <button type="button" className={styles.button} onClick={onRetry}>
-              Try again
-            </button>
-            <button type="button" className={styles.button} onClick={onBack}>
-              Back
-            </button>
-          </div>
-        </div>
+        <StatusMessage
+          message="Classes can't be loaded right now."
+          actions={[
+            { label: "Try again", onClick: onRetry },
+            { label: "Back", onClick: onBack },
+          ]}
+        />
       )}
 
       {sessions.status === "ready" && sessions.list.length === 0 && (
-        <p className={styles.message} role="status">
-          No classes today.
-        </p>
+        <StatusMessage
+          message="No classes today."
+          detail="Please see the front desk."
+        />
       )}
 
       {sessions.status === "ready" && sessions.list.length > 0 && (

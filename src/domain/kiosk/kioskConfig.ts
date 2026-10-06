@@ -35,18 +35,20 @@ export const SECONDARY_ACTIONS: SecondaryAction[] = [
     shown: true,
     available: false,
   },
+  // Hidden until they exist: the handoff (K01) says Testing / Schedule / Staff only "where enabled".
+  // Classes and Events don't have that qualifier, so they stay as disabled cards.
   {
     id: "testing",
     label: "Testing",
     prominence: "text",
-    shown: true,
+    shown: false,
     available: false,
   },
   {
     id: "schedule",
     label: "Schedule",
     prominence: "text",
-    shown: true,
+    shown: false,
     available: false,
   },
   // Hidden: a Staff entry on a public screen points at a feature that doesn't exist,

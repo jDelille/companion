@@ -30,3 +30,18 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+// Row -> header morph (share="morph" on SessionRow and SessionHeader).
+// Short and direct, as the motion rules ask.
+::view-transition-group(.morph) {
+  animation-duration: 350ms;
+}
+
+// No morphs, fades or slides for people who ask for less motion: content just swaps
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
