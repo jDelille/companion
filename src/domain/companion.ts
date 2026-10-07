@@ -37,7 +37,7 @@ export type CompanionContext = {
 // Which page the Companion is looking at. Results always go back to the
 // page they started on, never to whatever page is open when they arrive.
 export type CompanionView = {
-  key: string;             // "front-desk" or "member:m-001"
+  key: string;             // "front-desk" or "member:5001"
   memberId: string | null; // null on the front desk
 };
 

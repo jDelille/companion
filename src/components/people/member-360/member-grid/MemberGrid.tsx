@@ -1,24 +1,64 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useSyncExternalStore } from "react";
+import type { MemberAttendance } from "@/domain/member";
 import Modal from "@/components/primitives/modal/Modal";
 import { modals, ModalType } from "@/components/people/member-card/memberModals";
 import styles from "./MemberGrid.module.scss";
 
-type Stat = { label: string; value: string };
+type Stat = { label: string; value: React.ReactNode };
 
-const story: Stat[] = [
-  { label: "Attendance", value: "82%" },
+// Placeholder rows (still Maya's demo data for everyone) until those have a source
+const storyPlaceholders: Stat[] = [
   { label: "Classes", value: "48" },
   { label: "Current rank", value: "Blue" },
   { label: "Join date", value: "Jan 2025" },
 ];
 
-const recent: Stat[] = [
-  { label: "Today", value: "Checked in" },
+const recentPlaceholders: Stat[] = [
   { label: "Aug 31", value: "Evaluation completed" },
   { label: "Aug 25", value: "Payment successful" },
 ];
+
+const noSubscription = () => () => {};
+
+// "Oct 7, 5:47 PM" in the viewer's time zone. Formatted in the browser only:
+// the server renders this page first and its time zone may not be the viewer's.
+const LocalTime = ({ iso }: { iso: string }) => {
+  const text = useSyncExternalStore(
+    noSubscription,
+    () =>
+      new Date(iso).toLocaleString([], {
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+    () => "",
+  );
+  return <time dateTime={iso}>{text}</time>;
+};
+
+// The real attendance rows, from the same store the kiosk writes to
+const attendanceStory = (attendance: MemberAttendance): Stat => {
+  return { label: "Check-ins (7 days)", value: String(attendance.lastSevenDays) };
+};
+
+const lastCheckIn = (attendance: MemberAttendance): Stat => {
+  const latest = attendance.latest;
+  if (!latest) {
+    return { label: "Last check-in", value: "No check-ins yet" };
+  }
+  return {
+    label: "Last check-in",
+    value: (
+      <>
+        {latest.sessionTitle} · <LocalTime iso={latest.checkedInAt} />
+        {latest.late && " · Late"}
+      </>
+    ),
+  };
+};
 
 const training: Stat[] = [
   { label: "Program", value: "Children Advanced" },
@@ -60,9 +100,16 @@ const StatList = ({ stats, variant = "rows", onEdit }: StatListProps) => (
   </ul>
 );
 
-const MemberGrid = () => {
+type Props = {
+  attendance: MemberAttendance;
+};
+
+const MemberGrid = ({ attendance }: Props) => {
   const [open, setOpen] = useState<ModalType | null>(null);
   const current = open ? modals[open] : null;
+
+  const story = [attendanceStory(attendance), ...storyPlaceholders];
+  const recent = [lastCheckIn(attendance), ...recentPlaceholders];
 
   return (
     <div className={styles.memberGrid}>

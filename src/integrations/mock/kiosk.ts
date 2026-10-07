@@ -3,9 +3,11 @@ import type {
   RosterMember,
   SessionOption,
 } from "@/contracts/kiosk-attendance";
+import { mockMembers } from "./members";
 
 // Fake data for the kiosk, using Jodi's contract types.
-// Kept separate from the companion's mockMembers since those don't fit the contract.
+// Companion members (./members.ts) are on these rosters too, so a kiosk
+// check-in shows up on their Member360. The other students are kiosk-only.
 
 type SessionSeed = {
   sessionId: RecordId;
@@ -31,7 +33,7 @@ const sessionSeeds: SessionSeed[] = [
     startTime: "17:00",
     endTime: "18:00",
     version: 3,
-    capacity: 24,
+    capacity: 25, // one under full, now that Alex is on it too
   },
   {
     sessionId: "103",
@@ -40,6 +42,15 @@ const sessionSeeds: SessionSeed[] = [
     endTime: "19:30",
     version: 2,
     capacity: 20,
+  },
+  // Maya's class in the Companion story ("Master Kim's 5:45 Children Advanced")
+  {
+    sessionId: "104",
+    title: "Children Advanced",
+    startTime: "17:45",
+    endTime: "18:45",
+    version: 1,
+    capacity: 16,
   },
 ];
 
@@ -56,6 +67,24 @@ const student = (
   };
 };
 
+// "Maya Chen" -> "Maya C.", the minimum a public kiosk shows
+const shortName = (fullName: string) => {
+  const parts = fullName.split(" ");
+  const firstName = parts[0];
+  const lastName = parts[parts.length - 1];
+  if (parts.length < 2) return firstName;
+  return `${firstName} ${lastName[0]}.`;
+};
+
+// A Companion member on a roster, looked up by id so there's only one copy of them
+const companionStudent = (memberId: RecordId): RosterMember => {
+  const member = mockMembers.find((candidate) => candidate.id === memberId);
+  if (!member) {
+    throw new Error(`No Companion member ${memberId} in members.ts`);
+  }
+  return student(member.id, shortName(member.name));
+};
+
 // Jamie is on both 101 and 103 so we can check rosters really are per session
 const jamie = student("3001", "Jamie H.");
 
@@ -68,6 +97,7 @@ export const rosterSeeds: Record<RecordId, RosterMember[]> = {
     student("1005", "Max G."),
     student("1006", "Rosa H."),
     jamie,
+    companionStudent("5003"), // Jordan Parker, trial
   ],
   // Almost full, and has all the edge cases
   "102": [
@@ -94,6 +124,7 @@ export const rosterSeeds: Record<RecordId, RosterMember[]> = {
     student("2021", "Ryan R."),
     student("2022", "Sofia V."),
     student("2023", "Theo W."),
+    companionStudent("5002"), // Alex Rivera
   ],
   "103": [
     jamie,
@@ -105,6 +136,11 @@ export const rosterSeeds: Record<RecordId, RosterMember[]> = {
     student("3007", "Felix T."),
     student("3008", "Hana Y."),
     student("3009", "Marco Z."),
+    companionStudent("5004"), // Lena Soto
+    companionStudent("5006"), // Sam Kim
+  ],
+  "104": [
+    companionStudent("5001"), // Maya Chen
   ],
 };
 

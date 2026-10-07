@@ -2,10 +2,15 @@ import type { Member } from "@/domain/member";
 
 const TENANT = "demo-downtown";
 
+// The one list of people for both the Companion and the kiosk. Ids are numeric
+// because Jodi's contract only accepts Odoo-style record ids (buildCheckIn checks).
+// 5xxx so they don't clash with the kiosk-only students (1xxx-3xxx).
+// The kiosk rosters in ./kiosk.ts are built from this list.
+
 export const mockMembers: Member[] = [
   {
     tenantId: TENANT,
-    id: "m-001",
+    id: "5001",
     memberNumber: "D-1042",
     name: "Maya Chen",
     membershipState: "active",
@@ -17,7 +22,7 @@ export const mockMembers: Member[] = [
   },
   {
     tenantId: TENANT,
-    id: "m-002",
+    id: "5002",
     memberNumber: "D-1043",
     name: "Alex Rivera",
     membershipState: "active",
@@ -29,7 +34,7 @@ export const mockMembers: Member[] = [
   },
   {
     tenantId: TENANT,
-    id: "m-003",
+    id: "5003",
     memberNumber: "D-1044",
     name: "Jordan Parker",
     membershipState: "trial",
@@ -39,7 +44,7 @@ export const mockMembers: Member[] = [
   },
   {
     tenantId: TENANT,
-    id: "m-004",
+    id: "5004",
     memberNumber: "D-1045",
     name: "Lena Soto",
     membershipState: "active",
@@ -50,7 +55,7 @@ export const mockMembers: Member[] = [
   },
   {
     tenantId: TENANT,
-    id: "m-005",
+    id: "5005",
     memberNumber: "D-1046",
     name: "Theo Nguyen",
     membershipState: "paused",
@@ -60,7 +65,7 @@ export const mockMembers: Member[] = [
   },
   {
     tenantId: TENANT,
-    id: "m-006",
+    id: "5006",
     memberNumber: "D-1047",
     name: "Sam Kim",
     membershipState: "active",
@@ -71,7 +76,7 @@ export const mockMembers: Member[] = [
   },
   {
     tenantId: TENANT,
-    id: "m-007",
+    id: "5007",
     memberNumber: "D-1048",
     name: "Riley Lee",
     membershipState: "lead",
@@ -80,7 +85,7 @@ export const mockMembers: Member[] = [
   },
   {
     tenantId: TENANT,
-    id: "m-008",
+    id: "5008",
     memberNumber: "D-1049",
     name: "Casey Chen",
     membershipState: "cancelled",

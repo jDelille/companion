@@ -44,7 +44,7 @@ const ContextPane = ({ children }: Props) => {
         ))}
 
         <p className={styles.label}>Selected</p>
-        <Link href="/people/m-001" className={`${styles.item} ${styles.active}`}>
+        <Link href="/people/5001" className={`${styles.item} ${styles.active}`}>
           <div className={styles.avatar}>MC</div>
           <div className={styles.info}>
             <p>Maya Chen</p>

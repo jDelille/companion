@@ -17,3 +17,17 @@ export type Member = {
   testReadiness?: number;      // 0–100, computed from belt tests later
   attendanceRate: number;      // 0–1
 };
+
+// One attended class, as Member360 shows it
+export type CheckIn = {
+  sessionTitle: string;        // "Children Advanced"
+  checkedInAt: string;         // ISO time; the browser formats it
+  late: boolean;
+};
+
+// PROVISIONAL: what Member360 knows about attendance until Jodi's API has a
+// per-member read. No attendance % on purpose: nobody has defined it yet.
+export type MemberAttendance = {
+  latest: CheckIn | null;      // null = no check-ins yet
+  lastSevenDays: number;       // rolling 7 days, so it doesn't depend on a time zone
+};

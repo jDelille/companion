@@ -58,7 +58,7 @@ const frontDesk: CompanionContext = {
 };
 
 const members: Record<string, CompanionContext> = {
-  "m-001": {
+  "5001": {
     suggestions: [],
     intel: [
       { label: "Engagement", value: "Healthy" },

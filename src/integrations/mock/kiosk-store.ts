@@ -80,6 +80,21 @@ export function findSession(sessionId: RecordId): SessionOption | undefined {
   return todaysSessions().find((session) => session.sessionId === sessionId);
 }
 
+// Every check-in receipt for one member, newest first. Member360 reads this,
+// so a kiosk check-in shows up there straight away.
+export function getMemberCheckIns(memberId: RecordId): AttendanceReceipt[] {
+  const { receipts } = getStore();
+  const checkIns: AttendanceReceipt[] = [];
+  for (const receipt of receipts.values()) {
+    if (receipt.memberId === memberId) {
+      checkIns.push(receipt);
+    }
+  }
+  return checkIns.sort(
+    (first, second) => Date.parse(second.checkedInAt) - Date.parse(first.checkedInAt),
+  );
+}
+
 // Roster with current attendance. undefined if the session doesn't exist
 export function getRoster(sessionId: RecordId): RosterMember[] | undefined {
   const roster = rosterSeeds[sessionId];

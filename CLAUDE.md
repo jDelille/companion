@@ -23,7 +23,7 @@ Rules for all work under the kiosk section of this app. Follow them exactly. If 
   - `POST /api/v2/attendance/check-ins`: the check-in command
 - Mock internals live in `src/integrations/mock/` (kiosk.ts, kiosk-store.ts, kiosk-scenario.ts, kiosk-http.ts). Do not add to them unless asked.
 - Screens get data ONLY through `src/integrations/kiosk.ts`, which calls the routes above. Screens never import mock files.
-- Kiosk mock members are intentionally separate from the Companion's members.ts. They will be merged later.
+- Companion members (`src/integrations/mock/members.ts`, numeric ids 5xxx) are on the kiosk rosters too, so a kiosk check-in shows on their Member360 (read via `getMemberAttendance` in `src/integrations/member.ts`). Kiosk-only students (1xxx–3xxx) stay in `kiosk.ts`. Member ids must stay numeric: Jodi's `buildCheckIn` rejects anything else.
 
 ## Architecture
 - One page renders the whole flow: `app/(kiosk)/kiosk/page.tsx`. No route per screen (privacy: no URL history to restore a previous attendee).

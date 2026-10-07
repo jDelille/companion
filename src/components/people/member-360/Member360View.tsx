@@ -1,4 +1,4 @@
-import { Member } from "@/domain/member";
+import { Member, MemberAttendance } from "@/domain/member";
 import styles from "./Member360View.module.scss";
 import Identity from "./identity/Identity";
 import Tabs from "./tabs/Tabs";
@@ -6,9 +6,10 @@ import MemberGrid from "./member-grid/MemberGrid";
 
 type Props = {
   member: Member;
+  attendance: MemberAttendance;
 };
 
-const Member360View = ({ member }: Props) => {
+const Member360View = ({ member, attendance }: Props) => {
 
   // console.log(member)
 
@@ -17,7 +18,7 @@ const Member360View = ({ member }: Props) => {
       <Identity member={member}/>
       <Tabs />
 
-      <MemberGrid />
+      <MemberGrid attendance={attendance} />
 
     
     </article>
