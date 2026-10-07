@@ -6,7 +6,7 @@ import styles from "./SessionHeader.module.scss";
 
 type Props = {
   session: SessionOption;
-  onChangeSession: () => void;
+  onChangeSession?: () => void; // leave out to hide Change class (Result screen)
   changeDisabled?: boolean; // locked while a check-in is sending
 };
 
@@ -35,9 +35,11 @@ const SessionHeader = ({
           <span className={styles.duration}>{duration}</span>
         </span>
 
-        <PlainButton onClick={onChangeSession} disabled={changeDisabled}>
-          Change class
-        </PlainButton>
+        {onChangeSession && (
+          <PlainButton onClick={onChangeSession} disabled={changeDisabled}>
+            Change class
+          </PlainButton>
+        )}
       </header>
     </ViewTransition>
   );

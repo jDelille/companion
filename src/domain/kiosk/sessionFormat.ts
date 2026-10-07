@@ -34,3 +34,11 @@ export function formatDuration(startsAt: string, endsAt: string) {
   }
   return `${hours} hr ${minutes} min`;
 }
+
+// "2026-10-06T21:58:00Z" -> "4:58 PM" in the kiosk's own locale
+export function formatClockTime(isoTime: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(isoTime));
+}

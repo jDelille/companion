@@ -1,0 +1,71 @@
+// Width comes from the shell, like every kiosk screen.
+// No top bar: the Result screen has no Back.
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 0;
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.headline {
+  font-size: 2.25rem;
+}
+
+// Label on the left, value on the right (same style as Confirm's summary)
+.details {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.25rem;
+
+  & + & {
+    border-top: 1px solid var(--line);
+  }
+
+  dt {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  dd {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: right;
+  }
+}
+
+// Small neutral tag, e.g. "Late"
+.tag {
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-control);
+  background: var(--interactive);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+}

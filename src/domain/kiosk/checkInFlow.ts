@@ -82,6 +82,8 @@ export type CheckInFlowAction =
       correlationId: string; // which request this answer belongs to
       outcome: CheckInOutcome;
     }
+  | { type: "retryCheckIn" } // Try again after "not confirmed": resends the same command
+  | { type: "done" } // Done on the result screen: back to a clean Welcome
   | { type: "back" };
 
 export const initialCheckInFlow: CheckInFlowState = { step: "welcome" };
@@ -171,8 +173,34 @@ export function checkInFlowReducer(
     case "changeSession":
       // Changing the class drops the student and anything decided about them.
       // Not while sending: the request is in flight and the screen locks.
-      if (state.step !== "identify" && state.step !== "confirm") return state;
+      // From the result screen this is "Choose a class".
+      if (
+        state.step !== "identify" &&
+        state.step !== "confirm" &&
+        state.step !== "result"
+      ) {
+        return state;
+      }
       return backToSessionList();
+
+    case "retryCheckIn":
+      // Same command, same idempotency key: if the first attempt was saved after
+      // all, the server hands back that receipt instead of recording it twice
+      if (state.step !== "result" || state.outcome.kind !== "notConfirmed") {
+        return state;
+      }
+      if (!state.command) return state;
+      return {
+        step: "sending",
+        session: state.session,
+        member: state.member,
+        command: state.command,
+      };
+
+    case "done":
+      // Full reset: session, student, search text and result all go
+      if (state.step !== "result") return state;
+      return initialCheckInFlow;
 
     case "submitCheckIn":
       // Only from Confirm, so a second tap while sending does nothing

@@ -2,6 +2,7 @@
 
 import { startTransition, useEffect, useReducer } from "react";
 import ConfirmScreen from "@/components/kiosk/screens/confirm-screen/ConfirmScreen";
+import ResultScreen from "@/components/kiosk/screens/result-screen/ResultScreen";
 import IdentifyScreen from "@/components/kiosk/screens/identify-screen/IdentifyScreen";
 import SessionSelectScreen from "@/components/kiosk/screens/session-select-screen/SessionSelectScreen";
 import WelcomeScreen from "@/components/kiosk/screens/welcome-screen/WelcomeScreen";
@@ -161,12 +162,16 @@ export default function KioskPage() {
     );
   }
 
-  // TODO: ResultScreen (K06). Placeholder so you can see which outcome came back.
   if (flow.step === "result") {
     return (
-      <p data-outcome={flow.outcome.kind}>
-        Result: {flow.outcome.kind} · {flow.member.displayName} → {flow.session.title}
-      </p>
+      <ResultScreen
+        session={flow.session}
+        member={flow.member}
+        outcome={flow.outcome}
+        onDone={() => dispatch({ type: "done" })}
+        onRetry={() => dispatch({ type: "retryCheckIn" })}
+        onChooseClass={() => dispatch({ type: "changeSession" })}
+      />
     );
   }
 
