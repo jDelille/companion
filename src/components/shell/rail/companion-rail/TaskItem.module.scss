@@ -79,9 +79,19 @@
   }
 
   .working,
-  .done {
+  .done,
+  .failed,
+  .notConfirmed {
     font-size: 12px;
     font-weight: 500;
+  }
+
+  .failed {
+    color: var(--danger);
+  }
+
+  .notConfirmed {
+    color: var(--warning); // unknown, not an error
   }
 
   .working {

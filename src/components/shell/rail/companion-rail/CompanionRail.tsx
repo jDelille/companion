@@ -26,6 +26,15 @@ const CompanionRail = ({ children }: Props) => {
       </div>
 
       <div className={styles.companionRail__state}>
+        {companion.contextStatus === "loading" && (
+          <p className={styles.contextNote}>Loading…</p>
+        )}
+        {companion.contextStatus === "unavailable" && (
+          <p className={styles.contextNote}>
+            Suggestions aren&apos;t available right now.
+          </p>
+        )}
+
         {companion.label && (
           <div className={styles.statusLine}>
             <div className={styles.statusIcon}></div>
@@ -63,7 +72,11 @@ const CompanionRail = ({ children }: Props) => {
         <ReceiptHistory receipts={companion.receipts} />
       </div>
 
-      <AgentComposer onRequest={companion.request} />
+      <AgentComposer
+        status={companion.requestStatus}
+        onRequest={companion.request}
+        onTyping={companion.clearRequestStatus}
+      />
     </div>
   );
 };

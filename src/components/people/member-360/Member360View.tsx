@@ -10,8 +10,7 @@ type Props = {
 
 const Member360View = ({ member }: Props) => {
 
-  console.log(member)
-
+  // console.log(member)
 
   return (
     <article className={styles.member360}>

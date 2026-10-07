@@ -1,12 +1,7 @@
-import { Suggestion } from "@/domain/companion";
+import type { CompanionContext, Suggestion } from "@/domain/companion";
 
-export type CompanionContext = {
-  label?: string;    // ← optional now
-  heading?: string;  // ← optional now
-  suggestions: Suggestion[];
-  intel?: { label: string; value: string }[];
-  featured?: { suggestion: Suggestion; summary: string };
-};
+// Only the mock Companion routes read this file. The rail gets it through
+// src/integrations/companion.ts.
 
 const frontDesk: CompanionContext = {
   label: "Front desk context",
@@ -91,32 +86,56 @@ const members: Record<string, CompanionContext> = {
   },
 };
 
-export function getCompanionContext(pathname: string): CompanionContext {
-  const memberId = pathname.match(/^\/people\/([^/]+)/)?.[1];
-  return (memberId && members[memberId]) || frontDesk;
+// Members without their own context get the front desk, like before
+export function getContextFor(memberId: string | null): CompanionContext {
+  if (memberId && members[memberId]) {
+    return members[memberId];
+  }
+  return frontDesk;
+}
+
+// Tasks the agent can create from a typed or spoken request
+const emailRequest: Suggestion = {
+  id: "req-email",
+  title: "Draft email to Linda Chen",
+  explanation: "About Maya's upcoming belt test.",
+  actionLabel: "Send email",
+  capability: "communication.prepare_email",
+  risk: "medium",
+  preview: [
+    { label: "To", value: "Linda Chen (guardian)" },
+    { label: "Subject", value: "Maya's belt test" },
+    {
+      label: "Draft",
+      value:
+        "Hi Linda, Maya's been doing great and is almost ready for her Purple Belt test…",
+    },
+  ],
+};
+
+// Every task the mock knows about, so the routes can look one up by id
+// instead of trusting what the browser sends
+function allSuggestions(): Suggestion[] {
+  const everything = [...frontDesk.suggestions, emailRequest];
+  for (const memberContext of Object.values(members)) {
+    everything.push(...memberContext.suggestions);
+    if (memberContext.featured) {
+      everything.push(memberContext.featured.suggestion);
+    }
+  }
+  return everything;
+}
+
+export function findSuggestion(id: string): Suggestion | null {
+  const found = allSuggestions().find((suggestion) => suggestion.id === id);
+  return found ?? null;
 }
 
 // Scripted responses for the "Ask the agent" box
 export function matchRequest(text: string): Suggestion | null {
   const t = text.toLowerCase().replace(/-/g, "");
   if (t.includes("email") || t.includes("meeting") || t.includes("parents")) {
-    return {
-      id: "req-email",
-      title: "Draft email to Linda Chen",
-      explanation: "About Maya's upcoming belt test.",
-      actionLabel: "Send email",
-      capability: "communication.prepare_email",
-      risk: "medium",
-      preview: [
-        { label: "To", value: "Linda Chen (guardian)" },
-        { label: "Subject", value: "Maya's belt test" },
-        {
-          label: "Draft",
-          value:
-            "Hi Linda, Maya's been doing great and is almost ready for her Purple Belt test…",
-        },
-      ],
-    };
+    return emailRequest;
   }
   return null;
 }

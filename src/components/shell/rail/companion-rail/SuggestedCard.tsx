@@ -34,6 +34,13 @@ const SuggestedCard = ({ suggestion, summary, open, status, onApprove }: Props) 
 
       {status === "working" && !open && <p className={styles.working}>Working…</p>}
       {status === "done" && !open && <p className={styles.done}>✓ Done</p>}
+      {/* Do For Me again: a new attempt after failed, the same command after notConfirmed */}
+      {status === "failed" && !open && (
+        <p className={styles.failed}>Couldn&apos;t complete this. Nothing was changed.</p>
+      )}
+      {status === "notConfirmed" && !open && (
+        <p className={styles.notConfirmed}>Not confirmed. It may not have run.</p>
+      )}
 
       {/* {explainOpen && <p className={styles.explain}>{suggestion.explanation}</p>} */}
 

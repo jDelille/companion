@@ -32,9 +32,22 @@ const TaskItem = ({ task, open, status, onToggle, onApprove }: Props) => {
 
           {status === "working" && <p className={styles.working}>Working…</p>}
           {status === "done" && <p className={styles.done}>✓ Done</p>}
-          {!status && (
+          {status === "failed" && (
+            <p className={styles.failed}>Couldn&apos;t complete this. Nothing was changed.</p>
+          )}
+          {status === "notConfirmed" && (
+            <p className={styles.notConfirmed}>
+              Not confirmed. It may not have run.
+            </p>
+          )}
+          {(!status || status === "failed") && (
             <button className={styles.approve} onClick={onApprove}>
               {task.actionLabel}
+            </button>
+          )}
+          {status === "notConfirmed" && (
+            <button className={styles.approve} onClick={onApprove}>
+              Try again
             </button>
           )}
         </div>
