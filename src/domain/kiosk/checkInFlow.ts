@@ -83,7 +83,7 @@ export type CheckInFlowAction =
       outcome: CheckInOutcome;
     }
   | { type: "retryCheckIn" } // Try again after "not confirmed": resends the same command
-  | { type: "done" } // Done on the result screen: back to a clean Welcome
+  | { type: "reset" } // Done, idle timeout or auto-return: back to a clean Welcome
   | { type: "back" };
 
 export const initialCheckInFlow: CheckInFlowState = { step: "welcome" };
@@ -197,9 +197,10 @@ export function checkInFlowReducer(
         command: state.command,
       };
 
-    case "done":
-      // Full reset: session, student, search text and result all go
-      if (state.step !== "result") return state;
+    case "reset":
+      // Privacy reset (K07), from any step: session, student, search text, roster,
+      // command and result all go. In-flight requests are aborted by the page
+      // when their step ends, and their late answers no longer match anything.
       return initialCheckInFlow;
 
     case "submitCheckIn":

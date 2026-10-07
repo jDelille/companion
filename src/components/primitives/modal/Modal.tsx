@@ -9,9 +9,18 @@ type Props = {
   description: string;
   onClose: () => void;
   children: ReactNode;
+  hideClose?: boolean; // hide the small x (e.g. kiosk, where every target must be 48px+)
 };
 
-export default function Modal({ open, label, title, description, onClose, children }: Props) {
+export default function Modal({
+  open,
+  label,
+  title,
+  description,
+  onClose,
+  children,
+  hideClose = false,
+}: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const id = useId();
 
@@ -42,9 +51,11 @@ export default function Modal({ open, label, title, description, onClose, childr
             <h2 id={`${id}-title`}>{title}</h2>
             <p id={`${id}-description`}>{description}</p>
           </div>
-          <button onClick={onClose} aria-label="Close">
-            x
-          </button>
+          {!hideClose && (
+            <button onClick={onClose} aria-label="Close">
+              x
+            </button>
+          )}
         </header>
         <div className={styles.body}>{children}</div>
       </div>

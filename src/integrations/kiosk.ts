@@ -13,8 +13,10 @@ import { CHECK_IN_TIMEOUT_SECONDS } from "@/domain/kiosk/kioskConfig";
 // which are mocks for now and will be Jodi's real backend later.
 
 // Today's sessions. The server decides what "today" means.
-export async function getSessions(): Promise<SessionOption[]> {
-  const response = await fetch("/api/v2/sessions", { cache: "no-store" });
+export async function getSessions(
+  signal?: AbortSignal, // aborted when the kiosk leaves the step (e.g. idle reset)
+): Promise<SessionOption[]> {
+  const response = await fetch("/api/v2/sessions", { cache: "no-store", signal });
   if (!response.ok) {
     throw new Error(`Sessions request failed (${response.status})`);
   }
@@ -23,12 +25,13 @@ export async function getSessions(): Promise<SessionOption[]> {
 
 // The students registered for one session. Screens must never list this as-is:
 // it's only searched, so a public kiosk doesn't show everyone's names.
-export async function getRoster(sessionId: RecordId): Promise<RosterMember[]> {
+export async function getRoster(
+  sessionId: RecordId,
+  signal?: AbortSignal, // aborted when the kiosk leaves the step (e.g. idle reset)
+): Promise<RosterMember[]> {
   const response = await fetch(
     `/api/v2/sessions/${encodeURIComponent(sessionId)}/roster`,
-    {
-      cache: "no-store",
-    },
+    { cache: "no-store", signal },
   );
   if (!response.ok) {
     throw new Error(`Roster request failed (${response.status})`);

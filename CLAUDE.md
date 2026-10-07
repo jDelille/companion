@@ -115,6 +115,7 @@ Allowed: morph, expand, collapse, fade, directional slide, subtle pulse. Never: 
 - The 10-minute late rule in the mock is provisional.
 - Question for Jodi: how each problem code is presented (provisional mapping in `src/domain/kiosk/checkInOutcome.ts`). `INVALID_COMMAND`, `IDEMPOTENCY_CONFLICT`, `MEMBER_UNAVAILABLE` → see the front desk, and `CONCURRENT_RETRY` → not confirmed, are our picks, not from the handoff.
 - Check-in request timeout (15s, `CHECK_IN_TIMEOUT_SECONDS`) is provisional, like the idle timeout.
+- Question for Jodi: device authorization and capability state. Nothing in the contract lets the kiosk ask "is this device authorized, is check-in enabled?" before showing Welcome, so Check In always looks operational and an unauthorized device only learns at Confirm (`FORBIDDEN` / `CAPABILITY_DISABLED`). Front-end side, still to do: treat those codes on any call as "kiosk unavailable", not "Try again".
 - Palette (dark vs. light) pending.
 
 ## Working style

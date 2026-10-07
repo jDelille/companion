@@ -66,6 +66,14 @@ export const SECONDARY_ACTIONS: SecondaryAction[] = [
 // clearing everything and going back to Welcome (K07). Change it here only.
 export const IDLE_TIMEOUT_SECONDS = 60;
 
+// PROVISIONAL: how long before the idle reset the "Still there?" warning appears.
+// With 60 above, the warning shows after 50s of no activity.
+export const IDLE_WARNING_SECONDS = 10;
+
+// PROVISIONAL: success and already-checked-in go back to Welcome on their own
+// after this long. Taps do not extend it; Done still works straight away.
+export const RESULT_AUTO_RETURN_SECONDS = 8;
+
 // PROVISIONAL: not agreed yet. How long a check-in request may take before the
 // kiosk gives up and shows "not confirmed". A timed-out request may still have
 // succeeded on the server, which is why the retry resends the same idempotency key.
