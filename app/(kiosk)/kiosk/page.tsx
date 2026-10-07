@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useEffect, useReducer } from "react";
+import ConfirmScreen from "@/components/kiosk/screens/confirm-screen/ConfirmScreen";
 import IdentifyScreen from "@/components/kiosk/screens/identify-screen/IdentifyScreen";
 import SessionSelectScreen from "@/components/kiosk/screens/session-select-screen/SessionSelectScreen";
 import WelcomeScreen from "@/components/kiosk/screens/welcome-screen/WelcomeScreen";
@@ -8,9 +9,11 @@ import {
   checkInFlowReducer,
   initialCheckInFlow,
 } from "@/domain/kiosk/checkInFlow";
+import { createCheckInCommand } from "@/domain/kiosk/checkInCommand";
+import { outcomeFor } from "@/domain/kiosk/checkInOutcome";
 import { SCHOOL_NAME, SECONDARY_ACTIONS } from "@/domain/kiosk/kioskConfig";
 import { searchRoster } from "@/domain/kiosk/rosterSearch";
-import { getRoster, getSessions } from "@/integrations/kiosk";
+import { checkIn, getRoster, getSessions } from "@/integrations/kiosk";
 
 export default function KioskPage() {
   const [flow, dispatch] = useReducer(checkInFlowReducer, initialCheckInFlow);
@@ -62,6 +65,44 @@ export default function KioskPage() {
     };
   }, [rosterSessionId]);
 
+  // Send the check-in while on the sending step. The command object stays the
+  // same for the whole step, so this runs once per attempt.
+  const pendingCommand = flow.step === "sending" ? flow.command : null;
+
+  useEffect(() => {
+    if (!pendingCommand) return;
+
+    // Leaving the step cancels the request for real, and its answer is dropped.
+    // (A timeout inside checkIn() is different: that answer still arrives, as "not confirmed".)
+    let cancelled = false;
+    const controller = new AbortController();
+
+    checkIn(pendingCommand, controller.signal).then((answer) => {
+      if (cancelled) return;
+      dispatch({
+        type: "checkInAnswered",
+        correlationId: pendingCommand.correlationId,
+        outcome: outcomeFor(answer, pendingCommand),
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [pendingCommand]);
+
+  // Confirm tapped: build the command once, here, with fresh ids
+  const handleConfirm = () => {
+    if (flow.step !== "confirm") return;
+    const command = createCheckInCommand(flow.session, flow.member);
+    if (command) {
+      dispatch({ type: "submitCheckIn", command });
+    } else {
+      dispatch({ type: "commandRejected" });
+    }
+  };
+
   if (flow.step === "welcome") {
     return (
       <WelcomeScreen
@@ -107,14 +148,29 @@ export default function KioskPage() {
     );
   }
 
-  // TODO: ConfirmScreen (K05). Placeholder so you can see the session and student arrive.
-  if (flow.step === "confirm") {
+  if (flow.step === "confirm" || flow.step === "sending") {
     return (
-      <p>
-        Confirm: {flow.member.displayName} → {flow.session.title}
+      <ConfirmScreen
+        session={flow.session}
+        member={flow.member}
+        isSending={flow.step === "sending"}
+        onConfirm={handleConfirm}
+        onBack={() => dispatch({ type: "back" })}
+        onChangeSession={() => dispatch({ type: "changeSession" })}
+      />
+    );
+  }
+
+  // TODO: ResultScreen (K06). Placeholder so you can see which outcome came back.
+  if (flow.step === "result") {
+    return (
+      <p data-outcome={flow.outcome.kind}>
+        Result: {flow.outcome.kind} · {flow.member.displayName} → {flow.session.title}
       </p>
     );
   }
 
-  return <p>Step: {flow.step}</p>;
+  // Every step is handled above; TypeScript errors here if a new one isn't
+  const unhandled: never = flow;
+  return unhandled;
 }

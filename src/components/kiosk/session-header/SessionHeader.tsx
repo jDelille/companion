@@ -7,11 +7,16 @@ import styles from "./SessionHeader.module.scss";
 type Props = {
   session: SessionOption;
   onChangeSession: () => void;
+  changeDisabled?: boolean; // locked while a check-in is sending
 };
 
 // The selected class, kept on screen from Identify (K03) through Result (K06).
 // Laid out like SessionRow so the row on K02 can morph into it.
-const SessionHeader = ({ session, onChangeSession }: Props) => {
+const SessionHeader = ({
+  session,
+  onChangeSession,
+  changeDisabled = false,
+}: Props) => {
   const { time, period } = formatStartTime(session.startsAt);
   const duration = formatDuration(session.startsAt, session.endsAt);
 
@@ -30,7 +35,9 @@ const SessionHeader = ({ session, onChangeSession }: Props) => {
           <span className={styles.duration}>{duration}</span>
         </span>
 
-        <PlainButton onClick={onChangeSession}>Change class</PlainButton>
+        <PlainButton onClick={onChangeSession} disabled={changeDisabled}>
+          Change class
+        </PlainButton>
       </header>
     </ViewTransition>
   );

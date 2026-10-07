@@ -9,6 +9,8 @@ import type {
   RosterMember,
   SessionOption,
 } from "@/contracts/kiosk-attendance";
+import type { CheckInCommand } from "./checkInCommand";
+import type { CheckInOutcome } from "./checkInOutcome";
 
 export type CheckInStep =
   | "welcome"
@@ -41,9 +43,25 @@ export type CheckInFlowState =
       roster: RosterLoad;
       query: string; // search text lives here so the privacy reset clears it
     }
-  | { step: "confirm"; session: SessionOption; member: RosterMember }
-  | { step: "sending" }
-  | { step: "result" };
+  | {
+      step: "confirm";
+      session: SessionOption;
+      member: RosterMember;
+      query: string; // kept so Back to identify shows the same matches again
+    }
+  | {
+      step: "sending";
+      session: SessionOption;
+      member: RosterMember;
+      command: CheckInCommand; // built once; a retry resends this exact command
+    }
+  | {
+      step: "result";
+      session: SessionOption; // the receipt has to name the selected session
+      member: RosterMember;
+      command: CheckInCommand | null; // null only if the command couldn't be built
+      outcome: CheckInOutcome;
+    };
 
 export type CheckInFlowAction =
   | { type: "start" } // Check In tapped on Welcome
@@ -57,6 +75,13 @@ export type CheckInFlowAction =
   | { type: "searchChanged"; query: string }
   | { type: "selectMember"; member: RosterMember }
   | { type: "changeSession" } // "Change class" in the session header
+  | { type: "submitCheckIn"; command: CheckInCommand } // Confirm check-in tapped
+  | { type: "commandRejected" } // buildCheckIn refused the inputs, nothing was sent
+  | {
+      type: "checkInAnswered";
+      correlationId: string; // which request this answer belongs to
+      outcome: CheckInOutcome;
+    }
   | { type: "back" };
 
 export const initialCheckInFlow: CheckInFlowState = { step: "welcome" };
@@ -135,17 +160,67 @@ export function checkInFlowReducer(
         (member) => member.memberId === action.member.memberId,
       );
       if (!isOnRoster) return state;
-      return { step: "confirm", session: state.session, member: action.member };
+      return {
+        step: "confirm",
+        session: state.session,
+        member: action.member,
+        query: state.query,
+      };
     }
 
     case "changeSession":
-      // Changing the class drops the student and anything decided about them
+      // Changing the class drops the student and anything decided about them.
+      // Not while sending: the request is in flight and the screen locks.
       if (state.step !== "identify" && state.step !== "confirm") return state;
       return backToSessionList();
+
+    case "submitCheckIn":
+      // Only from Confirm, so a second tap while sending does nothing
+      if (state.step !== "confirm") return state;
+      return {
+        step: "sending",
+        session: state.session,
+        member: state.member,
+        command: action.command,
+      };
+
+    case "commandRejected":
+      if (state.step !== "confirm") return state;
+      return {
+        step: "result",
+        session: state.session,
+        member: state.member,
+        command: null,
+        outcome: { kind: "seeFrontDesk" },
+      };
+
+    case "checkInAnswered":
+      // Ignore an answer meant for a different request (an earlier attempt,
+      // or one from before a reset)
+      if (state.step !== "sending") return state;
+      if (state.command.correlationId !== action.correlationId) return state;
+      return {
+        step: "result",
+        session: state.session,
+        member: state.member,
+        command: state.command,
+        outcome: action.outcome,
+      };
 
     case "back":
       if (state.step === "session") return { step: "welcome" };
       if (state.step === "identify") return backToSessionList();
+      if (state.step === "confirm") {
+        // Back to pick someone else: the chosen student is dropped (and with
+        // them anything decided about them), but the search text stays so
+        // "picked the wrong Ava" is one tap to fix. Roster is fetched fresh.
+        return {
+          step: "identify",
+          session: state.session,
+          roster: { status: "loading" },
+          query: state.query,
+        };
+      }
       return state;
 
     default:

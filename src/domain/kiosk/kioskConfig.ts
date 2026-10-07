@@ -65,3 +65,8 @@ export const SECONDARY_ACTIONS: SecondaryAction[] = [
 // PROVISIONAL: not agreed yet. How long the kiosk waits with no input before
 // clearing everything and going back to Welcome (K07). Change it here only.
 export const IDLE_TIMEOUT_SECONDS = 60;
+
+// PROVISIONAL: not agreed yet. How long a check-in request may take before the
+// kiosk gives up and shows "not confirmed". A timed-out request may still have
+// succeeded on the server, which is why the retry resends the same idempotency key.
+export const CHECK_IN_TIMEOUT_SECONDS = 15;

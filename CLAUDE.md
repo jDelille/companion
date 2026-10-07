@@ -113,6 +113,8 @@ Allowed: morph, expand, collapse, fade, directional slide, subtle pulse. Never: 
 - No guardian/family check-in.
 - No offline queue: network failure means "not confirmed, try again."
 - The 10-minute late rule in the mock is provisional.
+- Question for Jodi: how each problem code is presented (provisional mapping in `src/domain/kiosk/checkInOutcome.ts`). `INVALID_COMMAND`, `IDEMPOTENCY_CONFLICT`, `MEMBER_UNAVAILABLE` → see the front desk, and `CONCURRENT_RETRY` → not confirmed, are our picks, not from the handoff.
+- Check-in request timeout (15s, `CHECK_IN_TIMEOUT_SECONDS`) is provisional, like the idle timeout.
 - Palette (dark vs. light) pending.
 
 ## Working style
