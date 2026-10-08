@@ -1,5 +1,5 @@
 import type { SessionOption } from "@/contracts/kiosk-attendance";
-import SessionRow from "@/components/kiosk/session-row/SessionRow";
+import SessionCard from "@/components/kiosk/session-card/SessionCard";
 import StatusMessage from "@/components/kiosk/status-message/StatusMessage";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { SessionsLoad } from "@/domain/kiosk/checkInFlow";
@@ -40,7 +40,7 @@ const SessionSelectScreen = ({
           <p className={styles.visuallyHidden} role="status">
             Loading today&apos;s classes…
           </p>
-          {/* Placeholder rows shaped like SessionRow while the list loads */}
+          {/* Placeholder rows shaped like SessionCard while the list loads */}
           <ul className={styles.list} aria-hidden="true">
             {[1, 2, 3].map((placeholder) => (
               <li key={placeholder} className={styles.skeletonRow}>
@@ -76,7 +76,7 @@ const SessionSelectScreen = ({
         <ul className={styles.list}>
           {sessions.list.map((session) => (
             <li key={session.sessionId}>
-              <SessionRow session={session} onSelect={onSelect} />
+              <SessionCard session={session} onSelect={onSelect} />
             </li>
           ))}
         </ul>

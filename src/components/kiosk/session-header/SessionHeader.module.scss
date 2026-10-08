@@ -1,4 +1,4 @@
-// Same grid, border and type as SessionRow, so the morph from the row looks like one object
+// Same grid, border and type as SessionCard, so the morph from the card looks like one object
 .header {
   display: grid;
   grid-template-columns: 8rem 1fr auto; // time | name + duration | Change class

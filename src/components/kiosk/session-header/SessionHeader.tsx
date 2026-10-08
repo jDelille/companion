@@ -11,7 +11,6 @@ type Props = {
 };
 
 // The selected class, kept on screen from Identify (K03) through Result (K06).
-// Laid out like SessionRow so the row on K02 can morph into it.
 const SessionHeader = ({
   session,
   onChangeSession,
@@ -21,9 +20,11 @@ const SessionHeader = ({
   const duration = formatDuration(session.startsAt, session.endsAt);
 
   return (
-    // Same name as the row on K02, so the browser treats them as one object.
-    // default="none" stops it animating on unrelated changes.
-    <ViewTransition name={`session-${session.sessionId}`} share="morph" default="none">
+    <ViewTransition
+      name={`session-${session.sessionId}`}
+      share="morph"
+      default="none"
+    >
       <header className={styles.header}>
         <span className={styles.time}>
           {time}
