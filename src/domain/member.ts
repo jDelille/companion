@@ -30,4 +30,7 @@ export type CheckIn = {
 export type MemberAttendance = {
   latest: CheckIn | null;      // null = no check-ins yet
   lastSevenDays: number;       // rolling 7 days, so it doesn't depend on a time zone
+  // Every check-in, newest first. Left out when the source can't send it:
+  // Odoo's member read only has the latest one so far (asked Jodi for a history).
+  history?: CheckIn[];
 };

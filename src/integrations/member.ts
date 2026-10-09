@@ -36,6 +36,9 @@ export async function searchMembers(query: string): Promise<Member[]> {
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000; // ms
 
+// PROVISIONAL: how many past check-ins the Attendance tab gets. No paging yet.
+const HISTORY_LIMIT = 50;
+
 // What Member360 shows about attendance. In demo mode it reads the same store
 // the kiosk writes to, so a kiosk check-in shows up here on the next load.
 // Later: Jodi's API (Odoo), once it has a per-member attendance read.
@@ -49,18 +52,17 @@ export async function getMemberAttendance(memberId: string): Promise<MemberAtten
       (receipt) => Date.parse(receipt.checkedInAt) >= sevenDaysAgo,
     );
 
-    let latest: CheckIn | null = null;
-    if (receipts.length > 0) {
-      const newest = receipts[0];
-      const session = findSession(newest.sessionId);
-      latest = {
+    const history: CheckIn[] = receipts.slice(0, HISTORY_LIMIT).map((receipt) => {
+      const session = findSession(receipt.sessionId);
+      return {
         sessionTitle: session ? session.title : "Class",
-        checkedInAt: newest.checkedInAt,
-        late: newest.status === "late",
+        checkedInAt: receipt.checkedInAt,
+        late: receipt.status === "late",
       };
-    }
+    });
+    const latest = history.length > 0 ? history[0] : null;
 
-    return { latest, lastSevenDays: recent.length };
+    return { latest, lastSevenDays: recent.length, history };
   }
   throw new Error("Odoo integration not implemented yet");
 }

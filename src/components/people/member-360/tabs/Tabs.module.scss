@@ -32,3 +32,14 @@
     border-bottom-color: var(--brand);
   }
 }
+
+// Placeholder for a tab with no content yet, so it doesn't look broken
+.notBuilt {
+  padding: 2rem;
+  font-size: 13px;
+  color: var(--muted);
+
+  @include bp.compact {
+    padding: 1.5rem 1rem;
+  }
+}

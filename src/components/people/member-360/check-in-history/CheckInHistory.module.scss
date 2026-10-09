@@ -1,0 +1,88 @@
+@use "../../../../../styles/breakpoints" as bp;
+
+// Same card as the Overview grid's articles
+.history {
+  margin: 1rem 2rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background-color: var(--raised);
+
+  @include bp.compact {
+    margin: 1rem;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+
+  h2 {
+    font-size: 16px;
+    color: var(--text);
+  }
+}
+
+.summary {
+  font-size: 13px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.list {
+  list-style: none;
+}
+
+// date | class | time, one check-in per row
+.row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 10px 0;
+  font-size: 13px;
+
+  & + & {
+    border-top: 1px solid var(--line);
+  }
+}
+
+.date {
+  color: var(--text-secondary);
+}
+
+.session {
+  color: var(--text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+// Small neutral tag, same as the kiosk's "Late"
+.tag {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--interactive);
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.empty,
+.note {
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--muted);
+}

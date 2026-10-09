@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { navItems, bottomNavIds } from "../navItems";
+import { isNavItemActive, navItems, bottomNavIds } from "../navItems";
 import styles from "./AdaptiveBottomNav.module.scss";
 
 export default function AdaptiveBottomNav() {
@@ -11,8 +11,7 @@ export default function AdaptiveBottomNav() {
   return (
     <nav className={styles.bottomNav} aria-label="Primary">
       {items.map((item) => {
-        const active =
-          item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+        const active = isNavItemActive(item, pathname);
         return (
           <Link
             key={item.id}

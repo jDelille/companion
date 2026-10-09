@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useState } from "react";
 import type { Member, MemberAttendance } from "@/domain/member";
+import LocalTime from "@/components/primitives/local-time/LocalTime";
 import Modal from "@/components/primitives/modal/Modal";
 import { modals, ModalType } from "@/components/people/member-card/memberModals";
 import styles from "./MemberGrid.module.scss";
@@ -19,25 +20,6 @@ const recentPlaceholders: Stat[] = [
   { label: "Aug 31", value: "Evaluation completed" },
   { label: "Aug 25", value: "Payment successful" },
 ];
-
-const noSubscription = () => () => {};
-
-// "Oct 7, 5:47 PM" in the viewer's time zone. Formatted in the browser only:
-// the server renders this page first and its time zone may not be the viewer's.
-const LocalTime = ({ iso }: { iso: string }) => {
-  const text = useSyncExternalStore(
-    noSubscription,
-    () =>
-      new Date(iso).toLocaleString([], {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }),
-    () => "",
-  );
-  return <time dateTime={iso}>{text}</time>;
-};
 
 // The real attendance rows, from the same store the kiosk writes to
 const attendanceStory = (attendance: MemberAttendance): Stat => {
