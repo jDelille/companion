@@ -1,0 +1,303 @@
+// Width comes from the shell, like every kiosk screen
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 0;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--touch-height);
+}
+
+// AI context only (Build §18): marks the assistant, never decorates anything else
+.aiTag {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--agent);
+  border-radius: var(--radius-control);
+  color: var(--agent);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+// Same titles as the Result screen
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.headline {
+  font-size: 2.25rem;
+}
+
+// One-tap questions, two per row
+.topics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.topic {
+  all: unset;
+  box-sizing: border-box; // all: unset resets this to content-box
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--touch-height) * 1.5);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  font-size: 1.05rem;
+  color: var(--text);
+  cursor: pointer;
+
+  &:hover,
+  &:active {
+    background: var(--raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: default;
+    background: none;
+  }
+}
+
+.askForm {
+  display: flex;
+  gap: 10px;
+}
+
+// Same large field as the name search on Identify
+.field {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1;
+  width: 100%;
+  min-height: calc(var(--touch-height) * 1.25);
+  padding: 0 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  color: var(--text);
+  font-size: 1.25rem;
+
+  &::placeholder {
+    color: var(--muted);
+  }
+
+  &:focus-visible {
+    border-color: var(--text-secondary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.askButton {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: calc(var(--touch-height) * 1.25);
+  padding: 0 1.5rem;
+  border-radius: var(--radius-card);
+  background: var(--interactive);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    color: var(--muted);
+    cursor: default;
+  }
+}
+
+.thinking {
+  min-height: 1.5rem; // keeps the layout still when the text appears
+  color: var(--text-secondary);
+}
+
+.muted {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--agent);
+  border-radius: var(--radius-card);
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+// Label on the left, value on the right (same style as Confirm and Result)
+.schedule,
+.details {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+}
+
+.scheduleRow,
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.25rem;
+
+  & + & {
+    border-top: 1px solid var(--line);
+  }
+
+  dt {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  dd {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-align: right;
+  }
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pick {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: var(--touch-height);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  color: var(--text);
+  font-size: 1.15rem;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--raised);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+.picked {
+  border-color: var(--text);
+  background: var(--raised);
+}
+
+.pickTime {
+  min-width: 6rem;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+// What will / won't happen, side by side when there's room
+.consequences {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.consequence {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+
+  h2 {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-left: 1.1rem;
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+}
+
+// Narrow column: one per row
+@container kiosk (width < 540px) {
+  .topics,
+  .consequences {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Read by screen readers, not shown on screen
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

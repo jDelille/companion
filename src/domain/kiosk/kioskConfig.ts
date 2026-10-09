@@ -62,6 +62,15 @@ export const SECONDARY_ACTIONS: SecondaryAction[] = [
   },
 ];
 
+// The AI Concierge ("Ask a question" on Welcome). AI is optional on the kiosk:
+// set this to false and the card disappears, check-in works exactly the same.
+export const CONCIERGE_ENABLED = true;
+
+// PROVISIONAL: not agreed yet. How long a Concierge question or action may take
+// before the kiosk stops waiting. A timed-out action may still have run, which
+// is why its retry resends the same idempotency key.
+export const CONCIERGE_TIMEOUT_SECONDS = 15;
+
 // PROVISIONAL: not agreed yet. How long the kiosk waits with no input before
 // clearing everything and going back to Welcome (K07). Change it here only.
 export const IDLE_TIMEOUT_SECONDS = 60;

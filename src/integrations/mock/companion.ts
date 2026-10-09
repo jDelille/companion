@@ -88,10 +88,15 @@ const members: Record<string, CompanionContext> = {
 
 // Members without their own context get the front desk, like before
 export function getContextFor(memberId: string | null): CompanionContext {
-  if (memberId && members[memberId]) {
+  if (memberId === null) {
+    return frontDesk;
+  }
+  if (members[memberId]) {
     return members[memberId];
   }
-  return frontDesk;
+  // A member the mock has no tasks for (e.g. an Odoo test member). Never fall
+  // back to the front desk: the rail on a member's page stays about that member.
+  return { label: "Member context", heading: "No tasks for this member", suggestions: [] };
 }
 
 // Tasks the agent can create from a typed or spoken request

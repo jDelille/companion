@@ -2,6 +2,7 @@
 
 import { startTransition, useEffect, useReducer } from "react";
 import IdleWarning from "@/components/kiosk/idle-warning/IdleWarning";
+import Concierge from "@/components/kiosk/screens/concierge-screen/Concierge";
 import { useIdleTimer } from "@/components/kiosk/idle-warning/useIdleTimer";
 import ConfirmScreen from "@/components/kiosk/screens/confirm-screen/ConfirmScreen";
 import ResultScreen from "@/components/kiosk/screens/result-screen/ResultScreen";
@@ -15,6 +16,7 @@ import {
 import { createCheckInCommand } from "@/domain/kiosk/checkInCommand";
 import { outcomeFor } from "@/domain/kiosk/checkInOutcome";
 import {
+  CONCIERGE_ENABLED,
   IDLE_TIMEOUT_SECONDS,
   IDLE_WARNING_SECONDS,
   RESULT_AUTO_RETURN_SECONDS,
@@ -161,6 +163,9 @@ export default function KioskPage() {
           schoolName={SCHOOL_NAME}
           actions={SECONDARY_ACTIONS}
           onCheckIn={() => dispatch({ type: "start" })}
+          // AI is optional: with the Concierge off there's no card, and check-in is unchanged
+          onAsk={CONCIERGE_ENABLED ? () => dispatch({ type: "openConcierge" }) : undefined}
+          onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
         />
       );
     }
@@ -195,6 +200,7 @@ export default function KioskPage() {
           onSelectMember={(member) => dispatch({ type: "selectMember", member })}
           onRetry={() => dispatch({ type: "retryRoster" })}
           onChangeSession={() => dispatch({ type: "changeSession" })}
+          onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
           onBack={() => dispatch({ type: "back" })}
         />
       );
@@ -222,6 +228,20 @@ export default function KioskPage() {
           onDone={() => dispatch({ type: "reset" })}
           onRetry={() => dispatch({ type: "retryCheckIn" })}
           onChooseClass={() => dispatch({ type: "changeSession" })}
+          onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
+        />
+      );
+    }
+
+    if (flow.step === "concierge") {
+      return (
+        <Concierge
+          // keyed so "Get help" while already in the Concierge starts it fresh
+          key={flow.startWith}
+          startWith={flow.startWith}
+          onExit={() => dispatch({ type: "back" })}
+          onGoToCheckIn={() => dispatch({ type: "goToCheckIn" })}
+          onDone={() => dispatch({ type: "reset" })}
         />
       );
     }

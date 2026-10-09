@@ -19,6 +19,7 @@ type Props = {
   onDone: () => void;
   onRetry: () => void; // only offered when not confirmed
   onChooseClass: () => void; // only offered when this class can't take check-ins
+  onStaffHelp: () => void; // offered with "see the front desk"
 };
 
 // K06: only ever shown after the server answered (or clearly didn't).
@@ -30,6 +31,7 @@ const ResultScreen = ({
   onDone,
   onRetry,
   onChooseClass,
+  onStaffHelp,
 }: Props) => {
   return (
     <div className={styles.screen}>
@@ -59,7 +61,10 @@ const ResultScreen = ({
         <Refusal
           headline="Please see the front desk"
           message="We couldn't finish your check-in here."
-          actions={[{ label: "Done", onClick: onDone }]}
+          actions={[
+            { label: "Get help from staff", onClick: onStaffHelp },
+            { label: "Done", onClick: onDone },
+          ]}
         />
       )}
 

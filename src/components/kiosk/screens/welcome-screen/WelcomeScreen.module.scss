@@ -21,6 +21,17 @@
     // background-color: var(--brand);
   }
 
+  .ask {
+    margin-top: 1rem;
+  }
+
+  // Quiet, but always there
+  .staffHelp {
+    align-self: center;
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+  }
+
   .secondaryActions {
     display: flex;
     align-items: center;

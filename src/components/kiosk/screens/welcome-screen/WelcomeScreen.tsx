@@ -1,6 +1,7 @@
 import React from "react";
 import Greeting from "@/components/kiosk/greeting/Greeting";
 import ActionCard from "@/components/primitives/action-card/ActionCard";
+import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { SecondaryAction } from "@/domain/kiosk/kioskConfig";
 import styles from "./WelcomeScreen.module.scss";
 
@@ -8,9 +9,11 @@ type Props = {
   schoolName: string;
   actions: SecondaryAction[]; // from kioskConfig; hidden ones are skipped
   onCheckIn: () => void; // just reports the tap, the flow decides what's next
+  onAsk?: () => void; // the AI Concierge; leave out when it's turned off
+  onStaffHelp: () => void; // always there (Miro 09.13), AI or not
 };
 
-const WelcomeScreen = ({ schoolName, actions, onCheckIn }: Props) => {
+const WelcomeScreen = ({ schoolName, actions, onCheckIn, onAsk, onStaffHelp }: Props) => {
   const shownActions = actions.filter((action) => action.shown);
   const cardActions = shownActions.filter((action) => action.prominence === "card");
   const textActions = shownActions.filter((action) => action.prominence === "text");
@@ -33,6 +36,16 @@ const WelcomeScreen = ({ schoolName, actions, onCheckIn }: Props) => {
         className={styles.checkIn}
       />
 
+      {/* Optional AI Concierge: questions, trial requests, calling staff */}
+      {onAsk && (
+        <ActionCard
+          label="Ask a question"
+          description="Classes, trying a class, directions, or getting help"
+          onClick={onAsk}
+          className={styles.ask}
+        />
+      )}
+
       {/* Secondary Classes / Events; Testing / Schedule / Staff where enabled  */}
 
       {/* No tap handlers yet since none are built. When one becomes available,
@@ -50,6 +63,10 @@ const WelcomeScreen = ({ schoolName, actions, onCheckIn }: Props) => {
           ))}
         </div>
       )}
+
+      <PlainButton onClick={onStaffHelp} className={styles.staffHelp}>
+        Get help from staff
+      </PlainButton>
 
       {/* Muted placeholders: disabled so they can't be tapped or focused */}
       {textActions.length > 0 && (
