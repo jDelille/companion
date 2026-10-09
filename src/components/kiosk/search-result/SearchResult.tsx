@@ -1,9 +1,6 @@
 import type { RosterMember } from "@/contracts/kiosk-attendance";
-import styles from "./MemberMatch.module.scss";
+import styles from "./SearchResult.module.scss";
 
-// Only what someone needs to recognise themselves. attendanceState is left out
-// on purpose: "already checked in" and "see the front desk" come from the
-// server at confirm time, never from this list.
 export type MatchCandidate = Pick<RosterMember, "memberId" | "displayName">;
 
 type Props = {
@@ -22,10 +19,9 @@ const initialsOf = (displayName: string) => {
 };
 
 // One search result on the Identify screen (K03)
-const MemberMatch = ({ candidate, onSelect }: Props) => {
+const SearchResult = ({ candidate, onSelect }: Props) => {
   return (
-    <button type="button" className={styles.match} onClick={onSelect}>
-      {/* Decorative: the name next to it already says who this is */}
+    <button type="button" className={styles.result} onClick={onSelect}>
       <span className={styles.initials} aria-hidden="true">
         {initialsOf(candidate.displayName)}
       </span>
@@ -34,4 +30,4 @@ const MemberMatch = ({ candidate, onSelect }: Props) => {
   );
 };
 
-export default MemberMatch;
+export default SearchResult;

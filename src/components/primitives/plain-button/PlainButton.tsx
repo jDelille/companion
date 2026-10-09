@@ -5,12 +5,16 @@ type Props = {
   children: ReactNode;
   onClick: () => void;
   disabled?: boolean; // e.g. while a check-in is sending
-  className?: string; // for layout from the parent (margins, alignment)
+  className?: string;
 };
 
 // Quiet text button for secondary actions: Back, Try again, Change class.
-// Still at least --touch-height tall so it's easy to hit.
-const PlainButton = ({ children, onClick, disabled = false, className }: Props) => {
+const PlainButton = ({
+  children,
+  onClick,
+  disabled = false,
+  className,
+}: Props) => {
   const classNames = [styles.button, className].filter(Boolean).join(" ");
 
   return (

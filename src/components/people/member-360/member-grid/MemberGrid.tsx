@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useSyncExternalStore } from "react";
-import type { MemberAttendance } from "@/domain/member";
+import type { Member, MemberAttendance } from "@/domain/member";
 import Modal from "@/components/primitives/modal/Modal";
 import { modals, ModalType } from "@/components/people/member-card/memberModals";
 import styles from "./MemberGrid.module.scss";
@@ -102,20 +102,21 @@ const StatList = ({ stats, variant = "rows", onEdit }: StatListProps) => (
 
 type Props = {
   attendance: MemberAttendance;
+  liveMember?: Member;
 };
 
-const MemberGrid = ({ attendance }: Props) => {
+const MemberGrid = ({ attendance, liveMember }: Props) => {
   const [open, setOpen] = useState<ModalType | null>(null);
   const current = open ? modals[open] : null;
 
-  const story = [attendanceStory(attendance), ...storyPlaceholders];
-  const recent = [lastCheckIn(attendance), ...recentPlaceholders];
+  const story = [attendanceStory(attendance), ...(liveMember ? [{ label: "Current rank", value: liveMember.rank.name }] : storyPlaceholders)];
+  const recent = [lastCheckIn(attendance), ...(liveMember ? [] : recentPlaceholders)];
 
   return (
     <div className={styles.memberGrid}>
       <article>
         <span className={styles.label}>Member story</span>
-        <h2>Active and progressing normally.</h2>
+        <h2>{liveMember ? "Verified attendance" : "Active and progressing normally."}</h2>
         <StatList stats={story} variant="plain" />
 
         <span className={styles.label}>Recent</span>
@@ -123,10 +124,10 @@ const MemberGrid = ({ attendance }: Props) => {
       </article>
       <article>
         <span className={styles.label}>Training</span>
-        <StatList stats={training} onEdit={() => setOpen("edit")} />
+        <StatList stats={liveMember ? [{ label: "Training details", value: "Not connected in this test" }] : training} onEdit={liveMember ? undefined : () => setOpen("edit")} />
 
         <span className={styles.label}>Progression</span>
-        <StatList stats={progression} />
+        <StatList stats={liveMember ? [{ label: "Current rank", value: liveMember.rank.name }] : progression} />
       </article>
 
       <Modal

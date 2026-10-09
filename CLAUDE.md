@@ -30,8 +30,8 @@ Rules for all work under the kiosk section of this app. Follow them exactly. If 
 - Kiosk shell: `app/(kiosk)/layout.tsx`. No Companion navigation.
 - Flow state, transitions and reset: `src/domain/kiosk/checkInFlow.ts`.
 - Screens: `src/components/kiosk/screens/` (WelcomeScreen, SessionSelectScreen, IdentifyScreen, ConfirmScreen, ResultScreen).
-- Shared pieces: `src/components/kiosk/` (SessionHeader, SessionRow, MemberMatch, StatusMessage, IdleWarning). DevScenarioPanel is NOT built: scenarios are switched through the API only (`PUT /api/dev/kiosk-scenario`).
-- One folder per component, kebab-case folder with the component and its styles inside: `session-row/SessionRow.tsx` + `SessionRow.module.scss`, `screens/identify-screen/IdentifyScreen.tsx`. Same pattern as `src/components/primitives/`.
+- Shared pieces: `src/components/kiosk/` (SessionHeader, SessionCard, SearchResult, StatusMessage, IdleWarning). DevScenarioPanel is NOT built: scenarios are switched through the API only (`PUT /api/dev/kiosk-scenario`).
+- One folder per component, kebab-case folder with the component and its styles inside: `session-card/SessionCard.tsx` + `SessionCard.module.scss`, `screens/identify-screen/IdentifyScreen.tsx`. Same pattern as `src/components/primitives/`.
 - Screens are mostly display: data and callbacks in, UI out. Logic lives in the flow state. No business rules in components.
 
 ## Check-in order (§14), never change this

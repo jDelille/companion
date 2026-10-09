@@ -8,6 +8,7 @@ import styles from "./Identity.module.scss";
 
 type Props = {
   member: Member;
+  readOnly?: boolean;
 };
 
 // Each button says which modal it opens
@@ -21,7 +22,7 @@ const btns: { label: string; modal?: ModalType }[] = [
   { label: "✦ Do For Me", modal: "ask" },
 ];
 
-const Identity = ({ member }: Props) => {
+const Identity = ({ member, readOnly = false }: Props) => {
   const [open, setOpen] = useState<ModalType | null>(null);
   const [checkedIn, setCheckedIn] = useState(false);
   const current = open ? modals[open] : null;
@@ -35,12 +36,12 @@ const Identity = ({ member }: Props) => {
     <>
       <div className={styles.identity}>
         <div className={styles.member}>
-          <div className={styles.member__avatar}>MC</div>
+          <div className={styles.member__avatar}>{readOnly ? member.name.split(" ").filter(Boolean).map(part => part[0]).slice(0, 2).join("") : "MC"}</div>
 
           <div className={styles.memberName}>
             <div className={styles.text}>
               <h2>{member.name}</h2>
-              <p>Children Advanced · {member.householdName}</p>
+              <p>{readOnly ? member.memberNumber : <>Children Advanced · {member.householdName}</>}</p>
             </div>
             <div className={styles.status}>
               {member.membershipState} · {member.rank.name}
@@ -55,7 +56,8 @@ const Identity = ({ member }: Props) => {
               <button
                 className={btn.label === "Check in" ? styles.checkInBtn : ""}
                 onClick={() => handleClick(btn)}
-                disabled={btn.label === "Check in" && checkedIn}
+                disabled={readOnly || (btn.label === "Check in" && checkedIn)}
+                title={readOnly ? "Not connected in this integration test" : undefined}
               >
                 {btn.label === "Check in" && checkedIn ? "✓ Checked in" : btn.label}
               </button>

@@ -7,18 +7,19 @@ import MemberGrid from "./member-grid/MemberGrid";
 type Props = {
   member: Member;
   attendance: MemberAttendance;
+  liveTest?: boolean;
 };
 
-const Member360View = ({ member, attendance }: Props) => {
+const Member360View = ({ member, attendance, liveTest = false }: Props) => {
 
   // console.log(member)
 
   return (
     <article className={styles.member360}>
-      <Identity member={member}/>
+      <Identity member={member} readOnly={liveTest}/>
       <Tabs />
 
-      <MemberGrid attendance={attendance} />
+      <MemberGrid attendance={attendance} liveMember={liveTest ? member : undefined} />
 
     
     </article>
