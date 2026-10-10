@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import FollowUpComposer from "@/components/ai/follow-up/FollowUpComposer";
+import followupStyles from "@/components/ai/follow-up/FollowUp.module.scss";
 import useCompanion from "./useCompanion";
 import TaskItem from "./TaskItem";
 import ReceiptHistory from "./ReceiptHistory";
@@ -69,6 +71,8 @@ const CompanionRail = ({ children }: Props) => {
           </div>
         )}
 
+        {companion.view.memberId && companion.followUpEnabled && <FollowUpComposer key={companion.view.key} sessions={companion.sessions || []} busy={companion.requestStatus === "thinking"} onPrepare={companion.request} />}
+        {companion.answer && <div className={followupStyles.answer} role="status"><small>{companion.answer.mode}</small><p>{companion.answer.text}</p></div>}
         <ReceiptHistory receipts={companion.receipts} />
       </div>
 

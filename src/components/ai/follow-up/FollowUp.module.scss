@@ -1,0 +1,24 @@
+.card { margin: 16px 0; padding: 16px; border: 1px solid var(--dark-border, #444); border-radius: 12px; color: var(--text, #eee); font-size: 13px;
+  summary {cursor: pointer; font-weight:600; min-height: 36px;}
+  p {line-height:1.6; margin:10px 0; opacity:.85;}
+  form, label {display:flex; flex-direction:column; gap:8px;}
+  form {gap:14px;}
+  select, textarea {width:100%; padding:10px; color:inherit; background:var(--panel, #151519); border:1px solid var(--dark-border,#555); border-radius:8px; font:inherit;}
+  textarea {resize:vertical;}
+  button {min-height:44px; border:1px solid #777; border-radius:8px; background:transparent; color:inherit; cursor:pointer;}
+  button:disabled {opacity:.45; cursor:default;}
+  .confirm {flex-direction:row; align-items:flex-start; line-height:1.5;}
+  :focus-visible {outline:2px solid #ba9fff; outline-offset:3px;}
+}
+.answer {color:var(--text,#eee);white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; margin:14px 0; padding:12px; border-left:2px solid #ba9fff;}
+.workspace {padding:24px; color:var(--text,#eee); max-width:1100px;
+  header {display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:20px;}
+  h2 {margin:24px 0 12px; font-size:18px;}
+  p {line-height:1.6;}
+  ul {list-style:none; padding:0; display:grid; gap:12px;}
+  li {padding:16px; border:1px solid var(--dark-border,#444); border-radius:12px;}
+  a {color:inherit; text-decoration:underline; text-underline-offset:4px;}
+  small {display:block; margin:8px 0; opacity:.8;}
+  button {padding:10px 16px; background:transparent; color:inherit; border:1px solid #777; border-radius:8px; cursor:pointer;}
+  blockquote {white-space:pre-wrap; line-height:1.6; margin:12px 0; padding-left:12px; border-left:2px solid #ba9fff;}
+}

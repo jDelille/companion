@@ -38,6 +38,8 @@ const Tabs = ({ panels }: Props) => {
             role="tab"
             aria-selected={activeTab === tab}
             aria-controls="member-tab-panel"
+            disabled={!panels[tab]}
+            title={!panels[tab] ? "Not connected in this workspace" : undefined}
             className={activeTab === tab ? styles.isActive : ""}
             onClick={() => setActiveTab(tab)}
           >

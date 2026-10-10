@@ -1,3 +1,4 @@
+import ConnectedWorkflowView from "@/components/ai/follow-up/ConnectedWorkflowView";
 import Member360View from "@/components/people/member-360/Member360View";
 import { getMember, getMemberAttendance } from "@/integrations/member";
 import type { Member, MemberAttendance } from "@/domain/member";
@@ -15,6 +16,7 @@ export default async function MemberPage({params}: {params: Promise<{id: string}
     const data = await response.json() as {member: Member; attendance: MemberAttendance};
     return <><p role="status">Odoo test data. Attendance and identity are connected. Unconnected actions are not enabled.</p>
       <Member360View member={data.member} attendance={data.attendance} liveTest />
+      <ConnectedWorkflowView historyOnly />
     </>;
   }
   const member = await getMember(id);

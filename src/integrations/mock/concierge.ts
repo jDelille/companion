@@ -195,16 +195,15 @@ export function getConciergeStore(): ConciergeStore {
   return serverMemory.conciergeStore;
 }
 
-// Runs in mock mode and in the Odoo test mode (where nothing real backs the
-// Concierge yet). A short delay so "Thinking…" can actually be seen.
+// Demo only. A connected kiosk must never receive a simulated action receipt.
 export async function conciergeMockRoute(
   handleRequest: () => Response | Promise<Response>,
 ): Promise<Response> {
   const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
   const isOdooTest = process.env.DOJANG_INTEGRATION_MODE === "odoo-test";
-  if (!isDemo && !isOdooTest) {
+  if (!isDemo || isOdooTest) {
     return Response.json(
-      { error: "Concierge mock API is only available in demo or Odoo test mode." },
+      { error: "Concierge is not connected in this workspace." },
       { status: 501 },
     );
   }

@@ -64,7 +64,7 @@ export const SECONDARY_ACTIONS: SecondaryAction[] = [
 
 // The AI Concierge ("Ask a question" on Welcome). AI is optional on the kiosk:
 // set this to false and the card disappears, check-in works exactly the same.
-export const CONCIERGE_ENABLED = true;
+export const CONCIERGE_ENABLED = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 // PROVISIONAL: not agreed yet. How long a Concierge question or action may take
 // before the kiosk stops waiting. A timed-out action may still have run, which

@@ -22,7 +22,9 @@
     white-space: nowrap;
     cursor: pointer;
 
-    &:hover {
+    &:disabled { opacity: .45; cursor: not-allowed; }
+
+    &:hover:not(:disabled) {
       color: var(--text);
     }
   }

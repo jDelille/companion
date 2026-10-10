@@ -9,6 +9,8 @@ import type { CheckInCommand } from "@/domain/kiosk/checkInCommand";
 import type { CheckInAnswer } from "@/domain/kiosk/checkInOutcome";
 import { CHECK_IN_TIMEOUT_SECONDS } from "@/domain/kiosk/kioskConfig";
 
+import { saveUnconfirmedAttendance, clearConfirmedAttendance } from "./attendanceRecovery";
+
 // The only place kiosk screens get data from. Calls the /api/v2 routes,
 // which are mocks for now and will be Jodi's real backend later.
 
@@ -44,7 +46,7 @@ export async function getRoster(
 // Gives up after CHECK_IN_TIMEOUT_SECONDS. The request is actually cancelled then,
 // so a very late reply can't arrive. The server may still have saved it, which the
 // retry with the same idempotency key sorts out.
-export async function checkIn(
+async function sendCheckIn(
   command: CheckInCommand,
   signal: AbortSignal, // aborted by the page if the kiosk leaves this step
 ): Promise<CheckInAnswer> {
@@ -83,3 +85,13 @@ const looksLikeProblem = (body: unknown): body is ProblemDetails => {
   const problem = body as ProblemDetails | null;
   return typeof problem?.code === "string";
 };
+
+
+// CONNECTED_ATTENDANCE_RECOVERY
+// Reconcile the ORIGINAL command after uncertainty. Saved is not confirmed.
+export async function checkIn(command: CheckInCommand, signal: AbortSignal): Promise<CheckInAnswer> {
+  const answer = await sendCheckIn(command, signal);
+  if (answer.kind === "result") await clearConfirmedAttendance(command);
+  else if (answer.kind === "noAnswer") await saveUnconfirmedAttendance(command);
+  return answer;
+}

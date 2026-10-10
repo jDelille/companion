@@ -200,7 +200,6 @@ export async function handle(request: Request, c: GatewayConfig, operation: Oper
     if (object(result.problem)) {
       const p = result.problem;
       if (!codes.includes(p.code as ProblemCode) || typeof p.status !== "number" || p.status < 400 || p.status > 599) return fail("CAPABILITY_DISABLED", correlation);
-      // Odoo only sends safe public messages. Do not surface tracebacks or provider details.
       const safe = { type: `urn:dojang:problem:${p.code}`, code: p.code, status: p.status,
         title: messages[p.code as ProblemCode], detail: messages[p.code as ProblemCode], correlationId: correlation };
       return Response.json(safe, { status: p.status, headers: { ...headers, "content-type": "application/problem+json" } });

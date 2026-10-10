@@ -106,6 +106,7 @@
         color: var(--text);
         background-color: var(--panel);
         cursor: pointer;
+        &:disabled { opacity: .45; cursor: not-allowed; }
       }
 
        .checkInBtn {

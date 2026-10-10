@@ -31,7 +31,8 @@
       z-index: 20;
       background: var(--panel);
       transform: translateX(-100%); // parked off-screen to the left
-      transition: transform 200ms ease;
+      visibility: hidden;
+      transition: transform 200ms ease, visibility 0s linear 200ms;
     }
 
     .contextClose {
@@ -59,6 +60,8 @@
   &[data-context-open="true"] .contextSlot {
     @include bp.below-expanded {
       transform: none;
+      visibility: visible;
+      transition: transform 200ms ease, visibility 0s;
     }
   }
 
@@ -66,6 +69,7 @@
 
   .workspaceSlot {
     display: flex;
+    color: var(--text);
     flex-direction: column;
     flex: 1; // fills what's left: beside the panes on desktop, above the bottom nav on phones
     min-width: 0;
@@ -197,4 +201,36 @@
       display: block;
     }
   }
+}
+
+.connectedNav, .connectedBottomNav {
+  display: flex;
+  gap: 8px;
+  padding: 16px 8px;
+  background: var(--panel);
+  border-right: 1px solid var(--dark-border);
+  a { color: var(--text); text-decoration: none; padding: 12px; border-radius: 8px; min-height: 44px; }
+  a[aria-current="page"] { background: var(--raised); outline: 1px solid var(--dark-border); }
+  a:focus-visible { outline: 2px solid #ba9fff; outline-offset: 2px; }
+}
+.connectedNav { flex-direction: column; height: 100%; }
+.connectedBottomNav { justify-content: space-around; border-top: 1px solid var(--dark-border); padding: 8px 16px calc(8px + env(safe-area-inset-bottom)); }
+.connectedHeader {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 24px; color: var(--text); border-bottom: 1px solid var(--dark-border);
+  div { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  span { color: var(--muted); font-size: 12px; }
+}
+.contextTrigger {
+  display: none;
+  @include bp.below-expanded { display: block; flex-shrink: 0; padding: 8px; min-height: 44px; border: 1px solid var(--dark-border); border-radius: 8px; background: var(--panel); color: var(--text); cursor: pointer; }
+}
+.connectedContext {
+  width: 240px; flex-shrink: 0; padding: 24px 16px; border-right: 1px solid var(--dark-border); background: var(--panel); color: var(--text); overflow-y: auto;
+  h2 { font-size: 16px; margin: 24px 0 16px; }
+  p { font-size: 13px; line-height: 1.7; margin: 16px 0; color: var(--muted); }
+  a { color: var(--text); text-underline-offset: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adaptiveShell .contextSlot, .adaptiveShell .companionSlot { transition: none; }
 }

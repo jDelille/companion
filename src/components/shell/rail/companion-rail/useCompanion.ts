@@ -7,6 +7,7 @@ import {
   type ApprovalCommand,
   type CompanionContext,
   type CompanionRequestAnswer,
+  type CompanionRequestBody,
   type ContextAnswer,
   type Receipt,
   type Suggestion,
@@ -41,6 +42,7 @@ type PageState = {
   receipts: Receipt[];
   requested: Suggestion[]; // tasks made from typed or spoken requests
   requestStatus: RequestStatus;
+  answer?: {text: string; mode: string};
 };
 
 const emptyPage: PageState = {
@@ -56,6 +58,7 @@ function applyRequestAnswer(
   page: PageState,
   answer: CompanionRequestAnswer,
 ): PageState {
+  if (answer.outcome === "answer") return {...page, answer: {text: answer.answer, mode: answer.mode}, requestStatus: "understood"};
   if (answer.outcome === "newTask") {
     const task = answer.suggestion;
     const others = page.requested.filter((request) => request.id !== task.id);
@@ -79,6 +82,7 @@ const useCompanion = () => {
   const pathname = usePathname();
   const view = viewFromPath(pathname);
 
+  const [revision, setRevision] = useState(0);
   const [loadedContext, setLoadedContext] = useState<{
     viewKey: string;
     answer: ContextAnswer;
@@ -104,7 +108,7 @@ const useCompanion = () => {
     });
 
     return () => controller.abort();
-  }, [pathname]);
+  }, [pathname, revision]);
 
   // Only show context that was loaded for this page
   let context: CompanionContext | null = null;
@@ -135,7 +139,7 @@ const useCompanion = () => {
   };
 
   // Requested tasks show first
-  const suggestions = [...page.requested, ...(context?.suggestions ?? [])];
+  const suggestions = [...new Map([...page.requested, ...(context?.suggestions ?? [])].map(task=>[task.id,task])).values()];
   const featured = context?.featured;
 
   const toggle = (id: string) => {
@@ -179,6 +183,8 @@ const useCompanion = () => {
       return;
     }
 
+    setRevision(value=>value+1);
+    window.dispatchEvent(new Event("dojang:companion-updated"));
     updatePage(viewKey, (current) => ({
       ...current,
       status: { ...current.status, [suggestion.id]: "done" },
@@ -187,7 +193,7 @@ const useCompanion = () => {
   };
 
   // A typed or spoken request
-  const request = async (text: string) => {
+  const request = async (text: string, followUp?: CompanionRequestBody["followUp"]) => {
     const trimmed = text.trim();
     if (!trimmed) return;
 
@@ -208,6 +214,8 @@ const useCompanion = () => {
     const answer = await sendRequest({
       text: trimmed,
       memberId: view.memberId,
+      ...(view.sessionId ? {sessionId:view.sessionId} : {}),
+      ...(followUp ? {followUp} : {}),
       onScreenIds,
     });
 
@@ -224,6 +232,10 @@ const useCompanion = () => {
 
   return {
     contextStatus,
+    view,
+    sessions: context?.sessions,
+    followUpEnabled: context?.followUpEnabled,
+    answer: page.answer,
     label: context?.label,
     heading: context?.heading,
     suggestions,

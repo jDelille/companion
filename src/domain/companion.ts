@@ -24,6 +24,10 @@ export type CompanionContext = {
   label?: string;
   heading?: string;
   suggestions: Suggestion[];
+  records?: {id: string; label: string; detail: string; href: string}[];
+  sessions?: {sessionId: string; title: string; startsAt: string}[];
+  followUps?: {id: string; memberId: string; sessionId: string; memberName: string; summary: string; replyDraft: string; at: string; status: string; mode: string}[];
+  followUpEnabled?: boolean;
   intel?: { label: string; value: string }[];
   featured?: { suggestion: Suggestion; summary: string };
 };
@@ -39,16 +43,20 @@ export type CompanionContext = {
 export type CompanionView = {
   key: string;             // "front-desk" or "member:5001"
   memberId: string | null; // null on the front desk
+  sessionId?: string;
 };
 
 // POST /api/v2/companion/requests: a typed or spoken request
 export type CompanionRequestBody = {
   text: string;
   memberId: string | null;
+  sessionId?: string;
+  followUp?: {sessionId: string; message: string; idempotencyKey: string; correlationId: string};
   onScreenIds: string[]; // tasks already showing, so "review the waiver" can open one
 };
 
 export type CompanionRequestReply =
+  | { outcome: "answer"; answer: string; mode: string }
   | { outcome: "newTask"; suggestion: Suggestion }
   | { outcome: "existingTask"; suggestionId: string }
   | { outcome: "notUnderstood" };
@@ -100,7 +108,7 @@ export type ContextAnswer =
 
 // PROVISIONAL: not agreed yet. How long a Companion call may take before we
 // stop waiting. A timed-out approval may still have run, hence notConfirmed.
-export const COMPANION_TIMEOUT_SECONDS = 15;
+export const COMPANION_TIMEOUT_SECONDS = 45;
 
 // Built once, on the first approve. A notConfirmed retry reuses it as-is.
 export function createApprovalCommand(

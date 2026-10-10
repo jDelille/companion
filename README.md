@@ -1,36 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Dojang Roster Companion
 
-## Getting Started
+The current meeting decisions, setup, limits, verification and deployment handoff are in [ROSTER-COMPANION-INTEGRATION.md](../docs/ROSTER-COMPANION-INTEGRATION.md).
 
-First, run the development server:
+This directory combines Justin's frontend at `jDelille/companion@324976ccd089c03bc8a4bce8472e0ba794381385` with the verified Odoo gateway, staff roster, member reads, internal follow-up approval and encrypted kiosk recovery.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Local checks
+
+```sh
+npm ci
+npm run test:odoo-integration
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+For the complete disposable Odoo/Postgres/browser rehearsal, run `tools/run_rehearsal.sh` from the repository root after following the runtime setup in the handoff. For an interactive local demo use `tools/start_demo.sh`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Connected test setup
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use the environment variable names in `../delivery/frontend/.env.integration.example`. Configure the real values locally or through the deployment's secret manager. Connected mode requires `DOJANG_INTEGRATION_MODE=odoo-test` and `NEXT_PUBLIC_DEMO_MODE=false`. Pair separate kiosk and staff browser profiles at `/integration/pair`.
 
-## Learn More
+Use `companion` as the frontend root when deploying this repository. Supply a reachable Odoo HTTPS origin; a deployed app cannot connect to Odoo on a developer's localhost. The intended Firebase/GKE hosting and current separate Vercel site have not been reconciled or redeployed by this handoff.
 
-To learn more about Next.js, take a look at the following resources:
+## Current action boundary
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The connected workspace reads real Odoo attendance and saves internal reviewed follow-ups. It does not yet send messages, make calls, book makeups or provide full individual IAM. The public kiosk concierge is demo-only and refuses simulated actions in connected mode. The attendance tab labels its latest-check-in-only backend limit.

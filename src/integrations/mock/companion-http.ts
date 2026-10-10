@@ -39,11 +39,7 @@ export function problem(
 export async function mockRoute(
   handleRequest: () => Response | Promise<Response>,
 ): Promise<Response> {
-  // Also in the Odoo test mode: nothing real backs the Companion there yet, and
-  // its gateway refuses to start with NEXT_PUBLIC_DEMO_MODE on
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-  const isOdooTest = process.env.DOJANG_INTEGRATION_MODE === "odoo-test";
-  if (!isDemo && !isOdooTest) {
+  if (process.env.NEXT_PUBLIC_DEMO_MODE !== "true") {
     return Response.json(
       { error: "Companion mock API is only available in demo mode." },
       { status: 501 },
