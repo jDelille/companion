@@ -36,13 +36,17 @@ export async function readiness(request: Request, env: NodeJS.ProcessEnv, fetche
     const hasFixtures = sessionRows.length > 0 && memberRows.length > 0;
     const usable = hasFixtures && capabilities.followUpEnabled;
     return Response.json({service:'dojang-companion', ...releaseInfo(env),
+      scope:'paired_kiosk_staff_reads',
       status:usable ? 'connected_test_ready' : 'connected_test_incomplete',
       backend:'verified_read_round_trip',
       checks:{kioskRead:true,staffRead:true,companionRead:true,sessionCount:sessionRows.length,memberCount:memberRows.length},
       capabilities:{internalFollowUp:capabilities.followUpEnabled,
         ai:capabilities.aiEnabled && capabilities.aiCredentialConfigured ? 'configured_not_exercised' : 'not_configured',
         ebGym:capabilities.ebGymInstalled ? 'installed_not_integration_verified' : 'not_installed',
-        externalMessaging:'not_implemented',makeupBooking:'not_implemented',identity:'paired_test_device'},
+        // This probe uses paired device credentials, not an individual Hub login.
+        // It cannot establish whether Hub actions or provider delivery work.
+        hub:env.DOJANG_HUB_ENABLED === 'true' ? 'configured_not_exercised' : 'not_configured',
+        externalMessaging:'not_checked',makeupBooking:'not_checked',identity:'paired_test_device'},
       productionReady:false, checkedAt:new Date().toISOString()}, {status:usable ? 200 : 503,headers});
   } catch { return fail('CAPABILITY_DISABLED'); }
 }

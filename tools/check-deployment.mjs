@@ -22,11 +22,12 @@ export async function checkDeployment(origin, expectedSha, pairKey, fetcher=fetc
   if(!readyResponse.ok) throw Error('Connected checks failed; verify both gateway roles, fixture scope and follow-up enablement.');
   const ready=await readyResponse.json();
   assert.equal(ready.revision,expectedSha,'Release changed during the check.');
+  assert.equal(ready.scope,'paired_kiosk_staff_reads','Unexpected readiness scope.');
   assert.equal(ready.status,'connected_test_ready','Backend is not ready for the bounded test.');
   assert.equal(ready.backend,'verified_read_round_trip','No verified backend read.');
   assert.equal(ready.productionReady,false,'Unexpected readiness contract.');
   for(const key of ['kioskRead','staffRead','companionRead']) assert.equal(ready.checks?.[key],true,'Missing '+key+' verification.');
-  return {origin,revision:expectedSha,status:ready.status,backend:ready.backend,capabilities:ready.capabilities,productionReady:false};
+  return {origin,revision:expectedSha,status:ready.status,scope:ready.scope,backend:ready.backend,capabilities:ready.capabilities,productionReady:false};
 }
 if(process.argv[1] && import.meta.url===pathToFileURL(process.argv[1]).href){
  const [origin,expectedSha]=process.argv.slice(2);

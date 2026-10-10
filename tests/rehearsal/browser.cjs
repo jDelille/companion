@@ -60,7 +60,10 @@ const choose=async(page,name)=>{
   assert.equal(ready.status,'connected_test_ready');
   assert.equal(ready.productionReady,false);
   assert.equal(ready.capabilities.ai,'not_configured');
-  assert.equal(ready.capabilities.externalMessaging,'not_implemented');
+  assert.equal(ready.scope,'paired_kiosk_staff_reads');
+  assert.equal(ready.capabilities.hub,'configured_not_exercised');
+  assert.equal(ready.capabilities.externalMessaging,'not_checked');
+  assert.equal(ready.capabilities.makeupBooking,'not_checked');
   assert.equal(ready.checks.kioskRead,true);
   assert.equal(ready.checks.staffRead,true);
   fs.writeFileSync(path.join(output,'deployment-readiness.json'),JSON.stringify(ready,null,2));
