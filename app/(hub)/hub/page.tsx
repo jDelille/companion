@@ -7,7 +7,8 @@ import styles from './page.module.css';
 type Message={id:string;text:string;state:string;summary:string;reply:string;mode:string;revision:number;channel:string;guardianName:string;contactRef:string;memberId:string|null;sessionId:string|null};
 type Context={principal:{name:string;role:string};members:{id:string;name:string}[];sessions:{id:string;title:string;startsAt:string;future:boolean;version:number}[];messages:Message[];
   deliveries:{id:string;messageId:string;state:string;providerRef:string|null;approvedBy:string}[];
-  capabilities:{outbound:string;inbound:string;ai:string};timeline:{id:string;memberId:string;action:string;actor:string;at:string}[]};
+  capabilities:{outbound:string;inbound:string;ai:string};timeline:{id:string;memberId:string;action:string;actor:string;at:string;
+    booking?:{enrollmentId:string;classTitle:string;startsAt:string;state:string;attendanceState:string}|null}[]};
 type Action=(operation:string,payload:Record<string,unknown>,messageId?:string)=>Promise<void>;
 
 async function call(body:Record<string,unknown>){
@@ -106,7 +107,15 @@ export default function Hub(){
       <p className={styles.muted}>{data.capabilities.outbound==='not_configured'?'Outbound messaging is not configured. Drafts can still be reviewed.':'Replies require your review and approval before entering the delivery queue.'}</p>
       {hasPending&&<button disabled={busy} onClick={retryPending}>Retry unconfirmed action</button>}
       <section aria-label="Parent messages">{data.messages.length?data.messages.map(m=><MessageCard key={`${m.id}:${m.revision}`} message={m} data={data} act={act} busy={busy} locked={hasPending} now={now} feedback={bookingFeedback[m.id]} clearFeedback={()=>clearBookingFeedback(m.id)} retry={hasPending&&pendingMessageId===m.id?retryPending:undefined}/>):<article className={styles.card}><h2>No messages to review</h2><p>Messages appear here when received through your configured channel and within your assigned scope.</p></article>}</section>
-      <section className={styles.card}><h2>Recent actions</h2>{data.timeline.length?data.timeline.map(t=><p key={t.id}>{data.members.find(m=>m.id===t.memberId)?.name} · {t.action.replaceAll('_',' ')} · {t.actor} · {new Date(t.at).toLocaleString()}</p>):<p>No recorded actions yet.</p>}</section>
+      <section className={styles.card} aria-label="Recent actions"><h2>Recent actions</h2>{data.timeline.length?data.timeline.map(t=><div key={t.id} className={styles.auditEntry}>
+        <p>{data.members.find(m=>m.id===t.memberId)?.name} · {t.action.replaceAll('_',' ')} · {t.actor} · {new Date(t.at).toLocaleString()}</p>
+        {t.booking?<div role="group" aria-label={`Saved booking receipt ${t.booking.enrollmentId}`} className={styles.savedReceipt}>
+          <strong>Odoo registration receipt: {t.booking.enrollmentId}</strong>
+          <p>{t.booking.classTitle} · {new Date(t.booking.startsAt).toLocaleString()}</p>
+          <p>Current registration: {t.booking.state}. Attendance: {t.booking.attendanceState}.</p>
+          <small>Loaded from Odoo. This booking record does not confirm that a message was sent.</small>
+        </div>:['book','change_class'].includes(t.action)&&<small>Receipt details unavailable. Check the registration in Odoo before booking again.</small>}
+      </div>):<p>No recorded actions yet.</p>}</section>
     </>}
   </main>;
 }

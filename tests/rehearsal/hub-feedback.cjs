@@ -37,6 +37,8 @@ function fixture(future=false){
     if(mode==='stale-original')return json({error:{code:'ENROLLMENT_REVIEW_REQUIRED'}},409);
     if(mode==='uncertain'&&commands.length===1)return route.abort('connectionfailed');
     acknowledged=true;
+    data.timeline=[{id:'audit1',memberId:'5',sessionId:'20',action:body.operation,actor:'Demo Manager',at:new Date().toISOString(),
+     ...(mode==='legacy-backend'?{}:{booking:{enrollmentId:'72',classTitle:'Makeup class',startsAt:data.sessions[1].startsAt,state:'registered',attendanceState:'pending'}})}];
     if(mode==='revision-change')data.messages[0].revision++;
     return json({enrollmentId:'72',replayed:commands.length>1});
    });
@@ -46,7 +48,7 @@ function fixture(future=false){
    const result=card.getByRole('status',{name:'Booking result for message m1',exact:true});
    const choose=async()=>{await card.getByLabel('Target class',{exact:true}).selectOption('20');await card.getByRole('button',{name:'Review class change',exact:true}).click();};
    const confirm=()=>card.getByRole('button',{name:'Confirm booking in Odoo',exact:true}).click();
-   return {context,page,card,result,commands,choose,confirm};
+   return {context,page,card,result,commands,choose,confirm,data};
   }
   stage='started original and inline success';
   {
@@ -116,6 +118,36 @@ function fixture(future=false){
    await s.page.getByRole('button',{name:'Refresh',exact:true}).click();
    await s.result.getByText(/Receipt: 72/).waitFor();
    pass('receipt survives message revision remount and a manual context refresh');await s.context.close();
+  }
+  stage='hard reload and fresh page receipt';
+  {
+   const s=await setup();await s.choose();await s.confirm();
+   await s.result.getByText(/Receipt: 72/).waitFor();
+   await s.page.reload();
+   const saved=s.page.getByRole('group',{name:'Saved booking receipt 72',exact:true});
+   await saved.getByText('Odoo registration receipt: 72',{exact:true}).waitFor();
+   await saved.getByText(/Makeup class/).waitFor();
+   await saved.getByText('Current registration: registered. Attendance: pending.',{exact:true}).waitFor();
+   assert.equal(s.commands.length,1);
+   assert.equal(await s.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   if(evidenceDir)await s.page.screenshot({path:path.join(evidenceDir,'hub-persisted-receipt-mobile.png'),fullPage:true});
+   await s.page.goto(origin+'/kiosk');await s.page.goto(origin+'/hub');
+   await saved.getByText('Odoo registration receipt: 72',{exact:true}).waitFor();
+   assert.equal(s.commands.length,1);
+   pass('saved receipt survives hard reload and a fresh page without another booking request');
+   s.data.timeline[0].booking.state='cancelled';s.data.sessions=[];
+   await s.page.reload();
+   await saved.getByText('Current registration: cancelled. Attendance: pending.',{exact:true}).waitFor();
+   pass('historical receipt shows current cancellation and does not depend on the future class list');await s.context.close();
+  }
+  stage='older backend response';
+  {
+   const s=await setup({mode:'legacy-backend'});await s.choose();await s.confirm();
+   await s.result.getByText(/Receipt: 72/).waitFor();await s.page.reload();
+   await s.page.getByText('Receipt details unavailable. Check the registration in Odoo before booking again.',{exact:true}).waitFor();
+   assert.equal(await s.page.getByRole('group',{name:'Saved booking receipt 72',exact:true}).count(),0);
+   assert.equal(s.commands.length,1);
+   pass('older backend is handled without inventing a receipt or resubmitting');await s.context.close();
   }
   if(evidenceDir)fs.writeFileSync(path.join(evidenceDir,'hub-feedback-results.json'),JSON.stringify({mode:'synthetic browser fault injection only; real Odoo flow tested separately',checks},null,2));
  }finally{await browser.close();}
