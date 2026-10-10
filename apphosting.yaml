@@ -1,0 +1,37 @@
+# Firebase App Hosting settings for staging (backend "companion", branch monday-release).
+# Secret values live in Google Secret Manager (project dojang-companion); only their names are here.
+# Odoo staging is synthetic demo data only.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 2
+
+env:
+  - variable: DOJANG_INTEGRATION_MODE
+    value: odoo-test
+  - variable: NEXT_PUBLIC_DEMO_MODE
+    value: "false"
+    availability: [BUILD, RUNTIME]
+  - variable: DOJANG_PUBLIC_ORIGIN
+    value: https://companion--dojang-companion.us-central1.hosted.app
+  - variable: DOJANG_ODOO_URL
+    value: https://odoo-8-232-33-240.sslip.io
+  - variable: DOJANG_ODOO_DATABASE
+    value: dojang_demo_staging
+  - variable: DOJANG_HUB_ENABLED
+    value: "true"
+  - variable: DOJANG_HUB_SITE_ID
+    value: "1"
+
+  - variable: DOJANG_COOKIE_SECRET
+    secret: dojang-cookie-secret
+  - variable: DOJANG_KIOSK_TOKEN
+    secret: dojang-kiosk-token
+  - variable: DOJANG_KIOSK_GATEWAY_KEY
+    secret: dojang-kiosk-gateway-key
+  - variable: DOJANG_STAFF_GATEWAY_KEY
+    secret: dojang-staff-gateway-key
+  - variable: DOJANG_KIOSK_PAIR_KEY
+    secret: dojang-kiosk-pair-key
+  - variable: DOJANG_STAFF_PAIR_KEY
+    secret: dojang-staff-pair-key
