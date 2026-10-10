@@ -45,10 +45,13 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
   passed('verified child/class resolution and a durable template draft; unconfigured sends stay disabled');
   stage='class booking';
   await page.getByText('Book or change a class',{exact:true}).click();
+  assert.equal(await page.getByLabel('Booking action',{exact:true}).locator('option[value="change_class"]').evaluate(el=>el.disabled),true);
+  await page.getByText(/The original class has already started/).waitFor();
   await page.getByLabel('Target class',{exact:true}).selectOption(fixture.makeupSessionId);
   await page.getByRole('button',{name:'Review class change',exact:true}).click();
   await page.getByRole('button',{name:'Confirm booking in Odoo',exact:true}).click();
-  await page.getByText(/Registration saved in Odoo\. Receipt:/).waitFor();
+  await page.getByRole('status',{name:/Booking result for message/}).getByText(/Registration saved in Odoo\. Receipt:/).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Booking saved',exact:true}).isDisabled(),true);
   passed('reviewed class booking creates a real Odoo registration with a receipt');
   stage='independent browser persistence';
   const call=async(operation,payload,key=randomUUID())=>{const r=await context.request.post(origin+'/api/hub',{headers:{origin},data:{operation,payload,requestKey:key}});return {status:r.status(),value:await r.json()};};
