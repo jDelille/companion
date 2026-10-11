@@ -14,9 +14,9 @@ export default function Rail() {
     <nav className={styles.rail} aria-label="Main">
       <div className={styles.rail__logo}>D</div>
       <ul className={styles.rail__links}>
-        {navItems.map((item) => (
+        {/* {navItems.map((item) => (
           <RailItem key={item.id} item={item} isActive={isNavItemActive(item, pathname)} />
-        ))}
+        ))} */}
       </ul>
       <div className={styles.rail__user}>MK</div>
     </nav>

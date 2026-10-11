@@ -20,3 +20,28 @@ body {
 ul {
   list-style-type: none;
 }
+
+.connectedContextSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chooseMemberBtn {
+  text-decoration: none;
+  background: var(--raised);
+  padding: 14px 10px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.testWorkspaceWrapper {
+  background-color: var(--raised);
+  padding: 10px;
+  border-radius: var(--radius-control);
+}
