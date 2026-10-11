@@ -55,7 +55,10 @@ export default function ConnectedWorkflowView({
           {!historyOnly && data && (
             <p className={styles.intro}>
               Class attendance comes from the same Odoo records as kiosk
-              check-in. <strong>Pending</strong> means not yet checked in.
+              check-in.
+              {/* Its own line: a key for the statuses below */}
+              <br />
+              <strong>Pending</strong> means not yet checked in.
             </p>
           )}
         </div>
