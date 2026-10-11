@@ -2,21 +2,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   color: var(--text);
-  font-size: 12px;
+  font-size: var(--text-sm);
   border-bottom: 1px solid var(--line);
-  padding: 15px 0;
+  padding: 1rem 0;
   flex-wrap: wrap;
 
-  // Open / Close
+  // The suggestion's title
+  > span {
+    font-weight: 500;
+  }
+
+  // Open / Close: violet, it's an AI suggestion
   .toggle {
     all: unset;
-    color: var(--muted);
-    font-size: 11px;
+    color: var(--agent);
+    font-size: var(--text-sm);
+    font-weight: 600;
     cursor: pointer;
 
     &:hover {
-      color: var(--text);
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
   }
 
