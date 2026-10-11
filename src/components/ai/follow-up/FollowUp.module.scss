@@ -114,6 +114,26 @@
 }
 
 
+// "Connect staff device" inside the not-connected message
+.connectButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  margin-top: 0.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--interactive);
+  }
+}
+
 .itemList {
   list-style: none;
   display: flex;

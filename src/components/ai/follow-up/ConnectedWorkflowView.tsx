@@ -77,10 +77,15 @@ export default function ConnectedWorkflowView({
           Loading Odoo records…
         </p>
       ) : data === null ? (
-        <p className={styles.notice} role="alert">
+        // Usually this device isn't paired yet; the button goes straight to pairing
+        <div className={styles.empty} role="alert">
+          <strong>Couldn&apos;t load staff records</strong>
           Unable to load authorized records. Connect a staff test device and
           retry.
-        </p>
+          <Link href="/integration/pair" className={styles.connectButton}>
+            Connect staff device
+          </Link>
+        </div>
       ) : (
         <div className={styles.sections}>
           {!historyOnly && (
