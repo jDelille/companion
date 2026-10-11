@@ -5,6 +5,8 @@ import type { Member, MemberAttendance } from "@/domain/member";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { odooRoute, odooTestMode } from "@/server/odoo-runtime";
+import { InfoIcon } from "@/icons";
+import styles from "@/components/people/member-360/Member360View.module.scss";
 export const dynamic = "force-dynamic";
 export default async function MemberPage({params}: {params: Promise<{id: string}>}) {
   const {id} = await params;
@@ -14,7 +16,7 @@ export default async function MemberPage({params}: {params: Promise<{id: string}
     if (response.status === 404) notFound();
     if (!response.ok) return <section><h1>Member information unavailable</h1><p>Connect an authorized staff test device, then reload this record.</p><a href="/integration/pair">Connect device</a></section>;
     const data = await response.json() as {member: Member; attendance: MemberAttendance};
-    return <><p role="status">Odoo test data. Attendance and identity are connected. Unconnected actions are not enabled.</p>
+    return <><p role="status" className={styles.notice}><InfoIcon color="currentColor" size={16} /><span>Odoo test data. Attendance and identity are connected. Unconnected actions are not enabled.</span></p>
       <Member360View member={data.member} attendance={data.attendance} liveTest />
       <ConnectedWorkflowView historyOnly />
     </>;

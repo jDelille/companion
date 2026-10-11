@@ -112,8 +112,8 @@ export default function ConnectedWorkflowView({
             <h3 className={styles.sectionLabel}>Reviewed follow-ups</h3>
             {!data.followUps?.length ? (
               <p className={styles.empty}>
-                No approved follow-ups yet. Open a member and use “Prepare
-                parent follow-up” in the Companion.
+                <strong>No approved follow-ups yet.</strong>
+                Open a member and use “Prepare parent follow-up” in the Companion.
               </p>
             ) : (
               <ul className={styles.itemList}>
