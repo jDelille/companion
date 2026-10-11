@@ -16,7 +16,7 @@
 
 .heading {
   margin-top: 1rem;
-  font-size: 2.25rem;
+  font-size: var(--kiosk-title);
 }
 
 // Student and class, label on the left, value on the right
@@ -39,12 +39,12 @@
   }
 
   dt {
-    font-size: 0.95rem;
+    font-size: var(--text-sm);
     color: var(--text-secondary);
   }
 
   dd {
-    font-size: 1.25rem;
+    font-size: var(--text-lg);
     font-weight: 600;
     text-align: right;
   }

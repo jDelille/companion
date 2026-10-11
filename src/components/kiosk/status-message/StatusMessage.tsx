@@ -18,13 +18,19 @@ const StatusMessage = ({ message, detail, actions = [] }: Props) => {
   return (
     // role="status" so screen readers announce it when it appears
     <div className={styles.status} role="status">
-      <p>{message}</p>
-      {detail && <p>{detail}</p>}
+      <div className={styles.text}>
+        <p className={styles.message}>{message}</p>
+        {detail && <p className={styles.detail}>{detail}</p>}
+      </div>
 
       {actions.length > 0 && (
         <div className={styles.actions}>
           {actions.map((action) => (
-            <PlainButton key={action.label} onClick={action.onClick}>
+            <PlainButton
+              key={action.label}
+              onClick={action.onClick}
+              className={styles.action}
+            >
               {action.label}
             </PlainButton>
           ))}

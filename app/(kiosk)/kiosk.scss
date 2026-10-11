@@ -6,6 +6,11 @@
 // Landscape (Check In left, Today right) will get its own layout later.
 :root {
   --kiosk-column-width: 600px;
+
+  // Heading sizes. KioskShell shrinks them on phones, so every screen scales together.
+  --kiosk-title-welcome: 3.5rem; // "Welcome to …"
+  --kiosk-title-large: 3rem; // "Choose your class"
+  --kiosk-title: 2.25rem; // "Find your name", Confirm, Result, Concierge
 }
 
 * {

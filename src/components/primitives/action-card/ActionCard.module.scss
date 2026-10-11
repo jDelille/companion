@@ -61,10 +61,10 @@
   border-color: transparent;
 
   .label {
-    font-size: 26px;
+    font-size: var(--text-xl);
   }
   .description {
-    font-size: 16px;
+    font-size: var(--text-base);
   }
   .arrow {
     font-size: 2rem;
@@ -76,11 +76,11 @@
   gap: 0.75rem;
 
   .label {
-    font-size: 22px;
+    font-size: var(--text-lg);
     font-weight: 500;
   }
   .description {
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
   .arrow {
     font-size: 1.5rem;

@@ -23,6 +23,14 @@
   --danger: #ef4053;
   --info: #4c8dff;
 
+  // Type scale: every kiosk text uses one of these (headings use the kiosk title tokens)
+  --text-xs: 0.75rem; // 12px uppercase labels, eyebrows, tags
+  --text-sm: 0.875rem; // 14px muted info: durations, field labels, descriptions
+  --text-base: 1rem; // 16px body, buttons, details
+  --text-md: 1.125rem; // 18px subtitles, choices
+  --text-lg: 1.25rem; // 20px names, values, inputs, card titles, messages
+  --text-xl: 1.5rem; // 24px big card labels, class times
+
   // Sizing
   --control-height: 40px;
   --touch-height: 48px;

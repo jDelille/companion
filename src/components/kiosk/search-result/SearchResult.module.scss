@@ -37,11 +37,11 @@
   border-radius: 50%;
   background: var(--interactive);
   color: var(--text-secondary);
-  font-size: 0.95rem;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
 .name {
-  font-size: 1.25rem;
+  font-size: var(--text-lg);
   font-weight: 600;
 }

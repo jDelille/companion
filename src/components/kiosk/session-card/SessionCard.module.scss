@@ -28,7 +28,7 @@
 }
 
 .time {
-  font-size: 24px;
+  font-size: var(--text-xl);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -36,7 +36,7 @@
 
 .period {
   margin-left: 0.35rem;
-  font-size: 1rem;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--muted);
 }
@@ -49,17 +49,47 @@
 }
 
 .title {
-  font-size: 22px;
+  font-size: var(--text-lg);
   font-weight: 600;
 }
 
 .duration {
-  font-size: 15px;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
 .capacity {
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
+}
+
+// Phones: narrower time column and gaps, so the class name gets the room.
+// A name that still doesn't fit ends in "…" instead of wrapping.
+@container kiosk (width < 540px) {
+  .card {
+    grid-template-columns: 4.75rem minmax(0, 1fr) auto;
+    gap: 1.75rem;
+    padding-inline: 1rem;
+  }
+
+  .time {
+    font-size: var(--text-lg);
+  }
+
+  .period {
+    font-size: var(--text-sm);
+    margin-left: 0.2rem;
+  }
+
+  .title {
+    font-size: var(--text-md);
+  }
+
+}
+
+.title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }

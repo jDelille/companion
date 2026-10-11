@@ -1,16 +1,51 @@
+@use "../../../../styles/glass" as glass;
+
+// One glass card for every kiosk message (no match, empty, unavailable, loading),
+// so it reads as one block, with its next steps right inside it
 .status {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 3rem 0;
-  font-size: 1.25rem;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  @include glass.card;
+  border-radius: var(--radius-leaf);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+// What happened
+.message {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+}
+
+// Where to go
+.detail {
+  font-size: var(--text-base);
   color: var(--text-secondary);
 }
 
 .actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  // Pull the row left by the button padding, so the first label lines up with the text above
-  margin-inline-start: calc(-1 * var(--button-inset));
+  gap: 0.75rem;
+}
+
+// Next steps on a touch screen: the oval always shows, so they read as buttons
+// without hover. `.actions .action` outranks the button's own quiet style.
+.actions .action {
+  background: var(--glass-fill);
+  border-color: var(--glass-edge);
+
+  &:hover,
+  &:active {
+    background: var(--glass-fill-hover);
+    border-color: var(--glass-edge-strong);
+  }
 }

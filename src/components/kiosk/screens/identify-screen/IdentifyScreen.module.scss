@@ -40,7 +40,7 @@
 
 .heading {
   margin-top: 1rem;
-  font-size: 2.25rem;
+  font-size: var(--kiosk-title);
 }
 
 // One large field, the only thing to do on this screen
@@ -50,10 +50,10 @@
   width: 100%;
   min-height: calc(var(--touch-height) * 1.5);
   padding: 0 1.75rem;
-  @include glass.card;
+  @include glass.flat;
   border-radius: var(--radius-pill);
   color: var(--text);
-  font-size: 1.5rem;
+  font-size: var(--text-lg);
 
   &::placeholder {
     color: var(--muted);
@@ -79,4 +79,11 @@
   flex-direction: column;
   gap: 10px;
   margin-top: 1.5rem;
+}
+
+// Phones: a bit smaller still, but never under 16px (iOS zooms into smaller fields)
+@container kiosk (width < 540px) {
+  .search {
+    font-size: var(--text-md);
+  }
 }

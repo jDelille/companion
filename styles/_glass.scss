@@ -14,6 +14,14 @@
   }
 }
 
+// Same look without the blur, for things nothing interesting sits behind
+// (text fields). Chrome can smear a neighbouring element's hover repaint into a
+// blurred field; without the blur there's nothing to smear.
+@mixin flat {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-edge);
+}
+
 // Big title card: no outline, the title sits straight on the glass
 @mixin card-borderless {
   @include card;

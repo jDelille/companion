@@ -26,5 +26,10 @@
 @container kiosk (width < 540px) {
   .main {
     --button-inset: 0.75rem;
+
+    // Big headings fit a phone without wrapping into three lines
+    --kiosk-title-welcome: 2.25rem;
+    --kiosk-title-large: 2rem;
+    --kiosk-title: 1.75rem;
   }
 }

@@ -8,10 +8,10 @@
     flex-direction: column;
     gap: 1rem;
     h1 {
-      font-size: 3.5rem;
+      font-size: var(--kiosk-title-welcome);
     }
     p {
-      font-size: 18px;
+      font-size: var(--text-md);
     }
   }
 
