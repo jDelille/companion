@@ -18,7 +18,7 @@ const record=(name)=>{evidence.push({name,result:'passed'});console.log('PASS '+
 const poll=async(fn,timeout=25000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await fn())return;await new Promise(r=>setTimeout(r,300))}throw new Error('Timed out waiting for verified state')};
 const pair=async(page,role)=>{
   await page.goto(BASE+'/integration/pair');
-  await page.locator('select[name=role]').selectOption(role);
+  await pickOption(page,'Access',role);
   await page.locator('input[name=pairKey]').fill(process.env[role==='staff'?'DOJANG_STAFF_PAIR_KEY':'DOJANG_KIOSK_PAIR_KEY']);
   await page.getByRole('button',{name:'Connect test device'}).click();
   await page.waitForURL('**/'+(role==='staff'?'integration/members':'kiosk'));

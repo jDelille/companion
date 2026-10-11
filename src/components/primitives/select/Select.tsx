@@ -11,8 +11,12 @@ export type SelectOption = {
 
 type Props = {
   options: SelectOption[];
-  value: string; // "" = nothing picked yet
-  onChange: (value: string) => void;
+  // Controlled: pass value + onChange. Uncontrolled (e.g. a plain server form):
+  // pass defaultValue and a name instead. "" = nothing picked yet.
+  value?: string;
+  defaultValue?: string;
+  onChange?: (value: string) => void;
+  name?: string; // posts the picked value with its form, like a native <select>
   placeholder?: string; // shown while value is ""
   disabled?: boolean;
   ariaLabel?: string; // only needed when it isn't inside a <label>
@@ -25,8 +29,10 @@ type Props = {
 // Escape) and screen readers (listbox) behave the same.
 const Select = ({
   options,
-  value,
+  value: controlledValue,
+  defaultValue = "",
   onChange,
+  name,
   placeholder = "Choose…",
   disabled = false,
   ariaLabel,
@@ -34,6 +40,8 @@ const Select = ({
   className,
 }: Props) => {
   const [open, setOpen] = useState(false);
+  const [ownValue, setOwnValue] = useState(defaultValue); // used when not controlled
+  const value = controlledValue ?? ownValue;
   const [activeIndex, setActiveIndex] = useState(-1); // highlighted while open
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -70,7 +78,9 @@ const Select = ({
 
   const pick = (index: number) => {
     if (!isPickable(index)) return;
-    onChange(options[index].value);
+    const picked = options[index].value;
+    if (controlledValue === undefined) setOwnValue(picked);
+    onChange?.(picked);
     setOpen(false);
     buttonRef.current?.focus();
   };
@@ -111,6 +121,8 @@ const Select = ({
 
   return (
     <div ref={rootRef} className={[styles.select, className].filter(Boolean).join(" ")}>
+      {/* With a name, the picked value is posted with the surrounding form */}
+      {name && <input type="hidden" name={name} value={value} />}
       <button
         ref={buttonRef}
         type="button"
