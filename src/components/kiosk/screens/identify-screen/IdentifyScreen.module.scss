@@ -1,9 +1,35 @@
+@use "../../../../../styles/glass" as glass;
+
 // Width comes from the shell, like every kiosk screen
 .screen {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   padding: 2rem 0;
+}
+
+// Everything under the class header: same spacing as the screen. It waits
+// until the class card has mostly landed in the header (the 350ms morph in
+// kiosk.scss), then fades up, so the card never slides across it.
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: after-morph 220ms ease-out 260ms both;
+}
+
+@keyframes after-morph {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+// No fade or slide for people who ask for less motion: it's just there
+@media (prefers-reduced-motion: reduce) {
+  .body {
+    animation: none;
+  }
 }
 
 .topBar {
@@ -23,10 +49,9 @@
   box-sizing: border-box; // all: unset resets this to content-box
   width: 100%;
   min-height: calc(var(--touch-height) * 1.5);
-  padding: 0 1.25rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--panel);
+  padding: 0 1.75rem;
+  @include glass.card;
+  border-radius: var(--radius-pill);
   color: var(--text);
   font-size: 1.5rem;
 
@@ -35,7 +60,7 @@
   }
 
   &:focus-visible {
-    border-color: var(--text-secondary);
+    border-color: var(--glass-edge-strong);
   }
 
   &:disabled {

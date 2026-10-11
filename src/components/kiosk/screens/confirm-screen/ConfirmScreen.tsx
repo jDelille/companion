@@ -29,7 +29,7 @@ const ConfirmScreen = ({
   return (
     <div className={styles.screen}>
       <div className={styles.topBar}>
-        <PlainButton onClick={onBack} disabled={isSending}>
+        <PlainButton flush onClick={onBack} disabled={isSending}>
           ← Back
         </PlainButton>
       </div>

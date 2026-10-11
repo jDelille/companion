@@ -1,3 +1,5 @@
+@use "../../../../styles/glass" as glass;
+
 .card {
   all: unset;
   box-sizing: border-box; // all: unset resets this to content-box
@@ -7,15 +9,16 @@
   gap: 2rem;
   width: 100%;
   min-height: var(--touch-height);
-  padding: 1.75rem 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  padding: 1.75rem 1.25rem;
+  @include glass.card;
+  border-radius: var(--radius-leaf);
   color: var(--text);
   cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
 
   &:hover,
   &:active {
-    background: var(--raised);
+    @include glass.card-active;
   }
 
   &:focus-visible {

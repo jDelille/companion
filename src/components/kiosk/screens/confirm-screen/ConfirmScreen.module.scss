@@ -1,3 +1,5 @@
+@use "../../../../../styles/glass" as glass;
+
 // Width comes from the shell, like every kiosk screen
 .screen {
   display: flex;
@@ -21,8 +23,8 @@
 .summary {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  @include glass.card;
+  border-radius: var(--radius-leaf);
 }
 
 .summaryRow {
@@ -33,7 +35,7 @@
   padding: 1.25rem;
 
   & + & {
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--glass-edge);
   }
 
   dt {

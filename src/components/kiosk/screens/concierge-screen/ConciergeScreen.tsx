@@ -41,11 +41,11 @@ const ConciergeScreen = (props: Props) => {
     <div className={styles.screen}>
       <div className={styles.topBar}>
         {state.view === "ask" && (
-          <PlainButton onClick={props.onExit}>← Back</PlainButton>
+          <PlainButton flush onClick={props.onExit}>← Back</PlainButton>
         )}
         {/* No way back from a receipt, same as the check-in Result: only Done */}
         {state.view !== "ask" && state.view !== "done" && (
-          <PlainButton onClick={props.onAskAgain} disabled={state.view === "sending"}>
+          <PlainButton flush onClick={props.onAskAgain} disabled={state.view === "sending"}>
             ← Ask something else
           </PlainButton>
         )}

@@ -1,0 +1,27 @@
+// Frosted glass card: see-through fill, soft edge, blur of what's behind.
+// One recipe so every card in the kiosk and Companion looks the same.
+// Colors and sizes come from the tokens in _variables.scss.
+@mixin card {
+  background: var(--glass-fill);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+
+  // Without blur support, fall back to the solid panel color so text stays readable
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: var(--panel);
+  }
+}
+
+// Big title card: no outline, the title sits straight on the glass
+@mixin card-borderless {
+  @include card;
+  border-color: transparent;
+}
+
+// Hover/press on a tappable glass card
+@mixin card-active {
+  background: var(--glass-fill-hover);
+  border-color: var(--glass-edge-strong);
+}

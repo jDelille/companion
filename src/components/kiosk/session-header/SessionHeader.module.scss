@@ -1,3 +1,5 @@
+@use "../../../../styles/glass" as glass;
+
 // Same grid, border and type as SessionCard, so the morph from the card looks like one object
 .header {
   display: grid;
@@ -5,10 +7,9 @@
   align-items: center;
   gap: 2rem;
   width: 100%;
-  padding: 1.25rem 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--panel);
+  padding: 1.25rem 1.25rem;
+  @include glass.card;
+  border-radius: var(--radius-leaf);
 }
 
 .time {

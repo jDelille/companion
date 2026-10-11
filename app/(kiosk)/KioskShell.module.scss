@@ -6,6 +6,8 @@
     env(safe-area-inset-bottom) env(safe-area-inset-left);
   container-type: inline-size;
   container-name: kiosk;
+  // Flush buttons reach a few px into the side margin on phones; never scroll sideways for it
+  overflow-x: clip;
 }
 
 // The one centered column every screen lives in, so screens never set their own width
@@ -16,5 +18,13 @@
   width: 100%;
   max-width: var(--kiosk-column-width);
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 1.25rem;
+}
+
+// Phones: text buttons get a little less side padding, so a flush Back
+// button's oval sits inside the 20px page margin with room to spare
+@container kiosk (width < 540px) {
+  .main {
+    --button-inset: 0.75rem;
+  }
 }

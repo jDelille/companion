@@ -1,3 +1,5 @@
+@use "../../../../styles/glass" as glass;
+
 .card {
   all: unset;
   box-sizing: border-box; // all: unset resets this to content-box
@@ -6,15 +8,28 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  padding: 1rem 1.5rem;
+  @include glass.card;
+  border-radius: var(--radius-leaf);
   color: var(--text);
   cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+
+  &:hover,
+  &:active {
+    @include glass.card-active;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
 
   &:disabled {
     cursor: default;
     color: var(--muted);
+    background: var(--glass-fill);
+    border-color: var(--glass-edge);
 
     .description {
       color: var(--muted);
@@ -39,9 +54,11 @@
 
 // Sizes
 
+// Big title card: no outline, the title sits straight on the glass
 .large {
   height: 164px;
   gap: 0.75rem;
+  border-color: transparent;
 
   .label {
     font-size: 26px;

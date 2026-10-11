@@ -5,6 +5,9 @@ type Props = {
   children: ReactNode;
   onClick: () => void;
   disabled?: boolean; // e.g. while a check-in is sending
+  // Line the text up with the content's left edge (Back in a top bar). The oval
+  // hover background then sits in the margin instead of pushing the text in.
+  flush?: boolean;
   className?: string;
 };
 
@@ -13,9 +16,10 @@ const PlainButton = ({
   children,
   onClick,
   disabled = false,
+  flush = false,
   className,
 }: Props) => {
-  const classNames = [styles.button, className].filter(Boolean).join(" ");
+  const classNames = [styles.button, flush && styles.flush, className].filter(Boolean).join(" ");
 
   return (
     <button

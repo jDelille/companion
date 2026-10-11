@@ -11,4 +11,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  // Pull the row left by the button padding, so the first label lines up with the text above
+  margin-inline-start: calc(-1 * var(--button-inset));
 }

@@ -46,9 +46,10 @@
     grid-template-columns: 8rem 1fr;
     align-items: center;
     gap: 2rem;
-    padding: 1.75rem 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-card);
+    padding: 1.75rem 1.25rem;
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-leaf);
+    background: var(--glass-fill);
     animation: pulse 1.6s ease-in-out infinite;
   }
 
@@ -84,6 +85,25 @@
   }
 }
 
+// Coming Back from identify: the class header slides back into its card (the
+// 350ms morph in kiosk.scss). Everything else waits until it has mostly landed,
+// then fades in, the reverse of the forward pick. Back stays put, so the
+// control you just used doesn't flicker.
+.returning {
+  .heading,
+  .today,
+  .list > li:not(.landing) {
+    animation: after-morph 220ms ease-out 260ms both;
+  }
+}
+
+@keyframes after-morph {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
 // Subtle pulse is allowed by the motion rules. Off for people who ask for less motion.
 @keyframes pulse {
   0%,
@@ -96,7 +116,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .screen .skeletonRow {
+  .screen .skeletonRow,
+  .returning .heading,
+  .returning .today,
+  .returning .list > li {
     animation: none;
   }
 }

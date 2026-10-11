@@ -50,71 +50,77 @@ const IdentifyScreen = ({
   return (
     <div className={styles.screen}>
       <div className={styles.topBar}>
-        <PlainButton onClick={onBack}>← Back</PlainButton>
+        <PlainButton flush onClick={onBack}>
+          ← Back
+        </PlainButton>
       </div>
 
       <SessionHeader session={session} onChangeSession={onChangeSession} />
 
-      <h1 id="find-your-name" className={styles.heading}>
-        Find your name
-      </h1>
+      {/* Fades in just after the class card lands in the header, so the card
+          never slides over the heading and search field */}
+      <div className={styles.body}>
+        <h1 id="find-your-name" className={styles.heading}>
+          Find your name
+        </h1>
 
-      <input
-        ref={searchField}
-        className={styles.search}
-        type="text"
-        value={query}
-        onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="Start typing your first name"
-        aria-labelledby="find-your-name"
-        disabled={!canSearch}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck={false}
-        enterKeyHint="search"
-      />
+        <input
+          ref={searchField}
+          className={styles.search}
+          type="text"
+          value={query}
+          onChange={(event) => onQueryChange(event.target.value)}
+          placeholder="Start typing your first name"
+          aria-labelledby="find-your-name"
+          disabled={!canSearch}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck={false}
+          enterKeyHint="search"
+        />
 
-      {/* Results sit right under the field so the on-screen keyboard doesn't cover them */}
-      <div className={styles.results}>
-        {rosterStatus === "loading" && (
-          <StatusMessage message="Loading the class list…" />
-        )}
+        {/* Results sit right under the field so the on-screen keyboard doesn't cover them */}
+        <div className={styles.results}>
+          {rosterStatus === "loading" && (
+            <StatusMessage message="Loading the class list…" />
+          )}
 
-        {rosterStatus === "unavailable" && (
-          <StatusMessage
-            message="The class list can't be loaded right now."
-            actions={[
-              { label: "Try again", onClick: onRetry },
-              { label: "Change class", onClick: onChangeSession },
-              { label: "Get help from staff", onClick: onStaffHelp },
-            ]}
-          />
-        )}
+          {rosterStatus === "unavailable" && (
+            <StatusMessage
+              message="The class list can't be loaded right now."
+              actions={[
+                { label: "Try again", onClick: onRetry },
+                { label: "Change class", onClick: onChangeSession },
+                { label: "Get help from staff", onClick: onStaffHelp },
+              ]}
+            />
+          )}
 
-        {rosterStatus === "ready" && search.status === "noMatch" && (
-          <StatusMessage
-            message={`We couldn't find that name in ${session.title}.`}
-            detail="Check the spelling, or get help from staff."
-            actions={[
-              { label: "Change class", onClick: onChangeSession },
-              { label: "Get help from staff", onClick: onStaffHelp },
-            ]}
-          />
-        )}
+          {rosterStatus === "ready" && search.status === "noMatch" && (
+            <StatusMessage
+              message={`We couldn't find that name in ${session.title}.`}
+              detail="Check the spelling, or get help from staff."
+              actions={[
+                { label: "Change class", onClick: onChangeSession },
+                { label: "Get help from staff", onClick: onStaffHelp },
+              ]}
+            />
+          )}
 
-        {rosterStatus === "ready" && search.status === "found" && (
-          <ul className={styles.matches} aria-label="Matching names">
-            {search.matches.map((member) => (
-              <li key={member.memberId}>
-                <SearchResult
-                  candidate={member}
-                  onSelect={() => onSelectMember(member)}
-                />
-              </li>
-            ))}
-          </ul>
-        )}
+          {rosterStatus === "ready" && search.status === "found" && (
+            <ul className={styles.matches} aria-label="Matching names">
+              {search.matches.map((member) => (
+                <li key={member.memberId}>
+                  <SearchResult
+                    candidate={member}
+                    onSelect={() => onSelectMember(member)}
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
