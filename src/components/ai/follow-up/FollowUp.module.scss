@@ -127,6 +127,32 @@
   }
 }
 
+// Members list: name on the left, chevron on the right, whole card opens the member
+.memberItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  color: var(--text);
+  text-decoration: none;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--raised);
+  }
+}
+
+// Plain inline link (e.g. "Connect staff device")
+.textLink {
+  color: var(--text);
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
+
 .followUpItem {
   display: flex;
   flex-direction: column;
