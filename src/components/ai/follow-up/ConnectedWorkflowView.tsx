@@ -153,7 +153,7 @@ export default function ConnectedWorkflowView({
                       href={`/ops/sessions/${f.sessionId}`}
                       className={styles.rosterLink}
                     >
-                      Open class roster →
+                      Open class roster <span aria-hidden="true">→</span>
                     </Link>
                   </li>
                 ))}

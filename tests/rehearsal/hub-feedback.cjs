@@ -3,6 +3,11 @@ const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+// The app's dropdowns are the shared Select component (a listbox), not a native
+// <select>, so selectOption doesn't apply: open it and click the option by value.
+const selectLocator=(scope,label)=>scope.getByLabel(label,typeof label==='string'?{exact:true}:undefined);
+const pickOption=async(scope,label,value)=>{await selectLocator(scope,label).click();await scope.locator(`[role=option][data-value="${value}"]`).click();};
+const optionDisabled=async(scope,label,value)=>{const box=selectLocator(scope,label);await box.click();const disabled=await scope.locator(`[role=option][data-value="${value}"]`).getAttribute('aria-disabled');await box.press('Escape');return disabled==='true';};
 const origin=process.env.DOJANG_FEEDBACK_TEST_ORIGIN||'http://localhost:3000';
 const evidenceDir=process.env.DOJANG_EVIDENCE_DIR;
 const checks=[];
@@ -46,15 +51,14 @@ function fixture(future=false){
    const card=page.locator('article').filter({has:page.getByText('Synthetic reviewed summary.',{exact:true})}).first();
    await card.getByText('Book or change a class',{exact:true}).click();
    const result=card.getByRole('status',{name:'Booking result for message m1',exact:true});
-   const choose=async()=>{await card.getByLabel('Target class',{exact:true}).selectOption('20');await card.getByRole('button',{name:'Review class change',exact:true}).click();};
+   const choose=async()=>{await pickOption(card,'Target class','20');await card.getByRole('button',{name:'Review class change',exact:true}).click();};
    const confirm=()=>card.getByRole('button',{name:'Confirm booking in Odoo',exact:true}).click();
    return {context,page,card,result,commands,choose,confirm,data};
   }
   stage='started original and inline success';
   {
    const s=await setup();
-   const replacement=s.card.getByLabel('Booking action',{exact:true}).locator('option[value="change_class"]');
-   assert.equal(await replacement.evaluate(el=>el.disabled),true);
+   assert.equal(await optionDisabled(s.card,'Booking action','change_class'),true);
    await s.card.getByText(/The original class has already started/).waitFor();
    await s.choose();await s.confirm();
    await s.result.getByText('Registration saved in Odoo. Receipt: 72.',{exact:true}).waitFor();
@@ -95,8 +99,8 @@ function fixture(future=false){
   stage='future original and time boundary';
   {
    const s=await setup({future:true});
-   assert.equal(await s.card.getByLabel('Booking action',{exact:true}).locator('option[value="change_class"]').evaluate(el=>el.disabled),false);
-   await s.card.getByLabel('Booking action',{exact:true}).selectOption('change_class');await s.choose();
+   assert.equal(await optionDisabled(s.card,'Booking action','change_class'),false);
+   await pickOption(s.card,'Booking action','change_class');await s.choose();
    await s.page.clock.fastForward(120000);
    await s.card.getByText(/The original class has already started/).waitFor();
    assert.equal(await s.card.getByRole('button',{name:'Confirm booking in Odoo',exact:true}).isDisabled(),true);
@@ -106,7 +110,7 @@ function fixture(future=false){
   stage='server replacement rejection';
   {
    const s=await setup({future:true,mode:'stale-original'});
-   await s.card.getByLabel('Booking action',{exact:true}).selectOption('change_class');await s.choose();await s.confirm();
+   await pickOption(s.card,'Booking action','change_class');await s.choose();await s.confirm();
    await s.card.getByRole('alert',{name:'Booking result for message m1',exact:true}).getByText(/original registration cannot be replaced/).waitFor();
    assert.equal(s.commands[0].operation,'change_class');assert.equal(s.commands[0].payload.fromSessionId,'10');
    pass('server-side enrollment rejection has a plain-language inline explanation');await s.context.close();

@@ -4,8 +4,9 @@
   width: 100%;
 }
 
-// The closed box
-.trigger {
+// The closed box. `.select .trigger` so a parent's general `button` style
+// (e.g. the hub's) can't override it.
+.select .trigger {
   all: unset;
   box-sizing: border-box;
   display: flex;
@@ -94,6 +95,12 @@
 // The picked option
 .chosen {
   font-weight: 600;
+}
+
+// Can't be picked (e.g. "Replace" when the class already started)
+.disabled {
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 .empty {

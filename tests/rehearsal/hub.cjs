@@ -4,6 +4,11 @@ const {createHmac,randomUUID}=require('node:crypto');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+// The app's dropdowns are the shared Select component (a listbox), not a native
+// <select>, so selectOption doesn't apply: open it and click the option by value.
+const selectLocator=(scope,label)=>scope.getByLabel(label,typeof label==='string'?{exact:true}:undefined);
+const pickOption=async(scope,label,value)=>{await selectLocator(scope,label).click();await scope.locator(`[role=option][data-value="${value}"]`).click();};
+const optionDisabled=async(scope,label,value)=>{const box=selectLocator(scope,label);await box.click();const disabled=await scope.locator(`[role=option][data-value="${value}"]`).getAttribute('aria-disabled');await box.press('Escape');return disabled==='true';};
 const fixture=JSON.parse(fs.readFileSync(process.env.DOJANG_FIXTURE_OUTPUT,'utf8'));
 const origin='http://localhost:3000';
 const evidence=[];
@@ -32,8 +37,8 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
   await page.getByText(event.text,{exact:true}).waitFor();
   passed('individual Odoo user signs into Companion and reads the persisted parent message');
   stage='student and class selection';
-  await page.getByLabel(/Student for message/).selectOption(fixture.followupMemberId);
-  await page.getByLabel(/Class for message/).selectOption(fixture.sessionId);
+  await pickOption(page,/Student for message/,fixture.followupMemberId);
+  await pickOption(page,/Class for message/,fixture.sessionId);
   await page.getByRole('button',{name:'Confirm student and class',exact:true}).click();
   stage='prepare follow-up';
   await page.getByRole('button',{name:'Prepare follow-up',exact:true}).click();
@@ -45,9 +50,9 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
   passed('verified child/class resolution and a durable template draft; unconfigured sends stay disabled');
   stage='class booking';
   await page.getByText('Book or change a class',{exact:true}).click();
-  assert.equal(await page.getByLabel('Booking action',{exact:true}).locator('option[value="change_class"]').evaluate(el=>el.disabled),true);
+  assert.equal(await optionDisabled(page,'Booking action','change_class'),true);
   await page.getByText(/The original class has already started/).waitFor();
-  await page.getByLabel('Target class',{exact:true}).selectOption(fixture.makeupSessionId);
+  await pickOption(page,'Target class',fixture.makeupSessionId);
   await page.getByRole('button',{name:'Review class change',exact:true}).click();
   await page.getByRole('button',{name:'Confirm booking in Odoo',exact:true}).click();
   await page.getByRole('status',{name:/Booking result for message/}).getByText(/Registration saved in Odoo\. Receipt:/).waitFor();

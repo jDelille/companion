@@ -3,6 +3,7 @@ import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Link from 'next/link';
 import {explainHubError as explain, replacementBlockReason, runHubAction, type ActionFeedback} from '@/domain/hub-actions';
 import styles from './page.module.css';
+import Select from '@/components/primitives/select/Select';
 
 type Message={id:string;text:string;state:string;summary:string;reply:string;mode:string;revision:number;channel:string;guardianName:string;contactRef:string;memberId:string|null;sessionId:string|null};
 type Context={principal:{name:string;role:string};members:{id:string;name:string}[];sessions:{id:string;title:string;startsAt:string;future:boolean;version:number}[];messages:Message[];
@@ -37,8 +38,8 @@ function MessageCard({message,data,act,busy,locked,now,feedback,clearFeedback,re
     <div className={styles.row}><strong>{data.members.find(m=>m.id===message.memberId)?.name || 'Needs student and class review'}</strong><span>{message.channel}</span></div>
     <p className={styles.quote}>{message.text}</p>
     {message.state!=='resolved' && canAct && <div className={styles.fields}>
-      <label>Student<select aria-label={`Student for message ${message.id}`} value={memberId} onChange={e=>setMember(e.target.value)}><option value="">Select student</option>{data.members.map(m=><option value={m.id} key={m.id}>{m.name}</option>)}</select></label>
-      <label>Class<select aria-label={`Class for message ${message.id}`} value={sessionId} onChange={e=>setSession(e.target.value)}><option value="">Select class</option>{data.sessions.map(s=><option value={s.id} key={s.id}>{s.title} · {new Date(s.startsAt).toLocaleString()}</option>)}</select></label>
+      <label>Student<Select ariaLabel={`Student for message ${message.id}`} value={memberId} onChange={setMember} placeholder="Select student" options={data.members.map(m=>({value:m.id,label:m.name}))}/></label>
+      <label>Class<Select ariaLabel={`Class for message ${message.id}`} value={sessionId} onChange={setSession} placeholder="Select class" options={data.sessions.map(s=>({value:s.id,label:`${s.title} · ${new Date(s.startsAt).toLocaleString()}`}))}/></label>
       <button disabled={busy||!memberId||!sessionId} onClick={()=>void act('resolve',{messageId:message.id,memberId,sessionId,expectedRevision:message.revision})}>Confirm student and class</button>
       {message.state==='unmatched'&&<p>This sender needs a verified guardian binding before this can be confirmed.</p>}
     </div>}
@@ -54,9 +55,9 @@ function MessageCard({message,data,act,busy,locked,now,feedback,clearFeedback,re
       </>}
       {canAct&&<details className={styles.booking}><summary>Book or change a class</summary><div className={styles.fields}>
         <p>Review a future class for this student. Odoo checks the subscription, credits, roster and capacity when you confirm. Existing charges and cancellation rules apply.</p>
-        <label>Booking action<select aria-label="Booking action" aria-describedby={replacementReason?`replacement-reason-${message.id}`:undefined} value={bookingType} disabled={busy||locked} onChange={e=>{setBookingType(e.target.value);setReviewBooking(false);clearFeedback();}}><option value="book">Add a class registration</option><option value="change_class" disabled={!!replacementReason}>Replace the original registration</option></select></label>
+        <label>Booking action<Select ariaLabel="Booking action" ariaDescribedBy={replacementReason?`replacement-reason-${message.id}`:undefined} value={bookingType} disabled={busy||locked} onChange={value=>{setBookingType(value);setReviewBooking(false);clearFeedback();}} options={[{value:'book',label:'Add a class registration'},{value:'change_class',label:'Replace the original registration',disabled:!!replacementReason}]}/></label>
         {replacementReason&&<p id={`replacement-reason-${message.id}`} className={styles.bookingHelp}>{replacementReason}</p>}
-        <label>Target class<select aria-label="Target class" value={targetId} disabled={busy||locked} onChange={e=>{setTarget(e.target.value);setReviewBooking(false);clearFeedback();}}><option value="">Select future class</option>{data.sessions.filter(s=>s.future&&Date.parse(s.startsAt)>now&&s.id!==message.sessionId).map(s=><option key={s.id} value={s.id}>{s.title} · {new Date(s.startsAt).toLocaleString()}</option>)}</select></label>
+        <label>Target class<Select ariaLabel="Target class" value={targetId} disabled={busy||locked} onChange={value=>{setTarget(value);setReviewBooking(false);clearFeedback();}} placeholder="Select future class" options={data.sessions.filter(s=>s.future&&Date.parse(s.startsAt)>now&&s.id!==message.sessionId).map(s=>({value:s.id,label:`${s.title} · ${new Date(s.startsAt).toLocaleString()}`}))}/></label>
         {!reviewBooking?<button disabled={busy||locked||!target||bookingBlocked||booked} onClick={()=>setReviewBooking(true)}>Review class change</button>:<>
           <p><strong>{data.members.find(m=>m.id===message.memberId)?.name}</strong>: {bookingType==='book'?'add a registration for':'replace the original class with'} <strong>{target?.title}</strong> on {target&&new Date(target.startsAt).toLocaleString()}. This records the booking in Odoo; it does not send a message.</p>
           <button disabled={busy||locked||!target||bookingBlocked||booked} onClick={()=>{if(target)void act(bookingType,{memberId:message.memberId,sessionId:target.id,expectedVersion:target.version,...(bookingType==='change_class'?{fromSessionId:message.sessionId}:{})},message.id);}}>{booked?'Booking saved':busy&&locked?'Saving booking…':'Confirm booking in Odoo'}</button>

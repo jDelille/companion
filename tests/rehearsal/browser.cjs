@@ -4,6 +4,11 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {randomUUID}=require('node:crypto');
+// The app's dropdowns are the shared Select component (a listbox), not a native
+// <select>, so selectOption doesn't apply: open it and click the option by value.
+const selectLocator=(scope,label)=>scope.getByLabel(label,typeof label==='string'?{exact:true}:undefined);
+const pickOption=async(scope,label,value)=>{await selectLocator(scope,label).click();await scope.locator(`[role=option][data-value="${value}"]`).click();};
+const optionDisabled=async(scope,label,value)=>{const box=selectLocator(scope,label);await box.click();const disabled=await scope.locator(`[role=option][data-value="${value}"]`).getAttribute('aria-disabled');await box.press('Escape');return disabled==='true';};
 const BASE='http://localhost:3000';
 const fixture=JSON.parse(fs.readFileSync(process.env.DOJANG_FIXTURE_OUTPUT,'utf8'));
 const output=process.env.DOJANG_EVIDENCE_DIR;
@@ -125,7 +130,7 @@ const choose=async(page,name)=>{
   await staffPage.getByRole('navigation',{name:'Staff navigation',exact:true}).getByRole('link',{name:'Members',exact:true}).click();
   await staffPage.getByRole('link',{name:'Followup Student',exact:true}).click();
   await staffPage.getByText('Prepare parent follow-up',{exact:true}).click();
-  await staffPage.getByLabel('Reported class').selectOption(fixture.sessionId);
+  await pickOption(staffPage,'Reported class',fixture.sessionId);
   await staffPage.getByLabel('Parent report',{exact:true}).fill('My child cannot attend this class. Could we arrange a makeup?');
   await staffPage.getByRole('checkbox').check();
   await staffPage.getByRole('button',{name:'Prepare for review',exact:true}).click();

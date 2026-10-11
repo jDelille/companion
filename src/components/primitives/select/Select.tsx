@@ -6,6 +6,7 @@ import styles from "./Select.module.scss";
 export type SelectOption = {
   value: string;
   label: string;
+  disabled?: boolean; // shown dimmed, can't be picked, skipped by the arrow keys
 };
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
   placeholder?: string; // shown while value is ""
   disabled?: boolean;
   ariaLabel?: string; // only needed when it isn't inside a <label>
+  ariaDescribedBy?: string; // id of a hint, e.g. why an option is disabled
   className?: string; // for layout from the parent
 };
 
@@ -28,6 +30,7 @@ const Select = ({
   placeholder = "Choose…",
   disabled = false,
   ariaLabel,
+  ariaDescribedBy,
   className,
 }: Props) => {
   const [open, setOpen] = useState(false);
@@ -49,14 +52,25 @@ const Select = ({
     return () => document.removeEventListener("mousedown", closeIfOutside);
   }, [open]);
 
+  const isPickable = (index: number) => !!options[index] && !options[index].disabled;
+
+  // The next pickable option from `from`, moving by `step` (+1 down, -1 up).
+  // Stays put when there's nothing pickable that way.
+  const nextPickable = (from: number, step: number) => {
+    for (let index = from + step; index >= 0 && index < options.length; index += step) {
+      if (isPickable(index)) return index;
+    }
+    return from;
+  };
+
   const openList = () => {
-    setActiveIndex(selectedIndex >= 0 ? selectedIndex : 0);
+    setActiveIndex(selectedIndex >= 0 ? selectedIndex : nextPickable(-1, 1));
     setOpen(true);
   };
 
   const pick = (index: number) => {
-    const option = options[index];
-    if (option) onChange(option.value);
+    if (!isPickable(index)) return;
+    onChange(options[index].value);
     setOpen(false);
     buttonRef.current?.focus();
   };
@@ -72,16 +86,16 @@ const Select = ({
 
     if (event.key === "ArrowDown") {
       event.preventDefault();
-      setActiveIndex((index) => Math.min(index + 1, options.length - 1));
+      setActiveIndex((index) => nextPickable(index, 1));
     } else if (event.key === "ArrowUp") {
       event.preventDefault();
-      setActiveIndex((index) => Math.max(index - 1, 0));
+      setActiveIndex((index) => nextPickable(index, -1));
     } else if (event.key === "Home") {
       event.preventDefault();
-      setActiveIndex(0);
+      setActiveIndex(nextPickable(-1, 1));
     } else if (event.key === "End") {
       event.preventDefault();
-      setActiveIndex(options.length - 1);
+      setActiveIndex(nextPickable(options.length, -1));
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       pick(activeIndex);
@@ -108,6 +122,7 @@ const Select = ({
         aria-expanded={open}
         aria-controls={listId}
         aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
         aria-activedescendant={open && activeIndex >= 0 ? optionId(activeIndex) : undefined}
       >
         <span className={selected ? styles.value : styles.placeholder}>
@@ -137,11 +152,14 @@ const Select = ({
               key={option.value}
               id={optionId(index)}
               role="option"
+              data-value={option.value} // lets tests pick an option by value, like selectOption on a <select>
               aria-selected={option.value === value}
+              aria-disabled={option.disabled || undefined}
               className={[
                 styles.option,
                 index === activeIndex && styles.active,
                 option.value === value && styles.chosen,
+                option.disabled && styles.disabled,
               ]
                 .filter(Boolean)
                 .join(" ")}
@@ -150,7 +168,9 @@ const Select = ({
                 event.preventDefault();
                 pick(index);
               }}
-              onMouseEnter={() => setActiveIndex(index)}
+              onMouseEnter={() => {
+                if (isPickable(index)) setActiveIndex(index);
+              }}
             >
               {option.label}
             </li>
