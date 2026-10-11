@@ -7,7 +7,7 @@ import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
 import StatusMessage, {
   type StatusAction,
 } from "@/components/kiosk/status-message/StatusMessage";
-import ActionCard from "@/components/primitives/action-card/ActionCard";
+import PrimaryButton from "@/components/primitives/primary-button/PrimaryButton";
 import type { CheckInOutcome } from "@/domain/kiosk/checkInOutcome";
 import { formatClockTime } from "@/domain/kiosk/sessionFormat";
 import styles from "./ResultScreen.module.scss";
@@ -144,12 +144,10 @@ const Receipt = ({ headline, session, member, receipt, onDone }: ReceiptProps) =
         </div>
       </dl>
 
-      <ActionCard
-        label="Done"
-        description="Clears the screen for the next person"
-        size="large"
-        onClick={onDone}
-      />
+      <div className={styles.done}>
+        <PrimaryButton onClick={onDone}>Done</PrimaryButton>
+        <p className={styles.doneHint}>Clears the screen for the next person</p>
+      </div>
     </>
   );
 };
