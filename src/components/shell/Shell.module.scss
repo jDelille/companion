@@ -211,40 +211,69 @@
   }
 }
 
+// Odoo-mode staff navigation (Classes, Members, Follow-ups). Text links only.
 .connectedNav,
 .connectedBottomNav {
   display: flex;
-  gap: 8px;
-  padding: 16px 8px;
-  background: var(--panel);
-  border-right: 1px solid var(--dark-border);
+  gap: 4px;
+  background: var(--canvas);
+
   a {
-    color: var(--text);
-    text-decoration: none;
-    padding: 8px;
     display: flex;
     align-items: center;
-    border-radius: 8px;
-    min-height: 44px;
-    font-size: 14px;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: var(--radius-control);
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 150ms ease, color 150ms ease;
+
+    &:hover {
+      background: var(--panel);
+      color: var(--text);
+    }
   }
+
+  // You are here: white text on a soft panel
   a[aria-current="page"] {
     background: var(--raised);
-    outline: 1px solid var(--dark-border);
+    color: var(--text);
+    font-weight: 600;
   }
+
   a:focus-visible {
-    outline: 2px solid #ba9fff;
+    outline: 2px solid var(--text-secondary);
     outline-offset: 2px;
   }
 }
+
+// Desktop: a fixed-width sidebar so it doesn't change size with the labels
 .connectedNav {
   flex-direction: column;
+  width: 108px;
   height: 100%;
+  padding: 20px 8px;
+  border-right: 1px solid var(--dark-border);
+
+  // A little less inner padding so "Follow-ups" still fits on one line
+  a {
+    padding: 0 10px;
+  }
 }
+
+// Phones: bottom bar, links spread evenly
 .connectedBottomNav {
   justify-content: space-around;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--dark-border);
-  padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
+
+  a {
+    flex: 1;
+    justify-content: center;
+  }
+
 }
 .connectedHeader {
   display: flex;

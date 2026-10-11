@@ -31,6 +31,7 @@
 .intro {
   font-size: var(--text-sm);
   line-height: 1.6;
+  text-wrap: pretty; // no single word stranded on the last line (e.g. "in" on phones)
   color: var(--text-secondary);
 
   strong {
