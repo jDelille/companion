@@ -15,6 +15,7 @@ const wait = (milliseconds: number) => {
 
 // PROVISIONAL: our own guesses. The UI checks `code`, not `status`.
 const problemStatus: Record<CompanionProblemCode, number> = {
+  ATTENDANCE_REVIEW_REQUIRED: 409,
   INVALID_COMMAND: 400,
   UNKNOWN_SUGGESTION: 404,
   IDEMPOTENCY_CONFLICT: 409,

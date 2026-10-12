@@ -28,15 +28,8 @@ body {
 }
 
 body {
-  // Faint red light behind the glass cards. Fixed, so it stays put
-  // while screens change and never animates.
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(168, 27, 37, 0.065),
-      transparent 65%
-    ),
-    var(--canvas);
+  // Neutral charcoal-to-black, fixed while the kiosk screens change.
+  background: var(--workspace-background);
   background-attachment: fixed;
   color: var(--text);
   font-family:

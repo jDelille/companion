@@ -10,7 +10,7 @@ import {
   type CompanionRequestReply,
   type CompanionView,
   type ContextAnswer,
-} from "@/domain/companion";
+} from "../domain/companion";
 
 // The only place the Companion rail gets data from. Calls the
 // /api/v2/companion routes, backed by scoped Odoo in integration mode. None of these throw: whatever
@@ -76,6 +76,9 @@ export async function sendRequest(
     const body = await response.json().catch(() => null);
     if (response.ok && looksLikeRequestReply(body)) {
       return body;
+    }
+    if (response.status === 409 && looksLikeProblem(body) && body.code === "ATTENDANCE_REVIEW_REQUIRED") {
+      return { outcome: "attendanceReviewRequired" };
     }
   } catch {
     // offline or timed out

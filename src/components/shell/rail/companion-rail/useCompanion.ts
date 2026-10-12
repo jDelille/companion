@@ -26,7 +26,7 @@ import {
 export type TaskStatus = "working" | "done" | "failed" | "notConfirmed";
 
 export type RequestStatus =
-  "idle" | "thinking" | "understood" | "notUnderstood" | "unavailable";
+  "idle" | "thinking" | "understood" | "notUnderstood" | "attendanceReviewRequired" | "unavailable";
 
 export type ContextStatus = "loading" | "loaded" | "unavailable";
 
@@ -79,6 +79,9 @@ function applyRequestAnswer(
   }
   if (answer.outcome === "notUnderstood") {
     return { ...page, requestStatus: "notUnderstood" };
+  }
+  if (answer.outcome === "attendanceReviewRequired") {
+    return { ...page, requestStatus: "attendanceReviewRequired" };
   }
   return { ...page, requestStatus: "unavailable" };
 }

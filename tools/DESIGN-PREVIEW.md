@@ -60,13 +60,19 @@ reviewed follow-up history and does not invent a pending-work feed.
 Use the supplied reference's open schedule rows, generous spacing, warm type,
 and editorial serif headings. Glass belongs on the main class card, member
 detail cards, review surfaces, and sheets; keep lists and ordinary text open.
-The background uses stationary, faint red light on near-black. The original UFT
+The background uses a neutral charcoal-to-black gradient, with neutral gray
+glass surfaces and no purple or burgundy tint. Preserve red action accents.
+The original UFT
 kiosk crest sits centered behind workspace and kiosk content, with a circular
 feathered edge and low opacity. Keep it at 70% width (capped at 30rem/62svh),
-with its original colors intact. Do not make the crest monochrome, invert it,
-or recolor it. Keep the outline clear: fade only the outer rim (84–100% radius),
+with its original colors intact at 12% opacity. Do not make the main crest
+monochrome, invert it, or recolor it. Surround it with 44 small, stationary,
+monochrome copies at 4.5% opacity, scattered with varied size and rotation.
+Keep their irregular positions stable across hydration/navigation. Only these
+miniatures use grayscale/inversion and screen blending for a transparent look.
+Keep the main outline clear: fade only the outer rim (84–100% radius),
 not the middle or lettering. Blend using low opacity and light edge feathering, keeping the
-schedule legible. Use one restrained central red glow, not a burgundy wash.
+schedule legible. Keep the background gradient achromatic, not red or purple.
 Reuse `addons/dojo_kiosk/static/src/img/uft-logo.png`
 unchanged (it contains JPEG bytes, served as `public/brand/uft-crest.jpg`). Its
 Afterhours-style metallic shine glides briefly every nine seconds, pausing in

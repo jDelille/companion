@@ -43,8 +43,8 @@ export default async function MemberPage({
         <p role="status" className={styles.notice}>
           <InfoIcon color="currentColor" size={16} />
           <span>
-            Odoo test data. Attendance and identity are connected. Unconnected
-            actions are not enabled.
+            Odoo test data. Identity and attendance are connected. Booking
+            changes and billing are not connected.
           </span>
         </p>
         <Member360View

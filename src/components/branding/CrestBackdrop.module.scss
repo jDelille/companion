@@ -14,13 +14,26 @@
   z-index: 0;
 }
 
+.mini {
+  position: absolute;
+  width: clamp(20px, var(--mini-size), 48px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: url("/brand/uft-crest.jpg") center / contain no-repeat;
+  filter: grayscale(1) invert(1);
+  mix-blend-mode: screen;
+  opacity: 0.045;
+  transform: translate(-50%, -50%) rotate(var(--mini-angle));
+  // Only the miniature pattern is monochrome; never apply this to the main crest.
+}
+
 .crest {
   position: relative;
   width: min(70%, 30rem, 62svh);
   aspect-ratio: 1;
   border-radius: 50%;
   overflow: hidden;
-  opacity: 0.085;
+  opacity: 0.12;
   // Preserve the original crest colors; soften only its opacity and edges.
   -webkit-mask-image: radial-gradient(circle closest-side, #000 84%, rgba(0, 0, 0, 0.8) 94%, transparent 100%);
   mask-image: radial-gradient(circle closest-side, #000 84%, rgba(0, 0, 0, 0.8) 94%, transparent 100%);

@@ -1,13 +1,14 @@
 :root {
   // Surfaces
-  --canvas: #100e10;
-  --panel: #1a171a;
-  --raised: #252024;
-  --interactive: #30292e;
-  --line: rgba(229, 218, 223, 0.13);
+  --canvas: #0b0b0b;
+  --workspace-background: linear-gradient(155deg, #181818 0%, #0b0b0b 46%, #030303 100%);
+  --panel: #171717;
+  --raised: #242424;
+  --interactive: #2e2e2e;
+  --line: rgba(255, 255, 255, 0.13);
 
   // Border
-  --dark-border: #2c2c2f;
+  --dark-border: #2c2c2c;
 
   // Text
   --text: #f4f0e9;
@@ -48,9 +49,9 @@
   --button-inset: 1.25rem; // side padding inside text buttons (PlainButton)
 
   // Frosted glass surfaces (cards over the soft background glow)
-  --glass-fill: rgba(41, 34, 39, 0.62);
-  --glass-fill-hover: rgba(64, 48, 57, 0.72);
-  --glass-edge: rgba(255, 240, 247, 0.12);
+  --glass-fill: rgba(36, 36, 36, 0.62);
+  --glass-fill-hover: rgba(50, 50, 50, 0.72);
+  --glass-edge: rgba(255, 255, 255, 0.12);
   --glass-edge-strong: rgba(255, 255, 255, 0.2);
   --glass-blur: 18px;
   --glass-shadow:

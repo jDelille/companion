@@ -7,9 +7,7 @@
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at center, rgba(168, 27, 37, 0.065), transparent 65%),
-    var(--canvas);
+  background: var(--workspace-background);
   color: var(--text);
   isolation: isolate;
 }

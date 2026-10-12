@@ -79,10 +79,11 @@ export type CompanionRequestReply =
   | { outcome: "existingTask"; suggestionId: string }
   | { outcome: "notUnderstood" };
 
-// What the integration layer hands back: the route's reply, or "unavailable"
-// for anything we couldn't get or couldn't read (offline, timeout, 503)
+// Expected attendance conflicts remain distinct from unavailable services.
 export type CompanionRequestAnswer =
-  CompanionRequestReply | { outcome: "unavailable" };
+  CompanionRequestReply
+  | { outcome: "attendanceReviewRequired" }
+  | { outcome: "unavailable" };
 
 // POST /api/v2/companion/approvals: run one approved task
 export type ApprovalCommand = {
@@ -99,6 +100,7 @@ export type ApprovalReply = {
 };
 
 export type CompanionProblemCode =
+  | "ATTENDANCE_REVIEW_REQUIRED"
   | "INVALID_COMMAND"
   | "UNKNOWN_SUGGESTION"
   | "IDEMPOTENCY_CONFLICT"

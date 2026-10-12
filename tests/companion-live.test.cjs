@@ -2,6 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {mintCookie}=require(process.env.DOJANG_GATEWAY_MODULE);
 const {liveCompanion}=require(process.env.DOJANG_COMPANION_MODULE);
+const {sendRequest}=require(process.env.DOJANG_COMPANION_CLIENT_MODULE);
 const c={origin:'https://demo.example.test',backend:'https://odoo.example.test',token:'t'.repeat(40),cookieSecret:'h'.repeat(48),kioskKey:'k'.repeat(48),staffKey:'s'.repeat(48),kioskPairKey:'p'.repeat(48),staffPairKey:'z'.repeat(48)};
 const cookie=role=>`dojang_${role}_test=${mintCookie(c,role)}`;
 const req=(body,role='staff')=>new Request(c.origin+'/api/v2/companion/requests',{method:'POST',headers:{cookie:cookie(role),origin:c.origin,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -18,6 +19,24 @@ test('network uncertainty keeps approval unconfirmed',async()=>{const r=await li
 const workflowData={sessions:[{sessionId:'11',title:'Test class',startsAt:'2026-10-12T17:00:00Z',endsAt:'2026-10-12T18:00:00Z',capacity:10,seatsTaken:1,version:1}],roster:[{memberId:'22',displayName:'Demo S.',enrollmentStatus:'registered',attendanceState:'pending'}],followUps:[],followUpEnabled:true,aiEnabled:false,sessionTitle:'Test class'};
 const followup={memberId:'22',text:'Prepare parent follow-up',onScreenIds:[],followUp:{sessionId:'11',message:'Cannot attend. Could we arrange a makeup?',idempotencyKey:'followup-request-0001',correlationId:'followup-correlation-0001'}};
 const proposal={id:'followup:42',title:'Review parent follow-up',explanation:'Internal draft only',actionLabel:'Approve internal follow-up',capability:'followup.save_internal',risk:'medium',preview:[{label:'Reply',value:'We can review options.'}]};
+test('an attendance conflict survives the gateway and client as a review requirement',async(t)=>{
+  t.mock.method(globalThis,'fetch',async(_url,init)=>liveCompanion(
+    req(JSON.parse(init.body)),c,'request',
+    async()=>Response.json({result:{problem:{code:'ATTENDANCE_REVIEW_REQUIRED'}}})
+  ));
+  assert.deepEqual(await sendRequest(followup),{outcome:'attendanceReviewRequired'});
+});
+test('valid follow-up proposals and service failures remain distinct from attendance conflicts',async(t)=>{
+  let backendReply=()=>Response.json({result:{outcome:'newTask',suggestion:proposal}});
+  t.mock.method(globalThis,'fetch',async(_url,init)=>liveCompanion(
+    req(JSON.parse(init.body)),c,'request',async()=>backendReply()
+  ));
+  assert.deepEqual(await sendRequest(followup),{outcome:'newTask',suggestion:proposal});
+  backendReply=()=>new Response(null,{status:503});
+  assert.deepEqual(await sendRequest(followup),{outcome:'unavailable'});
+  backendReply=()=>Response.json({result:{problem:{code:'FORBIDDEN'}}});
+  assert.deepEqual(await sendRequest(followup),{outcome:'unavailable'});
+});
 test('class context uses staff workflow and projects only scoped records',async()=>{let sent;const r=await liveCompanion(new Request(c.origin+'/api/v2/companion/context?sessionId=11',{headers:{cookie:cookie('staff')}}),c,'context',async(url,init)=>{sent={url,body:JSON.parse(init.body),headers:init.headers};return Response.json({result:workflowData})});assert.equal(r.status,200);const data=await r.json();assert.equal(sent.headers.authorization,'Bearer '+c.staffKey);assert.equal(sent.body.params.operation,'context');assert.deepEqual(sent.body.params.payload,{sessionId:'11'});assert.equal(data.records[0].detail,'Not yet checked in');assert.equal(data.records[0].href,'/people/22')});
 test('member and session contexts cannot be mixed',async()=>{let called=false;const r=await liveCompanion(new Request(c.origin+'/api/v2/companion/context?memberId=22&sessionId=11',{headers:{cookie:cookie('staff')}}),c,'context',async()=>{called=true});assert.equal(r.status,400);assert.equal(called,false)});
 test('staff-entered report prepares one bounded Odoo proposal',async()=>{let payload;const r=await liveCompanion(req(followup),c,'request',async(url,init)=>{payload=JSON.parse(init.body).params;return Response.json({result:{outcome:'newTask',suggestion:proposal}})});assert.equal(r.status,200);assert.equal(payload.operation,'prepare');assert.equal(payload.payload.memberId,'22');assert.equal(payload.payload.sessionId,'11');assert.equal(payload.payload.idempotencyKey,followup.followUp.idempotencyKey)});
