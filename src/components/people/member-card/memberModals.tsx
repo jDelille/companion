@@ -14,6 +14,7 @@ import styles from "./memberModals.module.scss";
 export type ModalType = MemberAction;
 type BodyProps = {
   member: Member;
+  liveTest?: boolean;
   onDone: () => void;
   onCancel: () => void;
   onAskAI?: () => void;
@@ -65,7 +66,7 @@ const MessageBody = ({ member, onCancel }: BodyProps) => {
   );
 };
 
-const BookBody = ({ member }: BodyProps) => (
+const BookBody = ({ member, liveTest = false }: BodyProps) => (
   <>
     <p className={styles.note}>Today&apos;s registered classes</p>
     {member.bookings === undefined ? (
@@ -88,10 +89,12 @@ const BookBody = ({ member }: BodyProps) => (
       <p>No classes booked for {member.name} today.</p>
     )}
     <p className={styles.note}>
-      Booking changes and eligibility checks aren&apos;t connected in this
-      preview.
+      {liveTest
+        ? "Book a future class through the Hub using your individual Odoo account. Odoo checks eligibility and records the result for this member."
+        : "Booking changes and eligibility checks aren't connected in this preview."}
     </p>
     <div className={styles.detailActions}>
+      {liveTest && <Link href={`/hub?memberId=${encodeURIComponent(member.id)}`}>Book a class for {member.name} →</Link>}
       <Link href="/ops">View class schedule →</Link>
     </div>
   </>

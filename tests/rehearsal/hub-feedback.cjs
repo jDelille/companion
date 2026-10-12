@@ -16,7 +16,7 @@ const pass=name=>{checks.push({name,result:'passed'});console.log('PASS '+name);
 function fixture(future=false){
  const now=Date.now();
  const message={id:'m1',text:'Synthetic parent report for booking feedback. '.repeat(25),state:'resolved',summary:'Synthetic reviewed summary.',reply:'Synthetic draft reply.',mode:'Template test fixture',revision:1,channel:'sms',guardianName:'Demo Guardian',contactRef:'42',memberId:'5',sessionId:'10'};
- return {principal:{name:'Demo Manager',role:'manager'},members:[{id:'5',name:'Demo Student'}],
+ return {principal:{name:'Demo Manager',role:'manager'},members:[{id:'5',name:'Demo Student'},{id:'6',name:'Second Student'}],
   sessions:[{id:'10',title:'Original class',startsAt:new Date(now+(future?60000:-60000)).toISOString(),future,version:1},{id:'20',title:'Makeup class',startsAt:new Date(now+7200000).toISOString(),future:true,version:1}],
   messages:[message,{...message,id:'m2',text:'A second synthetic report.'}],deliveries:[],timeline:[],capabilities:{outbound:'not_configured',inbound:'test_fixture',ai:'disabled'}};
 }
@@ -42,7 +42,7 @@ function fixture(future=false){
     if(mode==='stale-original')return json({error:{code:'ENROLLMENT_REVIEW_REQUIRED'}},409);
     if(mode==='uncertain'&&commands.length===1)return route.abort('connectionfailed');
     acknowledged=true;
-    data.timeline=[{id:'audit1',memberId:'5',sessionId:'20',action:body.operation,actor:'Demo Manager',at:new Date().toISOString(),
+    data.timeline=[{id:'audit1',memberId:body.payload.memberId,sessionId:'20',action:body.operation,actor:'Demo Manager',at:new Date().toISOString(),
      ...(mode==='legacy-backend'?{}:{booking:{enrollmentId:'72',classTitle:'Makeup class',startsAt:data.sessions[1].startsAt,state:'registered',attendanceState:'pending'}})}];
     if(mode==='revision-change')data.messages[0].revision++;
     return json({enrollmentId:'72',replayed:commands.length>1});
@@ -69,6 +69,56 @@ function fixture(future=false){
    assert.equal(await s.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    if(evidenceDir){await s.page.screenshot({path:path.join(evidenceDir,'hub-booking-feedback-mobile.png'),fullPage:true});await s.page.setViewportSize({width:1280,height:900});await s.page.screenshot({path:path.join(evidenceDir,'hub-booking-feedback-desktop.png'),fullPage:true});}
    pass('started original is disabled; successful receipt is local, visible and prevents repeat submission');await s.context.close();
+  }
+  stage='member-specific booking without a parent message';
+  {
+   const s=await setup();s.data.messages=[];
+   await s.page.goto(origin+'/hub?memberId=6');
+   const panel=s.page.getByRole('region',{name:'Book a class for Second Student',exact:true});
+   await pickOption(panel,'Future class for member','20');
+   await panel.getByRole('button',{name:'Review member booking',exact:true}).click();
+   assert.equal(s.commands.length,0);
+   await panel.getByRole('button',{name:'Confirm member booking in Odoo',exact:true}).click();
+   await panel.getByRole('status',{name:'Booking result for member 6',exact:true}).getByText(/Receipt: 72/).waitFor();
+   assert.equal(s.commands.length,1);
+   assert.deepEqual(s.commands[0].payload,{memberId:'6',sessionId:'20',expectedVersion:1});
+   assert.equal(await panel.getByRole('button',{name:'Booking saved',exact:true}).isDisabled(),true);
+   await s.page.reload();
+   await s.page.getByRole('group',{name:'Saved booking receipt 72',exact:true}).waitFor();
+   assert.equal(s.commands.length,1);
+   assert.equal(await s.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   pass('member deep link keeps the selected identity, requires review, and persists the booking receipt without a parent message');
+   await s.context.close();
+  }
+  stage='member booking rejected scope and role';
+  {
+   const s=await setup();
+   await s.page.goto(origin+'/hub?memberId=99999');
+   await s.page.getByRole('alert').getByText(/This member is unavailable/).waitFor();
+   assert.equal(await s.page.getByRole('button',{name:'Review member booking',exact:true}).count(),0);
+   s.data.principal.role='guardian';
+   await s.page.goto(origin+'/hub?memberId=6');
+   await s.page.getByRole('alert').getByText(/No other member has been selected/).waitFor();
+   assert.equal(await s.page.getByRole('button',{name:'Review member booking',exact:true}).count(),0);
+   assert.equal(s.commands.length,0);
+   pass('out-of-scope member IDs and non-staff accounts never fall back to another member or expose booking controls');
+   await s.context.close();
+  }
+  stage='member booking uncertain response';
+  {
+   const s=await setup({mode:'uncertain'});
+   await s.page.goto(origin+'/hub?memberId=6');
+   const panel=s.page.getByRole('region',{name:'Book a class for Second Student',exact:true});
+   await pickOption(panel,'Future class for member','20');
+   await panel.getByRole('button',{name:'Review member booking',exact:true}).click();
+   await panel.getByRole('button',{name:'Confirm member booking in Odoo',exact:true}).click();
+   await panel.getByRole('status',{name:'Booking result for member 6',exact:true}).getByText(/Odoo has not confirmed/).waitFor();
+   assert.equal(await panel.getByLabel('Future class for member',{exact:true}).isDisabled(),true);
+   await panel.getByRole('button',{name:'Check member booking result',exact:true}).click();
+   await panel.getByRole('status',{name:'Booking result for member 6',exact:true}).getByText(/Receipt: 72/).waitFor();
+   assert.equal(s.commands.length,2);assert.deepEqual(s.commands[0],s.commands[1]);
+   pass('member booking retry preserves the selected member, payload and original idempotency key');
+   await s.context.close();
   }
   stage='inline rejection';
   {

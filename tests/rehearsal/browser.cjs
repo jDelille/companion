@@ -147,10 +147,18 @@ const choose=async(page,name)=>{
   await nextClassLink.waitFor();
   assert.equal(await nextClassLink.getAttribute('href'),`/ops/sessions/${fixture.sessionId}`);
   await nextClassLink.click();
+  await staffPage.waitForURL(BASE+`/ops/sessions/${fixture.sessionId}`);
   await staffPage.getByRole('heading',{name:'Demo session',exact:true}).waitFor();
   record('The entire next-class card opens the correct Odoo roster');
   await staffPage.getByRole('navigation',{name:'Staff navigation',exact:true}).getByRole('link',{name:'Members',exact:true}).click();
   await staffPage.getByRole('link',{name:'Followup Student',exact:true}).click();
+  await staffPage.waitForURL(BASE+`/people/${fixture.followupMemberId}`);
+  await staffPage.locator(`article[data-member-id="${fixture.followupMemberId}"]`).getByRole('button',{name:'Book',exact:true}).click();
+  const memberBookingLink=staffPage.getByRole('link',{name:'Book a class for Followup Student →',exact:true});
+  await memberBookingLink.waitFor();
+  assert.equal(await memberBookingLink.getAttribute('href'),`/hub?memberId=${fixture.followupMemberId}`);
+  await staffPage.getByRole('dialog').getByRole('button',{name:/Close/}).click();
+  record('Member booking entry retains the exact selected member ID');
   await staffPage.getByRole('button',{name:'Open companion',exact:true}).click();
   await staffPage.getByText('Prepare parent follow-up',{exact:true}).click();
   await pickOption(staffPage,'Reported class',fixture.sessionId);

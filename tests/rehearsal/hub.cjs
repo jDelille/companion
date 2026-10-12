@@ -78,6 +78,16 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
   const secondPage=await second.newPage();await secondPage.goto(origin+'/hub');
   await secondPage.getByRole('group',{name:`Saved booking receipt ${booking.booking.enrollmentId}`,exact:true}).waitFor();
   passed('a separate browser reads the same summary and saved booking receipt from Odoo');
+  stage='member profile booking entry';
+  await page.goto(origin+'/hub?memberId='+fixture.followupMemberId);
+  const memberBooking=page.getByRole('region',{name:'Book a class for Followup Student',exact:true});
+  await pickOption(memberBooking,'Future class for member',fixture.makeupSessionId);
+  await memberBooking.getByRole('button',{name:'Review member booking',exact:true}).click();
+  await memberBooking.getByRole('button',{name:'Confirm member booking in Odoo',exact:true}).click();
+  await memberBooking.getByRole('status',{name:`Booking result for member ${fixture.followupMemberId}`,exact:true}).getByText(`Registration saved in Odoo. Receipt: ${booking.booking.enrollmentId}.`,{exact:true}).waitFor();
+  const afterMemberBooking=(await call('context',{})).value;
+  assert.equal(afterMemberBooking.timeline.filter(row=>row.action==='book'&&row.memberId===fixture.followupMemberId).every(row=>row.booking?.enrollmentId===booking.booking.enrollmentId),true);
+  passed('member-specific booking uses the same Odoo registration without duplicating enrollment');
   stage='checkout';
   const checkout=await call('checkout',{memberId:fixture.memberId,sessionId:fixture.sessionId});assert.equal(checkout.status,200);assert.ok(checkout.value.checkedOutAt);
   const again=await call('checkout',{memberId:fixture.memberId,sessionId:fixture.sessionId});assert.equal(again.value.checkedOutAt,checkout.value.checkedOutAt);

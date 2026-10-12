@@ -13,6 +13,7 @@ import { memberInitials } from "@/domain/member-presentation";
 
 type Props = {
   member: Member;
+  liveTest?: boolean;
 };
 
 // Each button says which modal it opens
@@ -26,7 +27,7 @@ const btns: { label: string; modal?: ModalType }[] = [
   { label: "Companion context", modal: "ask" },
 ];
 
-const Identity = ({ member }: Props) => {
+const Identity = ({ member, liveTest = false }: Props) => {
   const [open, setOpen] = useState<ModalType | null>(null);
   const current = open ? getMemberModal(open, member) : null;
 
@@ -83,6 +84,7 @@ const Identity = ({ member }: Props) => {
           <current.Body
             key={`${member.id}:${open}`}
             member={member}
+            liveTest={liveTest}
             onDone={() => setOpen(null)}
             onCancel={() => setOpen(null)}
             onAskAI={() => setOpen("ask")}

@@ -1,9 +1,11 @@
 'use client';
-import {useEffect,useRef,useState,type FormEvent} from 'react';
+import {Suspense,useEffect,useRef,useState,type FormEvent} from 'react';
+import {useSearchParams} from 'next/navigation';
 import Link from '@/components/primitives/AppLink';
 import {explainHubError as explain, replacementBlockReason, runHubAction, type ActionFeedback} from '@/domain/hub-actions';
 import styles from './page.module.css';
 import Select from '@/components/primitives/select/Select';
+import MemberBooking from './MemberBooking';
 
 type Message={id:string;text:string;state:string;summary:string;reply:string;mode:string;revision:number;channel:string;guardianName:string;contactRef:string;memberId:string|null;sessionId:string|null};
 type Context={principal:{name:string;role:string};members:{id:string;name:string}[];sessions:{id:string;title:string;startsAt:string;future:boolean;version:number}[];messages:Message[];
@@ -72,7 +74,10 @@ function MessageCard({message,data,act,busy,locked,now,feedback,clearFeedback,re
   </article>;
 }
 
-export default function Hub(){
+function HubContent(){
+  const searchParams=useSearchParams();
+  const selectedMemberId=searchParams.get('memberId');
+  const [loading,setLoading]=useState(true);
   const [data,setData]=useState<Context|null>(null),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[hasPending,setHasPending]=useState(false);
   const [bookingFeedback,setBookingFeedback]=useState<Record<string,ActionFeedback>>({});
   const [pendingMessageId,setPendingMessageId]=useState<string>();
@@ -80,7 +85,7 @@ export default function Hub(){
   const inFlight=useRef(false);
   const pending=useRef<{operation:string;payload:Record<string,unknown>;requestKey:string;messageId?:string}|null>(null);
   const refresh=async()=>{const value=await call({operation:'context',payload:{},requestKey:null});setData(value);};
-  useEffect(()=>{let cancelled=false;void call({operation:'context',payload:{},requestKey:null}).then(v=>{if(!cancelled)setData(v);}).catch(()=>{});return()=>{cancelled=true;};},[]);
+  useEffect(()=>{let cancelled=false;void call({operation:'context',payload:{},requestKey:null}).then(v=>{if(!cancelled)setData(v);}).catch(error=>{if(!cancelled&&error.message!=='SIGN_IN_REQUIRED')setNotice(explain(error.message));}).finally(()=>{if(!cancelled)setLoading(false);});return()=>{cancelled=true;};},[]);
   useEffect(()=>{const timer=setInterval(()=>setNow(Date.now()),30000);return()=>clearInterval(timer);},[]);
   async function login(event:FormEvent<HTMLFormElement>){event.preventDefault();const form=new FormData(event.currentTarget);setBusy(true);setNotice('');
     try{setData(await call({operation:'login',login:form.get('login'),password:form.get('password')}));}catch(e){setNotice(explain((e as Error).message));}finally{setBusy(false);}}
@@ -91,6 +96,7 @@ export default function Hub(){
     if(pending.current && JSON.stringify([operation,payload])!==JSON.stringify([pending.current.operation,pending.current.payload])){show({kind:'error',text:explain('PENDING_ACTION')});return;}
     // Recheck at submission too: the original class may have started since review.
     if(operation==='change_class'&&!pending.current){const reason=replacementBlockReason(data?.sessions.find(s=>s.id===payload.fromSessionId),Date.now());if(reason){show({kind:'error',text:reason});return;}}
+    if(operation==='book'&&!pending.current){const target=data?.sessions.find(s=>s.id===payload.sessionId);if(!target||!target.future||Date.parse(target.startsAt)<=Date.now()){show({kind:'error',text:explain('SESSION_NOT_OPEN')});return;}}
     pending.current ||= {operation,payload,requestKey:crypto.randomUUID(),messageId};
     const {requestKey}=pending.current;
     inFlight.current=true;setHasPending(true);setPendingMessageId(messageId);setBusy(true);setNotice('');if(messageId)clearBookingFeedback(messageId);
@@ -101,12 +107,19 @@ export default function Hub(){
     }finally{inFlight.current=false;setBusy(false);}
   };
   const retryPending=()=>{const p=pending.current;if(p)void act(p.operation,p.payload,p.messageId);};
+  const selectedMember=data?.members.find(member=>member.id===selectedMemberId);
+  const memberFeedbackKey=selectedMember?`member:${selectedMember.id}`:'';
+  const canBook=!!data&&['owner','manager','instructor'].includes(data.principal.role);
   return <main className={styles.root}><header className={styles.header}><div><small>ROSTER</small><h1>Follow-up hub</h1></div><Link href="/ops">Class workspace</Link></header>
     {notice&&<p className={styles.notice} role="status">{notice}</p>}
-    {!data?<section className={styles.card}><h2>Sign in to your school</h2><p>Use your individual Odoo account with Companion site access.</p><form onSubmit={login} className={styles.fields}><label>Login<input name="login" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label><button disabled={busy}>{busy?'Signing in…':'Sign in'}</button></form></section>:<>
+    {loading?<p role="status">Loading your authorized workspace…</p>:!data?<section className={styles.card}><h2>Sign in to your school</h2><p>Use your individual Odoo account with Companion site access. Device pairing does not grant booking access.</p>{selectedMemberId&&<p>Your member selection will be checked after sign-in.</p>}<form onSubmit={login} className={styles.fields}><label>Login<input name="login" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label><button disabled={busy}>{busy?'Signing in…':'Sign in'}</button></form></section>:<>
       <div className={styles.row}><p>{data.principal.name} · {data.principal.role}</p><div className={styles.row}><button disabled={busy} onClick={()=>void refresh().catch(e=>setNotice(explain(e.message)))}>Refresh</button><button disabled={busy} onClick={()=>void call({operation:'logout'}).then(()=>{setData(null);pending.current=null;setHasPending(false);setPendingMessageId(undefined);setBookingFeedback({});}).catch(e=>setNotice(explain(e.message)))}>Sign out</button></div></div>
       <p className={styles.muted}>{data.capabilities.outbound==='not_configured'?'Outbound messaging is not configured. Drafts can still be reviewed.':'Replies require your review and approval before entering the delivery queue.'}</p>
       {hasPending&&<button disabled={busy} onClick={retryPending}>Retry unconfirmed action</button>}
+      {selectedMemberId&&(selectedMember&&canBook?<MemberBooking key={selectedMember.id} member={selectedMember} sessions={data.sessions} now={now} busy={busy} locked={hasPending}
+        feedback={bookingFeedback[memberFeedbackKey]} clearFeedback={()=>clearBookingFeedback(memberFeedbackKey)}
+        retry={hasPending&&pendingMessageId===memberFeedbackKey?retryPending:undefined}
+        book={session=>void act('book',{memberId:selectedMember.id,sessionId:session.id,expectedVersion:session.version},memberFeedbackKey)}/>:<p role="alert">This member is unavailable for booking with your current account. No other member has been selected.</p>)}
       <section aria-label="Parent messages">{data.messages.length?data.messages.map(m=><MessageCard key={`${m.id}:${m.revision}`} message={m} data={data} act={act} busy={busy} locked={hasPending} now={now} feedback={bookingFeedback[m.id]} clearFeedback={()=>clearBookingFeedback(m.id)} retry={hasPending&&pendingMessageId===m.id?retryPending:undefined}/>):<article className={styles.card}><h2>No messages to review</h2><p>Messages appear here when received through your configured channel and within your assigned scope.</p></article>}</section>
       <section className={styles.card} aria-label="Recent actions"><h2>Recent actions</h2>{data.timeline.length?data.timeline.map(t=><div key={t.id} className={styles.auditEntry}>
         <p>{data.members.find(m=>m.id===t.memberId)?.name} · {t.action.replaceAll('_',' ')} · {t.actor} · {new Date(t.at).toLocaleString()}</p>
@@ -119,4 +132,8 @@ export default function Hub(){
       </div>):<p>No recorded actions yet.</p>}</section>
     </>}
   </main>;
+}
+
+export default function Hub(){
+  return <Suspense fallback={<main className={styles.root}><p role="status">Loading workspace…</p></main>}><HubContent/></Suspense>;
 }
