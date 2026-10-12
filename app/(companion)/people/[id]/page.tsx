@@ -44,7 +44,8 @@ export default async function MemberPage({
           <InfoIcon color="currentColor" size={16} />
           <span>
             Odoo test data. Identity and attendance are connected. Class booking
-            requires individual Hub access. Billing is not connected.
+            and member management require individual Hub access. Billing reads
+            require manager access; payment collection is not connected.
           </span>
         </p>
         <Member360View

@@ -6,7 +6,8 @@ type Config = {origin:string; backend:string; database:string; siteId:string; se
 const cookieName = 'dojang_hub_session';
 const responseHeaders = {'cache-control':'private, no-store', vary:'Cookie'};
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const operations = new Set(['context','resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision']);
+const reads = new Set(['context','member_details','crm_context','lead_details']);
+const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage']);
 const reject = (code:string,status=400) => Response.json({error:{code,status}},{status,headers:responseHeaders});
 
 export function hubConfig(env: NodeJS.ProcessEnv): Config {
@@ -88,7 +89,7 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
     try {await rpc(c,'/web/session/destroy',{},session,fetcher);}catch{revoked=false;}
     return Response.json({signedOut:true,backendRevoked:revoked},{headers:{...responseHeaders,'set-cookie':cookie('',0)}});
   }
-  if(!operations.has(operation) || Object.keys(data).sort().join()!=='operation,payload,requestKey' || !object(data.payload) || (operation!=='context' && (typeof data.requestKey!=='string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{15,127}$/.test(data.requestKey))))return reject('INVALID_COMMAND');
+  if(!operations.has(operation) || Object.keys(data).sort().join()!=='operation,payload,requestKey' || !object(data.payload) || (!reads.has(operation) && (typeof data.requestKey!=='string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{15,127}$/.test(data.requestKey))))return reject('INVALID_COMMAND');
   try {
     const {result}=await rpc(c,'/companion/hub/action',{siteId:c.siteId,operation,payload:data.payload,requestKey:data.requestKey},session,fetcher);
     if(!object(result))throw Error('Invalid result');

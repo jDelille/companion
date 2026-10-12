@@ -404,6 +404,10 @@
   margin-bottom: 0;
 }
 
+.crmFilters { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 20px; }
+.root a { color: var(--text); overflow-wrap: anywhere; }
+.root h2, .root p, .root strong { overflow-wrap: anywhere; }
+
 @media (max-width: 600px) {
   .root {
     padding: 22px 16px;

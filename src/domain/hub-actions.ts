@@ -17,8 +17,17 @@ const messages: Record<string, string> = {
   ENROLLMENT_REVIEW_REQUIRED: 'The original registration cannot be replaced. Its class may have started, attendance may already be recorded, or the registration may no longer be active. Review the original record. A separate future booking must still meet Odoo eligibility rules.',
   SESSION_NOT_OPEN: 'This class is no longer open for booking. Refresh and choose an available future class.',
   SESSION_FULL: 'This class is full. Choose another available class.',
-  PENDING_ACTION: 'Resolve the unconfirmed action before starting another booking.',
-  BACKEND_UNAVAILABLE_RETRY_SAME_ACTION: 'Odoo has not confirmed the result. Do not create another booking. Retry this same action to check its original receipt.',
+  MEMBER_DETAILS_UNAVAILABLE: 'This member’s details could not be verified. Refresh before continuing.',
+  SHARED_CONTACT_REVIEW_REQUIRED: 'This contact is shared or outside this company. Ask an administrator to review it in Odoo; no member was changed.',
+  INVALID_COMMAND: 'This action is unavailable or its fields are invalid. Confirm that the matching frontend and Odoo update are deployed.',
+  LEAD_UNAVAILABLE: 'This lead is unavailable with your current access. No other record was selected.',
+  TASK_UNAVAILABLE: 'This task is unavailable with your current access.',
+  CRM_SETUP_REQUIRED: 'An administrator must configure an intake stage in Odoo first.',
+  AUTOMATED_TASK_REVIEW_REQUIRED: 'This activity belongs to an automated workflow. Review it in Odoo before completing it.',
+  CRM_DETAILS_UNAVAILABLE: 'CRM records could not be verified. Refresh before continuing.',
+  NOT_CHECKED_IN: 'No eligible check-in was found for this member and class.',
+  PENDING_ACTION: 'Resolve the unconfirmed action before starting another change.',
+  BACKEND_UNAVAILABLE_RETRY_SAME_ACTION: 'Odoo has not confirmed the result. Do not submit a new action. Retry this same action to check its original receipt.',
 };
 
 export function explainHubError(code: string): string {

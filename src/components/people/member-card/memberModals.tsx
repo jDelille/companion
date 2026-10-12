@@ -100,7 +100,7 @@ const BookBody = ({ member, liveTest = false }: BodyProps) => (
   </>
 );
 
-const PaymentBody = ({ member }: BodyProps) => (
+const PaymentBody = ({ member, liveTest }: BodyProps) => (
   <>
     <dl className={styles.details}>
       <div>
@@ -117,13 +117,14 @@ const PaymentBody = ({ member }: BodyProps) => (
       </div>
     </dl>
     <p className={styles.note}>
-      Billing details aren&apos;t connected for this member. No verified plan,
-      balance, payment method, or next charge is available.
+      {liveTest ? "View linked subscriptions and posted invoices in the authenticated Hub. Only managers and owners can access billing. Payment collection is not connected."
+        : "Billing details aren’t connected in this preview. No verified balance or payment method is available."}
     </p>
+    {liveTest && <Link href={`/hub?memberId=${encodeURIComponent(member.id)}&view=manage`}>View member billing in Hub →</Link>}
   </>
 );
 
-const EditBody = ({ member }: BodyProps) => (
+const EditBody = ({ member, liveTest }: BodyProps) => (
   <>
     <dl className={styles.details}>
       <div>
@@ -150,9 +151,10 @@ const EditBody = ({ member }: BodyProps) => (
       </div>
     </dl>
     <p className={styles.note}>
-      Program, instructor, and profile changes need a connected
-      member-management service.
+      {liveTest ? "Managers and owners can review contact changes and rank awards in the authenticated Hub. Your individual Odoo access is checked before any change."
+        : "Profile changes are not connected in this preview."}
     </p>
+    {liveTest && <Link href={`/hub?memberId=${encodeURIComponent(member.id)}&view=manage`}>Manage this member in Hub →</Link>}
   </>
 );
 

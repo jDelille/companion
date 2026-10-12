@@ -6,13 +6,15 @@ import {explainHubError as explain, replacementBlockReason, runHubAction, type A
 import styles from './page.module.css';
 import Select from '@/components/primitives/select/Select';
 import MemberBooking from './MemberBooking';
+import MemberManagement from './MemberManagement';
+import CrmWorkspace from './CrmWorkspace';
 
 type Message={id:string;text:string;state:string;summary:string;reply:string;mode:string;revision:number;channel:string;guardianName:string;contactRef:string;memberId:string|null;sessionId:string|null};
 type Context={principal:{name:string;role:string};members:{id:string;name:string}[];sessions:{id:string;title:string;startsAt:string;future:boolean;version:number}[];messages:Message[];
   deliveries:{id:string;messageId:string;state:string;providerRef:string|null;approvedBy:string}[];
   capabilities:{outbound:string;inbound:string;ai:string};timeline:{id:string;memberId:string;action:string;actor:string;at:string;
     booking?:{enrollmentId:string;classTitle:string;startsAt:string;state:string;attendanceState:string}|null}[]};
-type Action=(operation:string,payload:Record<string,unknown>,messageId?:string)=>Promise<void>;
+type Action=(operation:string,payload:Record<string,unknown>,messageId?:string)=>Promise<ActionFeedback|undefined>;
 
 async function call(body:Record<string,unknown>){
   const response=await fetch('/api/hub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
@@ -77,6 +79,9 @@ function MessageCard({message,data,act,busy,locked,now,feedback,clearFeedback,re
 function HubContent(){
   const searchParams=useSearchParams();
   const selectedMemberId=searchParams.get('memberId');
+  const managing=searchParams.get('view')==='manage';
+  const crm=searchParams.get('view')==='crm';
+  const [memberChoice,setMemberChoice]=useState('');
   const [loading,setLoading]=useState(true);
   const [data,setData]=useState<Context|null>(null),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false),[hasPending,setHasPending]=useState(false);
   const [bookingFeedback,setBookingFeedback]=useState<Record<string,ActionFeedback>>({});
@@ -104,9 +109,10 @@ function HubContent(){
       const feedback=await runHubAction(()=>call({operation,payload,requestKey}),refresh,accepted=>{pending.current=null;setHasPending(false);setPendingMessageId(undefined);show(accepted);});
       if(feedback.kind!=='uncertain'){pending.current=null;setHasPending(false);setPendingMessageId(undefined);}
       show(feedback);
+      return feedback;
     }finally{inFlight.current=false;setBusy(false);}
   };
-  const retryPending=()=>{const p=pending.current;if(p)void act(p.operation,p.payload,p.messageId);};
+  const retryPending=async()=>{const p=pending.current;if(p)return act(p.operation,p.payload,p.messageId);};
   const selectedMember=data?.members.find(member=>member.id===selectedMemberId);
   const memberFeedbackKey=selectedMember?`member:${selectedMember.id}`:'';
   const canBook=!!data&&['owner','manager','instructor'].includes(data.principal.role);
@@ -115,11 +121,22 @@ function HubContent(){
     {loading?<p role="status">Loading your authorized workspace…</p>:!data?<section className={styles.card}><h2>Sign in to your school</h2><p>Use your individual Odoo account with Companion site access. Device pairing does not grant booking access.</p>{selectedMemberId&&<p>Your member selection will be checked after sign-in.</p>}<form onSubmit={login} className={styles.fields}><label>Login<input name="login" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label><button disabled={busy}>{busy?'Signing in…':'Sign in'}</button></form></section>:<>
       <div className={styles.row}><p>{data.principal.name} · {data.principal.role}</p><div className={styles.row}><button disabled={busy} onClick={()=>void refresh().catch(e=>setNotice(explain(e.message)))}>Refresh</button><button disabled={busy} onClick={()=>void call({operation:'logout'}).then(()=>{setData(null);pending.current=null;setHasPending(false);setPendingMessageId(undefined);setBookingFeedback({});}).catch(e=>setNotice(explain(e.message)))}>Sign out</button></div></div>
       <p className={styles.muted}>{data.capabilities.outbound==='not_configured'?'Outbound messaging is not configured. Drafts can still be reviewed.':'Replies require your review and approval before entering the delivery queue.'}</p>
-      {hasPending&&<button disabled={busy} onClick={retryPending}>Retry unconfirmed action</button>}
-      {selectedMemberId&&(selectedMember&&canBook?<MemberBooking key={selectedMember.id} member={selectedMember} sessions={data.sessions} now={now} busy={busy} locked={hasPending}
+      {!busy&&!hasPending&&<nav className={styles.row} aria-label="Hub sections"><Link href="/hub">Messages & members</Link>{['owner','manager'].includes(data.principal.role)&&<Link href="/hub?view=crm">Sales & tasks →</Link>}</nav>}
+      {hasPending&&!(managing&&pendingMessageId===`manage:${selectedMemberId}`)&&!(crm&&pendingMessageId==='crm')&&<button disabled={busy} onClick={retryPending}>Retry unconfirmed action</button>}
+      {crm&&(['owner','manager'].includes(data.principal.role)?<CrmWorkspace busy={busy} locked={hasPending} feedback={bookingFeedback.crm} clearFeedback={()=>clearBookingFeedback('crm')} retry={hasPending&&pendingMessageId==='crm'?retryPending:undefined} act={(operation,payload)=>act(operation,payload,'crm')}/>:<p role="alert">Sales and tasks require manager or owner access.</p>)}
+      {!crm&&<>
+      {canBook&&<section className={styles.card} aria-label="Find a member"><label className={styles.fields}>Member<Select ariaLabel="Manage member" value={memberChoice} disabled={busy||hasPending} onChange={setMemberChoice} placeholder="Choose a member" options={data.members.map(m=>({value:m.id,label:m.name}))}/></label>
+        {memberChoice&&!busy&&!hasPending&&<Link href={`/hub?memberId=${encodeURIComponent(memberChoice)}&view=manage`}>Open member management →</Link>}</section>}
+      {selectedMember&&canBook&&!busy&&!hasPending&&<nav className={styles.row} aria-label="Member workspace"><Link href={`/hub?memberId=${encodeURIComponent(selectedMember.id)}`}>Book a class</Link><Link href={`/hub?memberId=${encodeURIComponent(selectedMember.id)}&view=manage`}>Profile, billing and attendance</Link></nav>}
+      {selectedMemberId&&managing&&selectedMember&&canBook&&<MemberManagement key={selectedMember.id} memberId={selectedMember.id} sessions={data.sessions} now={now} busy={busy} locked={hasPending}
+        feedback={bookingFeedback[`manage:${selectedMember.id}`]} clearFeedback={()=>clearBookingFeedback(`manage:${selectedMember.id}`)}
+        retry={hasPending&&pendingMessageId===`manage:${selectedMember.id}`?retryPending:undefined}
+        act={(operation,payload)=>act(operation,payload,`manage:${selectedMember.id}`)}/>}
+      {selectedMemberId&&!managing&&(selectedMember&&canBook?<MemberBooking key={selectedMember.id} member={selectedMember} sessions={data.sessions} now={now} busy={busy} locked={hasPending}
         feedback={bookingFeedback[memberFeedbackKey]} clearFeedback={()=>clearBookingFeedback(memberFeedbackKey)}
         retry={hasPending&&pendingMessageId===memberFeedbackKey?retryPending:undefined}
         book={session=>void act('book',{memberId:selectedMember.id,sessionId:session.id,expectedVersion:session.version},memberFeedbackKey)}/>:<p role="alert">This member is unavailable for booking with your current account. No other member has been selected.</p>)}
+      {selectedMemberId&&managing&&(!selectedMember||!canBook)&&<p role="alert">This member is unavailable with your current account. No other member has been selected.</p>}
       <section aria-label="Parent messages">{data.messages.length?data.messages.map(m=><MessageCard key={`${m.id}:${m.revision}`} message={m} data={data} act={act} busy={busy} locked={hasPending} now={now} feedback={bookingFeedback[m.id]} clearFeedback={()=>clearBookingFeedback(m.id)} retry={hasPending&&pendingMessageId===m.id?retryPending:undefined}/>):<article className={styles.card}><h2>No messages to review</h2><p>Messages appear here when received through your configured channel and within your assigned scope.</p></article>}</section>
       <section className={styles.card} aria-label="Recent actions"><h2>Recent actions</h2>{data.timeline.length?data.timeline.map(t=><div key={t.id} className={styles.auditEntry}>
         <p>{data.members.find(m=>m.id===t.memberId)?.name} · {t.action.replaceAll('_',' ')} · {t.actor} · {new Date(t.at).toLocaleString()}</p>
@@ -130,6 +147,7 @@ function HubContent(){
           <small>Loaded from Odoo. This booking record does not confirm that a message was sent.</small>
         </div>:['book','change_class'].includes(t.action)&&<small>Receipt details unavailable. Check the registration in Odoo before booking again.</small>}
       </div>):<p>No recorded actions yet.</p>}</section>
+      </>}
     </>}
   </main>;
 }

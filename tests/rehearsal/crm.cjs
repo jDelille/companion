@@ -1,0 +1,71 @@
+// Browser → fixed gateway → individual Odoo session → native lead/activity rows.
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {randomUUID}=require('node:crypto');
+const fixture=JSON.parse(fs.readFileSync(process.env.DOJANG_FIXTURE_OUTPUT,'utf8'));
+const origin='http://localhost:3000';
+const pick=async(scope,label,value)=>{await scope.getByLabel(label,{exact:true}).click();await scope.locator(`[role=option][data-value="${value}"]`).click();};
+let stage='login';const evidence=[];
+const passed=name=>{console.log('PASS '+name);evidence.push(name);};
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const context=await browser.newContext({viewport:{width:390,height:844}}),page=await context.newPage();page.setDefaultTimeout(20000);
+  const signin=await context.request.post(origin+'/api/hub',{headers:{origin},data:{operation:'login',login:fixture.hubLogin,password:fixture.hubPassword}});assert.equal(signin.status(),200);
+  const call=async(operation,payload,key=null)=>{const r=await context.request.post(origin+'/api/hub',{headers:{origin},data:{operation,payload,requestKey:key}});assert.equal(r.status(),200);return r.json();};
+  await page.goto(origin+'/hub?view=crm');const crm=page.getByRole('region',{name:'CRM workspace',exact:true});
+  await crm.getByText('New lead',{exact:true}).click();
+  await crm.getByLabel('Lead title',{exact:true}).fill('Browser CRM enquiry');await crm.getByLabel('Lead contact',{exact:true}).fill('Synthetic Prospect');await crm.getByLabel('Lead email',{exact:true}).fill('prospect@example.invalid');
+  await crm.getByRole('button',{name:'Review new lead',exact:true}).click();
+  stage='lead review';await crm.getByRole('group',{name:'Review CRM action',exact:true}).getByText(/Create lead/).waitFor();
+  assert.equal((await call('crm_context',{query:'Browser CRM enquiry'})).leads.length,0);
+  await crm.getByRole('button',{name:'Confirm CRM action in Odoo',exact:true}).click();
+  await crm.getByRole('button',{name:'Open lead Browser CRM enquiry',exact:true}).waitFor();
+  const created=(await call('crm_context',{query:'Browser CRM enquiry'})).leads;assert.equal(created.length,1);const id=created[0].id;
+  passed('lead creation waits for explicit review and persists once in native CRM');
+  let lostKey;const editKeys=[];let loseReply=true;
+  await page.route('**/api/hub',async route=>{
+   const body=route.request().postDataJSON();
+   if(body?.operation==='update_lead'){
+    editKeys.push(body.requestKey);
+    if(loseReply){loseReply=false;lostKey=body.requestKey;const saved=await route.fetch();assert.equal(saved.status(),200);await route.abort();return;}
+   }
+   await route.continue();
+  });
+  stage='lead edit';await crm.getByRole('button',{name:'Open lead Browser CRM enquiry',exact:true}).click();
+  const detail=crm.getByRole('region',{name:'Lead detail',exact:true});await detail.getByLabel('Lead phone',{exact:true}).fill('555-0142');
+  await detail.getByRole('button',{name:'Review lead changes',exact:true}).click();await crm.getByRole('button',{name:'Confirm CRM action in Odoo',exact:true}).click();
+  await crm.getByRole('button',{name:'Check CRM action result',exact:true}).waitFor();
+  assert.equal(await crm.getByRole('button',{name:'Confirm CRM action in Odoo',exact:true}).isDisabled(),true);
+  await crm.getByRole('button',{name:'Check CRM action result',exact:true}).click();
+  await crm.getByRole('status',{name:'CRM action result',exact:true}).getByText('Saved in Odoo.',{exact:true}).waitFor();
+  await detail.getByLabel('Lead phone',{exact:true}).waitFor();assert.equal(await detail.getByLabel('Lead phone',{exact:true}).inputValue(),'555-0142');
+  assert.equal(editKeys.length,2);assert.equal(editKeys[1],lostKey);
+  await page.unroute('**/api/hub');
+  await page.reload();await crm.getByRole('button',{name:'Open lead Browser CRM enquiry',exact:true}).click();assert.equal(await detail.getByLabel('Lead phone',{exact:true}).inputValue(),'555-0142');
+  passed('lost edit response locks new actions; same-key retry reconciles saved Odoo receipt; exact contact edit survives reload');
+  stage='create linked task';const form=crm.getByRole('region',{name:'Create linked task',exact:true});await pick(form,'Task linked record',`lead:${id}`);
+  await form.getByLabel('Task summary',{exact:true}).fill('Review a suitable trial');await form.getByRole('button',{name:'Review new task',exact:true}).click();await crm.getByRole('button',{name:'Confirm CRM action in Odoo',exact:true}).click();
+  const tasks=crm.getByRole('region',{name:'Open CRM tasks',exact:true});await tasks.getByText('Review a suitable trial',{exact:true}).waitFor();
+  let lead=await call('lead_details',{leadId:id});const task=lead.tasks.find(t=>t.summary==='Review a suitable trial');assert.ok(task);assert.equal(task.relatedId,id);assert.equal(task.state==='done',false);
+  passed('next action creates a real task on the selected lead, assigned to the signed-in user');
+  stage='task completion';const row=tasks.getByRole('article',{name:`Task ${task.id}`,exact:true});await row.getByLabel(`Outcome for task ${task.id}`,{exact:true}).fill('Staff reviewed class availability; no message sent');await row.getByRole('button',{name:'Review task completion',exact:true}).click();await crm.getByRole('button',{name:'Confirm CRM action in Odoo',exact:true}).click();
+  await detail.getByText('Outcome: Staff reviewed class availability; no message sent',{exact:true}).waitFor();
+  lead=await call('lead_details',{leadId:id});assert.equal(lead.tasks.find(t=>t.id===task.id).state,'done');
+  passed('native task completion saves an outcome and retains completed lead history');
+  stage='stage proposal';const data=await call('crm_context',{query:''});const target=data.stages.find(s=>s.id!==lead.lead.stageId);assert.ok(target);
+  await detail.getByText('Propose a stage change',{exact:true}).click();await pick(detail,'Proposed stage',target.id);await detail.getByLabel('Reason',{exact:true}).fill('Ready for manager review');await detail.getByRole('button',{name:'Review stage proposal',exact:true}).click();await crm.getByRole('button',{name:'Confirm CRM action in Odoo',exact:true}).click();
+  await detail.getByText(/Review stage: /).first().waitFor();const after=await call('lead_details',{leadId:id});assert.equal(after.lead.stageId,lead.lead.stageId);assert.ok(after.tasks.some(t=>t.summary.startsWith('Review stage:')));
+  passed('stage proposal creates a review task without changing stage or asserting trial attendance');
+  stage='independent read';const second=await browser.newContext();const auth=await second.request.post(origin+'/api/hub',{headers:{origin},data:{operation:'login',login:fixture.hubLogin,password:fixture.hubPassword}});assert.equal(auth.status(),200);
+  const read=await second.request.post(origin+'/api/hub',{headers:{origin},data:{operation:'lead_details',payload:{leadId:id},requestKey:null}});assert.equal(read.status(),200);const independently=await read.json();assert.equal(independently.lead.phone,'555-0142');assert.equal(independently.tasks.find(t=>t.id===task.id).state,'done');
+  const duplicate=await call('complete_task',{taskId:task.id,expectedVersion:task.version,feedback:'same completion'},randomUUID());assert.equal(duplicate.state,'done');
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
+  await page.screenshot({path:path.join(process.env.DOJANG_EVIDENCE_DIR,'crm-mobile.png'),fullPage:true});
+  passed('second browser reads persisted lead/task results; repeated completion stays done; CRM fits mobile width');
+  fs.writeFileSync(path.join(process.env.DOJANG_EVIDENCE_DIR,'crm-browser-results.json'),JSON.stringify({mode:'real Odoo synthetic database; no external send or charge',checks:evidence},null,2));
+  await second.close();await context.close();
+ }finally{await browser.close();}
+})().catch(error=>{console.error(`CRM rehearsal failed at ${stage}: ${error.code||error.name||'Error'}`);process.exitCode=1;});

@@ -16,5 +16,25 @@ test('demo pairing cannot authenticate the real user gateway',async()=>{const r=
 test('cookie is bound to the configured site and duplicate cookies are rejected',async()=>{const cookie=await login();for(const [c,settings] of [[cookie,{...env,DOJANG_HUB_SITE_ID:'6'}],[cookie+'; '+cookie,env]]){const r=await hubRoute(req({operation:'context',payload:{},requestKey:null},c),settings,fixture);assert.equal(r.status,401)}});
 test('fixed host, database and site come from server configuration',async()=>{const cookie=await login();const calls=[];const r=await hubRoute(req({operation:'context',payload:{},requestKey:null},cookie),env,async(url,init)=>{calls.push({url,init});return Response.json({result:context})});assert.equal(r.status,200);assert.equal(calls[0].url,env.DOJANG_ODOO_URL+'/companion/hub/action');assert.equal(calls[0].init.headers.cookie,'session_id='+sid);assert.equal(JSON.parse(calls[0].init.body).params.siteId,'5');assert.equal(calls[0].init.redirect,'error')});
 test('unknown actions and caller authority fields are rejected',async()=>{const cookie=await login();for(const body of [{operation:'sudo',payload:{},requestKey:'request-test-00001'},{operation:'context',payload:{},requestKey:null,siteId:'9'}])assert.equal((await hubRoute(req(body,cookie),env,fixture)).status,400)});
+test('member details are an authenticated fixed read, never a paired-device upgrade',async()=>{
+ const body={operation:'member_details',payload:{memberId:'25'},requestKey:null};
+ assert.equal((await hubRoute(req(body,'dojang_staff_test=fake.pair'),env,fixture)).status,401);
+ const cookie=await login();let params;
+ const r=await hubRoute(req(body,cookie),env,async(_url,init)=>{params=JSON.parse(init.body).params;return Response.json({result:{member:{id:'25'}}});});
+ assert.equal(r.status,200);assert.equal(params.siteId,'5');assert.equal(params.operation,'member_details');assert.deepEqual(params.payload,{memberId:'25'});
+ assert.equal((await hubRoute(req({...body,operation:'update_member'},cookie),env,fixture)).status,400);
+});
 test('provider/backend errors are sanitized and preserve retry uncertainty',async()=>{const cookie=await login();const r=await hubRoute(req({operation:'checkout',payload:{},requestKey:'request-test-00001'},cookie),env,async()=>{throw Error('secret-token')});assert.equal(r.status,503);assert.doesNotMatch(await r.text(),/secret-token/)});
+test('CRM reads require a real user session and mutations require a stable receipt key',async()=>{
+ const cookie=await login();
+ for(const operation of ['crm_context','lead_details']){
+  const body={operation,payload:operation==='crm_context'?{query:''}:{leadId:'21'},requestKey:null};
+  assert.equal((await hubRoute(req(body),env,fixture)).status,401);
+  assert.equal((await hubRoute(req(body,cookie),env,fixture)).status,200);
+ }
+ for(const operation of ['create_lead','update_lead','create_task','complete_task','propose_stage']){
+  assert.equal((await hubRoute(req({operation,payload:{},requestKey:null},cookie),env,fixture)).status,400);
+  assert.equal((await hubRoute(req({operation,payload:{},requestKey:'crm-action-test-0001'},cookie),env,fixture)).status,200);
+ }
+});
 test('logout revokes the Odoo session and clears the local cookie',async()=>{const cookie=await login();let path='';const r=await hubRoute(req({operation:'logout'},cookie),env,async(url)=>{path=url;return Response.json({result:null})});assert.ok(path.endsWith('/web/session/destroy'));assert.match(r.headers.get('set-cookie'),/Max-Age=0/);assert.equal((await r.json()).backendRevoked,true)});
