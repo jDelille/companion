@@ -43,13 +43,26 @@ const choose=async(page,name)=>{
   assert.equal(publicHealth.mode,'odoo-test');
   assert.equal(publicHealth.backend,'not_checked');
   record('unpaired kiosk and staff requests are rejected');
-  for (const route of ['/api/v1/kiosk/concierge','/api/v1/kiosk/concierge/actions']) {
-    assert.equal((await anonymous.request.post(BASE+route,{data:{}})).status(),501);
-  }
-  record('connected kiosk rejects simulated concierge replies and action receipts');
+  assert.equal((await anonymous.request.post(BASE+'/api/v1/kiosk/concierge',{headers:{origin:BASE},data:{question:'What classes are on today?',correlationId:'unpaired-question-01'}})).status(),403);
+  assert.equal((await anonymous.request.post(BASE+'/api/v1/kiosk/concierge/actions',{data:{}})).status(),501);
+  record('unpaired concierge access and simulated action receipts remain blocked');
   const kiosk=await browser.newContext({viewport:{width:820,height:1180},recordVideo:{dir:path.join(output,'video'),size:{width:820,height:1180}}});contexts.push(kiosk);
   const page=await kiosk.newPage();
   await pair(page,'kiosk');
+  await page.getByRole('button',{name:/Ask a question/}).click();
+  await page.getByRole('button',{name:/What classes are on today/}).click();
+  await page.getByRole('heading',{name:"Today's classes",exact:true}).waitFor();
+  await page.getByText('Demo session',{exact:true}).waitFor();
+  const liveSchedule=await (await kiosk.request.get(BASE+'/api/v2/sessions')).json();
+  assert.ok(liveSchedule.some(session=>session.sessionId===fixture.sessionId&&session.title==='Demo session'));
+  await page.screenshot({path:path.join(output,'00-connected-kiosk-schedule.png'),fullPage:true});
+  await page.getByRole('button',{name:'← Ask something else',exact:true}).click();
+  await page.getByRole('button',{name:/I want to try a class/}).click();
+  await page.getByText('This kiosk has not sent a trial request or reserved a place.',{exact:true}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Send request',exact:true}).count(),0);
+  await page.getByRole('button',{name:'← Ask something else',exact:true}).click();
+  await page.getByRole('button',{name:'← Back',exact:true}).click();
+  record('Ask shows the real Odoo class schedule; unsupported trial requests make no simulated promise');
   assert.equal((await kiosk.request.get(BASE+'/api/v2/members')).status(),403);
   record('paired kiosk cannot read staff member details');
   const staff=await browser.newContext({viewport:{width:1440,height:1000}});contexts.push(staff);

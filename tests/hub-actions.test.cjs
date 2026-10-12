@@ -26,7 +26,7 @@ test('failed context refresh never turns a saved booking into a failed write',as
   let accepted=0,sends=0;
   const result=await runHubAction(async()=>{sends++;return {enrollmentId:'72'};},async()=>{throw Error('offline');},()=>accepted++);
   assert.equal(result.kind,'success');assert.match(result.text,/Receipt: 72/);
-  assert.match(result.refreshWarning,/do not submit this booking again/);assert.equal(accepted,1);assert.equal(sends,1);
+  assert.match(result.refreshWarning,/do not repeat this action/);assert.equal(accepted,1);assert.equal(sends,1);
 });
 test('definite eligibility rejection is shown without refreshing or acknowledging',async()=>{
   const result=await runHubAction(async()=>{throw Error('BUSINESS_RULE_REVIEW_REQUIRED');},async()=>assert.fail('not committed'),()=>assert.fail('not acknowledged'));
@@ -44,4 +44,15 @@ test('replacement rejection explains original enrollment restrictions',()=>{
 test('non-booking actions retain ordinary successful feedback',async()=>{
   const result=await runHubAction(async()=>({}),async()=>{},()=>{});
   assert.deepEqual(result,{kind:'success',text:'Saved in Odoo.'});
+});
+test('preparing checkout never claims an invoice is paid and survives a failed refresh',async()=>{
+ const checkoutUrl='https://odoo.example.test/my/invoices/42?access_token=synthetic';
+ const result=await runHubAction(async()=>({checkoutUrl,invoiceId:'42',invoiceNumber:'INV/42',amount:30,currency:'USD'}),async()=>{throw Error('offline');},()=>{});
+ assert.equal(result.kind,'success');assert.match(result.text,/Payment has not been submitted/);
+ assert.equal(result.checkout.url,checkoutUrl);assert.equal(result.checkout.invoiceId,'42');assert.ok(result.refreshWarning);
+});
+test('AI activation shows its verified outcome and reports failed checks honestly',async()=>{
+ const result=await runHubAction(async()=>({state:'ai_enabled'}),async()=>{},()=>{});
+ assert.match(result.text,/passed the connection check/);
+ assert.match(explainHubError('AI_CHECK_FAILED'),/settings were not changed/);
 });

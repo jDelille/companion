@@ -6,8 +6,8 @@ type Config = {origin:string; backend:string; database:string; siteId:string; se
 const cookieName = 'dojang_hub_session';
 const responseHeaders = {'cache-control':'private, no-store', vary:'Cookie'};
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const reads = new Set(['context','member_details','crm_context','lead_details']);
-const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage']);
+const reads = new Set(['context','member_details','crm_context','lead_details','ai_settings']);
+const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai']);
 const reject = (code:string,status=400) => Response.json({error:{code,status}},{status,headers:responseHeaders});
 
 export function hubConfig(env: NodeJS.ProcessEnv): Config {
@@ -96,6 +96,20 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
     if(object(result.error)){
       const status=[400,401,403,404,409,422,503].includes(Number(result.error.status))?Number(result.error.status):503;
       return reject(typeof result.error.code==='string' && /^[A-Z_]{1,80}$/.test(result.error.code)?result.error.code:'BACKEND_UNAVAILABLE',status);
+    }
+    if(operation==='payment_link'){
+      // Never let backend data navigate the browser to a different origin or
+      // another invoice. Only the configured Odoo checkout is trusted.
+      if(typeof result.checkoutUrl!=='string' || typeof result.invoiceId!=='string' ||
+        result.invoiceId!==data.payload.invoiceId || result.memberId!==data.payload.memberId ||
+        typeof result.amount!=='number' || !Number.isFinite(result.amount) || result.amount<=0 || result.amount!==data.payload.expectedAmount ||
+        typeof result.currency!=='string' || !/^[A-Z]{3}$/.test(result.currency))return reject('PAYMENT_RESPONSE_INVALID',502);
+      const checkout=new URL(result.checkoutUrl);
+      checkout.pathname=checkout.pathname.replace(/^\/+/, '/');
+      if(checkout.origin!==c.backend || checkout.username || checkout.password ||
+        checkout.pathname!==`/my/invoices/${result.invoiceId}` || !checkout.searchParams.get('access_token') ||
+        checkout.searchParams.get('move_id')!==result.invoiceId || !checkout.searchParams.get('payment_token'))return reject('PAYMENT_RESPONSE_INVALID',502);
+      result.checkoutUrl=checkout.href;
     }
     return Response.json(result,{headers:responseHeaders});
   }catch{return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);}

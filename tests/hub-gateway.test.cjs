@@ -38,3 +38,25 @@ test('CRM reads require a real user session and mutations require a stable recei
  }
 });
 test('logout revokes the Odoo session and clears the local cookie',async()=>{const cookie=await login();let path='';const r=await hubRoute(req({operation:'logout'},cookie),env,async(url)=>{path=url;return Response.json({result:null})});assert.ok(path.endsWith('/web/session/destroy'));assert.match(r.headers.get('set-cookie'),/Max-Age=0/);assert.equal((await r.json()).backendRevoked,true)});
+
+test('invoice checkout accepts only the exact invoice on the configured Odoo origin',async()=>{
+ const cookie=await login();
+ const command={operation:'payment_link',payload:{memberId:'25',invoiceId:'42',expectedVersion:10,expectedAmount:30},requestKey:'invoice-payment-test-001'};
+ const valid={memberId:'25',invoiceId:'42',invoiceNumber:'INV/42',amount:30,currency:'USD',checkoutUrl:env.DOJANG_ODOO_URL+'//my/invoices/42?access_token=synthetic&move_id=42&payment_token=synthetic#portal_pay'};
+ let r=await hubRoute(req(command,cookie),env,async()=>Response.json({result:valid}));
+ assert.equal(r.status,200);assert.match((await r.json()).checkoutUrl,/\.test\/my\/invoices\/42\?/);
+ for(const patch of [{checkoutUrl:valid.checkoutUrl.replace('https://odoo.example.test','https://attacker.test')},
+   {checkoutUrl:valid.checkoutUrl.replace('/42?','/43?')},{memberId:'26'},{invoiceId:'43'},
+   {checkoutUrl:'javascript:alert(1)'},{checkoutUrl:env.DOJANG_ODOO_URL+'/my/invoices/42'}, {amount:0}]){
+   r=await hubRoute(req(command,cookie),env,async()=>Response.json({result:{...valid,...patch}}));assert.equal(r.status,502);
+ }
+ assert.equal((await hubRoute(req(command),env,fixture)).status,401);
+ assert.equal((await hubRoute(req({...command,requestKey:null},cookie),env,fixture)).status,400);
+});
+test('AI activation uses the real session and stable key, settings are an authenticated read',async()=>{
+ const cookie=await login();
+ const read={operation:'ai_settings',payload:{},requestKey:null};
+ assert.equal((await hubRoute(req(read),env,fixture)).status,401);
+ assert.equal((await hubRoute(req(read,cookie),env,fixture)).status,200);
+ assert.equal((await hubRoute(req({...read,operation:'enable_ai'},cookie),env,fixture)).status,400);
+});

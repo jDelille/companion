@@ -61,8 +61,7 @@ const ConciergeScreen = (props: Props) => {
           </PlainButton>
         )}
         {state.view === "done" && <span />}
-        {/* --agent marks AI context, so it's clear these answers come from the assistant */}
-        <span className={styles.aiTag}>AI assistant</span>
+        <span className={styles.aiTag}>School assistant</span>
       </div>
 
       {(state.view === "ask" || state.view === "thinking") && (
@@ -220,11 +219,15 @@ const ReplyView = ({
   onGoToCheckIn,
 }: ReplyProps) => {
   if (answer.kind === "unavailable") {
+    const headline = answer.reason === "pairing" ? "This kiosk needs to be connected"
+      : answer.reason === "notConfigured" ? "Kiosk help isn't connected yet" : "The assistant isn't available";
+    const message = answer.reason === "pairing" ? "Ask staff to reconnect this kiosk, then try again."
+      : answer.reason === "notConfigured" ? "Please see the front desk for help." : "Please try again, or see the front desk.";
     return (
       <>
-        <Titles eyebrow={question} headline="The assistant isn't available" />
+        <Titles eyebrow={question} headline={headline} />
         <StatusMessage
-          message="Please try again, or see the front desk."
+          message={message}
           actions={[{ label: "Try again", onClick: onAskAgain }]}
         />
       </>

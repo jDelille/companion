@@ -1,4 +1,4 @@
-import type { RecordId } from "@/contracts/kiosk-attendance";
+import type { RecordId } from "../../contracts/kiosk-attendance";
 
 // Kiosk AI Concierge ("Do For Me" on the kiosk).
 //
@@ -56,7 +56,7 @@ export type ConciergeReply =
 
 // What the integration layer hands back: the reply, or "unavailable" for
 // anything we couldn't get or couldn't read
-export type ConciergeAnswer = ConciergeReply | { kind: "unavailable" };
+export type ConciergeAnswer = ConciergeReply | { kind: "unavailable"; reason?: "pairing" | "notConfigured" };
 
 // The trial request's details. First name only: nothing else personal is
 // typed into a shared screen.

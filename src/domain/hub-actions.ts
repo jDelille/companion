@@ -3,6 +3,7 @@ export type ActionFeedback = {
   kind: 'success' | 'error' | 'uncertain';
   text: string;
   refreshWarning?: string;
+  checkout?: {url: string; invoiceId: string; invoiceNumber: string; amount: number; currency: string};
 };
 
 const messages: Record<string, string> = {
@@ -20,6 +21,15 @@ const messages: Record<string, string> = {
   MEMBER_DETAILS_UNAVAILABLE: 'This member’s details could not be verified. Refresh before continuing.',
   SHARED_CONTACT_REVIEW_REQUIRED: 'This contact is shared or outside this company. Ask an administrator to review it in Odoo; no member was changed.',
   INVALID_COMMAND: 'This action is unavailable or its fields are invalid. Confirm that the matching frontend and Odoo update are deployed.',
+  INVOICE_UNAVAILABLE: 'This posted invoice is not linked to this member within your school.',
+  PAYMENT_SETUP_REQUIRED: 'Online invoice payment must be enabled in Odoo by your administrator.',
+  PAYMENT_PROVIDER_UNAVAILABLE: 'No published payment provider is available for this invoice’s currency, amount and customer.',
+  INVOICE_NOT_PAYABLE: 'This invoice has no payable balance. Refresh billing to see its current status.',
+  PAYMENT_PENDING_OR_SETTLED: 'A payment may already be processing or completed. Refresh the invoice before starting another payment.',
+  PAYMENT_URL_NOT_CONFIGURED: 'The secure Odoo invoice checkout address has not been configured.',
+  PAYMENT_RESPONSE_INVALID: 'The checkout address could not be verified. No payment was submitted. Refresh and review the invoice.',
+  AI_CONFIGURATION_REQUIRED: 'The running Odoo worker needs its private OpenAI key and supported model configured before activation.',
+  AI_CHECK_FAILED: 'The live drafting check failed. AI settings were not changed; template drafts remain available.',
   LEAD_UNAVAILABLE: 'This lead is unavailable with your current access. No other record was selected.',
   TASK_UNAVAILABLE: 'This task is unavailable with your current access.',
   CRM_SETUP_REQUIRED: 'An administrator must configure an intake stage in Odoo first.',
@@ -46,11 +56,11 @@ export function replacementBlockReason(original: {startsAt: string; future: bool
 
 /** Do not turn an acknowledged write into a failure when its follow-up read fails. */
 export async function runHubAction(
-  send: () => Promise<{enrollmentId?: unknown}>,
+  send: () => Promise<{enrollmentId?: unknown; checkoutUrl?: string; invoiceId?: string; invoiceNumber?: string; amount?: number; currency?: string; state?: string}>,
   refresh: () => Promise<void>,
   onAcknowledged: (feedback: ActionFeedback) => void,
 ): Promise<ActionFeedback> {
-  let result: {enrollmentId?: unknown};
+  let result: Awaited<ReturnType<typeof send>>;
   try {
     result = await send();
   } catch (error) {
@@ -62,13 +72,17 @@ export async function runHubAction(
   }
   const feedback: ActionFeedback = {
     kind: 'success',
-    text: result.enrollmentId ? `Registration saved in Odoo. Receipt: ${result.enrollmentId}.` : 'Saved in Odoo.',
+    text: result.checkoutUrl ? 'Secure invoice checkout is ready. Payment has not been submitted.' :
+      result.state==='ai_enabled' ? 'Live AI drafting passed the connection check and is enabled for this school.' :
+      result.enrollmentId ? `Registration saved in Odoo. Receipt: ${result.enrollmentId}.` : 'Saved in Odoo.',
+    ...(result.checkoutUrl && result.invoiceId && result.invoiceNumber && typeof result.amount==='number' && result.currency ?
+      {checkout:{url:result.checkoutUrl,invoiceId:result.invoiceId,invoiceNumber:result.invoiceNumber,amount:result.amount,currency:result.currency}} : {}),
   };
   onAcknowledged(feedback);
   try {
     await refresh();
     return feedback;
   } catch {
-    return {...feedback, refreshWarning: 'Saved successfully, but the latest screen data could not be loaded. Refresh to update the view; do not submit this booking again.'};
+    return {...feedback, refreshWarning: 'Saved successfully, but the latest screen data could not be loaded. Refresh to update the view; do not repeat this action.'};
   }
 }

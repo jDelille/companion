@@ -12,4 +12,6 @@ export DOJANG_OUTBOX_MODULE="$BUILD/domain/kiosk/attendanceOutbox.js"
 export DOJANG_READINESS_MODULE="$BUILD/server/readiness.js"
 export DOJANG_HUB_MODULE="$BUILD/server/hub-gateway.js"
 export DOJANG_HUB_ACTIONS_MODULE="$BUILD/domain/hub-actions.js"
-node --test tests/odoo-gateway.test.cjs tests/companion-live.test.cjs tests/attendance-outbox.test.cjs tests/readiness.test.cjs tests/hub-gateway.test.cjs tests/hub-actions.test.cjs
+./node_modules/.bin/tsc --strict --target ES2022 --module commonjs --moduleResolution node --lib ES2022,DOM --types node --typeRoots ./node_modules/@types --outDir "$BUILD" src/server/kiosk-concierge.ts
+export DOJANG_CONCIERGE_MODULE="$BUILD/server/kiosk-concierge.js"
+node --test tests/odoo-gateway.test.cjs tests/companion-live.test.cjs tests/attendance-outbox.test.cjs tests/readiness.test.cjs tests/hub-gateway.test.cjs tests/hub-actions.test.cjs tests/kiosk-concierge.test.cjs

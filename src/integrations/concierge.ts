@@ -9,9 +9,8 @@ import type {
 import { CONCIERGE_TIMEOUT_SECONDS } from "@/domain/kiosk/kioskConfig";
 
 // The only place the kiosk Concierge gets data from. Calls the
-// /api/v1/kiosk/concierge routes, which are mocks for now and will sit in front
-// of the real Concierge service later. None of these throw: whatever happens
-// comes back as an answer.
+// /api/v1/kiosk/concierge routes. Connected questions use read-only school help
+// and the real Odoo schedule; trial/staff writes remain unavailable. None throw.
 
 // Stops waiting after CONCIERGE_TIMEOUT_SECONDS, or when the kiosk leaves the view
 const timeoutSignal = (signal: AbortSignal) => {
@@ -36,6 +35,8 @@ export async function askConcierge(
     if (response.ok && looksLikeReply(body)) {
       return body;
     }
+    if (response.status === 401 || response.status === 403) return {kind: "unavailable", reason: "pairing"};
+    if (response.status === 501) return {kind: "unavailable", reason: "notConfigured"};
   } catch {
     // offline, cancelled or timed out
   }

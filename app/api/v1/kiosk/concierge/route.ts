@@ -1,6 +1,9 @@
 // PROVISIONAL: Paul's path (v1.2.0 release notes), our own shape until we have his contract.
 import type { ConciergeQuestion } from "@/domain/kiosk/concierge";
 import { conciergeMockRoute, replyTo } from "@/integrations/mock/concierge";
+import { configFrom, fail } from "@/server/odoo-gateway";
+import { odooTestMode } from "@/server/odoo-runtime";
+import { conciergeQuestion } from "@/server/kiosk-concierge";
 
 // Returns null if the body isn't shaped like a question
 function readQuestion(body: unknown): ConciergeQuestion | null {
@@ -15,6 +18,10 @@ function readQuestion(body: unknown): ConciergeQuestion | null {
 }
 
 export async function POST(request: Request) {
+  if (odooTestMode()) {
+    try { return await conciergeQuestion(request, configFrom(process.env)); }
+    catch { return fail("CAPABILITY_DISABLED"); }
+  }
   return conciergeMockRoute(async () => {
     const question = readQuestion(await request.json().catch(() => null));
     if (!question) {
