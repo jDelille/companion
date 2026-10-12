@@ -156,6 +156,10 @@ export default function AdaptiveShell({
         aria-label="Workspace guide"
         className={styles.contextSlot}
         inert={!contextOpen}
+        onClick={(event) => {
+          // A link in the guide goes to another page: close the panel so it isn't left over it
+          if ((event.target as HTMLElement).closest("a")) setContextOpen(false);
+        }}
       >
         <button
           ref={contextClose}

@@ -31,7 +31,7 @@ const Member360View = ({ member, attendance, liveTest = false }: Props) => {
         name={member.name}
         detail={selectedDetail(member)}
       />
-      <Identity key={member.id} member={member} readOnly={liveTest} />
+      <Identity key={member.id} member={member} />
       <Tabs
         panels={{
           Overview: (

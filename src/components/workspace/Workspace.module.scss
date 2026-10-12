@@ -3,8 +3,7 @@
 @use "../../../styles/separators";
 
 .page {
-  max-width: 1120px;
-  margin: 0 auto;
+  width: 100%;
   padding: 52px 44px 48px;
 }
 .eyebrow {
@@ -412,11 +411,29 @@
     font-size: clamp(40px, 5vw, 56px);
   }
 }
+// The whole card opens the class roster; the arrow circle is just the cue
 .hero.nextClass {
   grid-template-columns: minmax(0, 1fr) 44px;
   gap: 24px;
   padding: 28px;
   margin-bottom: 24px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 180ms ease, border-color 180ms ease;
+
+  &:hover {
+    @include glass.card-active;
+  }
+
+  &:hover .roundAction {
+    background: var(--brand-bright);
+    color: white;
+  }
+
+  &:active .roundAction {
+    transform: scale(0.94);
+  }
+
   h2 {
     font-size: clamp(27px, 3.6vw, 36px);
     margin: 12px 0 8px;
@@ -434,17 +451,9 @@
   background: var(--text);
   color: var(--canvas);
   font-size: 22px;
-  text-decoration: none;
   transition:
     transform 180ms var(--ease-out),
     background 180ms ease;
-  &:active {
-    transform: scale(0.94);
-  }
-  &:hover {
-    background: var(--brand-bright);
-    color: white;
-  }
 }
 .summaryLine {
   display: flex;

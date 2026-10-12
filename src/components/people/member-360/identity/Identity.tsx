@@ -13,7 +13,6 @@ import { memberInitials } from "@/domain/member-presentation";
 
 type Props = {
   member: Member;
-  readOnly?: boolean;
 };
 
 // Each button says which modal it opens
@@ -27,7 +26,7 @@ const btns: { label: string; modal?: ModalType }[] = [
   { label: "Companion context", modal: "ask" },
 ];
 
-const Identity = ({ member, readOnly = false }: Props) => {
+const Identity = ({ member }: Props) => {
   const [open, setOpen] = useState<ModalType | null>(null);
   const current = open ? getMemberModal(open, member) : null;
 
@@ -60,23 +59,12 @@ const Identity = ({ member, readOnly = false }: Props) => {
         <ul>
           {btns.map((btn) => (
             <li key={btn.label}>
-              {btn.label === "Check in" && !readOnly ? (
+              {btn.label === "Check in" ? (
                 <Link href="/kiosk" className={styles.checkInBtn}>
                   Open check-in
                 </Link>
               ) : (
-                <button
-                  className={btn.label === "Check in" ? styles.checkInBtn : ""}
-                  onClick={() => handleClick(btn)}
-                  disabled={readOnly}
-                  title={
-                    readOnly
-                      ? "Not connected in this integration test"
-                      : undefined
-                  }
-                >
-                  {btn.label}
-                </button>
+                <button onClick={() => handleClick(btn)}>{btn.label}</button>
               )}
             </li>
           ))}

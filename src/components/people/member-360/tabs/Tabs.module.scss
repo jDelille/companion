@@ -1,5 +1,22 @@
 @use "../../../../../styles/breakpoints" as bp;
 
+// Width of the fade on the tab row's right edge (animatable, so it can shrink on scroll)
+@property --tabs-fade {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 64px;
+}
+
+@keyframes tabs-fade-out {
+  0%,
+  90% {
+    --tabs-fade: 64px;
+  }
+  100% {
+    --tabs-fade: 0px;
+  }
+}
+
 .objectTabs {
   display: flex;
   gap: 6px;
@@ -11,6 +28,12 @@
   border-bottom: 0;
   overflow-x: auto; // 10 tabs: scroll sideways on small screens instead of wrapping
   scrollbar-width: none;
+
+  // Fade the right edge so tabs cut off by the screen look scrollable.
+  // The fade goes away once you scroll to the end.
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--tabs-fade)), transparent);
+  animation: tabs-fade-out linear both;
+  animation-timeline: scroll(self inline);
 
   button {
     all: unset;

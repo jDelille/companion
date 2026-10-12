@@ -125,7 +125,11 @@ export default function TodayView({
       ) : (
         <>
           {!classesOnly && next && (
-            <div className={`${styles.hero} ${styles.nextClass}`}>
+            <Link
+              className={`${styles.hero} ${styles.nextClass}`}
+              href={`/ops/sessions/${next.sessionId}`}
+              aria-label={`Open ${next.title} roster`}
+            >
               <div>
                 <div className={styles.pill}>
                   {started ? "On the mat now" : "Up next"}
@@ -136,14 +140,10 @@ export default function TodayView({
                   booked
                 </p>
               </div>
-              <Link
-                className={styles.roundAction}
-                href={`/ops/sessions/${next.sessionId}`}
-                aria-label={`Open ${next.title} roster`}
-              >
+              <span className={styles.roundAction} aria-hidden="true">
                 ↗
-              </Link>
-            </div>
+              </span>
+            </Link>
           )}
           {!classesOnly && !next && sessions.length > 0 && (
             <p className={styles.dayComplete}>
