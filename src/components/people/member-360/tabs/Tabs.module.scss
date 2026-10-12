@@ -2,20 +2,21 @@
 
 .objectTabs {
   display: flex;
-  gap: 4px;
-  padding: 0 2rem;
+  gap: 6px;
+  padding: 8px 2rem 14px;
 
   @include bp.compact {
-    padding: 0 1rem;
+    padding: 8px 1rem 14px;
   }
-  border-bottom: 1px solid var(--dark-border);
+  border-bottom: 0;
   overflow-x: auto; // 10 tabs: scroll sideways on small screens instead of wrapping
   scrollbar-width: none;
 
   button {
     all: unset;
-    padding: 12px 10px;
-    border-bottom: 2px solid transparent; // same height as the active tab, so nothing shifts
+    padding: 11px 16px;
+    border-radius: var(--radius-pill);
+    border: 1px solid transparent; // same height as the active tab, so nothing shifts
     font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary);
@@ -31,7 +32,8 @@
 
   .isActive {
     color: var(--text);
-    border-bottom-color: var(--brand);
+    background: var(--raised);
+    border-color: var(--line);
   }
 }
 

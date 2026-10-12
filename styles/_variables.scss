@@ -1,23 +1,28 @@
 :root {
   // Surfaces
-  --canvas: #08080a;
-  --panel: #101014;
-  --raised: #17171d;
-  --interactive: #1e1e26;
-  --line: #2a2a35;
+  --canvas: #100e10;
+  --panel: #1a171a;
+  --raised: #252024;
+  --interactive: #30292e;
+  --line: rgba(229, 218, 223, 0.13);
 
   // Border
-  --dark-border: #292934;
+  --dark-border: #2c2c2f;
 
   // Text
-  --text: #f6f6f8;
-  --text-secondary: #a8a8b8;
-  --muted: #717184;
+  --text: #f4f0e9;
+  --text-secondary: #b8afb5;
+  --muted: #a59ba2;
+  --font-display:
+    "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  // Meaning (red = action, gold = rank, violet = AI only)
-  --brand: #e8192c;
+  // Meaning (red = brand/action, gold = rank, semantic status colors)
+  --brand: #d7192d;
+  --brand-bright: #ff5265;
+  --brand-soft: #2c161a;
   --mastery: #d7b75c;
-  --agent: #8a7cf6;
+  --agent: #ef5262;
   --success: #26c76f;
   --warning: #f6a63b;
   --danger: #ef4053;
@@ -38,21 +43,23 @@
   --radius-card: 16px;
   --radius-leaf: 18px;
   --radius-tray: 22px;
+  --radius-circle: 50%;
   --radius-pill: 999px; // oval buttons and fields
   --button-inset: 1.25rem; // side padding inside text buttons (PlainButton)
 
   // Frosted glass surfaces (cards over the soft background glow)
-  --glass-fill: rgba(255, 255, 255, 0.045);
-  --glass-fill-hover: rgba(255, 255, 255, 0.08);
-  --glass-edge: rgba(255, 255, 255, 0.09);
+  --glass-fill: rgba(41, 34, 39, 0.62);
+  --glass-fill-hover: rgba(64, 48, 57, 0.72);
+  --glass-edge: rgba(255, 240, 247, 0.12);
   --glass-edge-strong: rgba(255, 255, 255, 0.2);
   --glass-blur: 18px;
-  --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  --glass-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
   // Soft colored light behind the glass, so the frosting has something to blur.
-  // Brand red and AI violet, kept faint so they read as atmosphere, not actions.
-  --glow-brand: rgba(232, 25, 44, 0.14);
-  --glow-agent: rgba(138, 124, 246, 0.12);
+  // Brand red, kept faint so they read as atmosphere, not actions.
+  --glow-brand: rgba(189, 31, 55, 0.16);
+  --glow-agent: rgba(154, 46, 65, 0.09);
 
   // Layout (not from the doc)
   --companion-width: 325px;

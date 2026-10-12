@@ -36,8 +36,20 @@ export const ACTIONS: Record<ConciergeActionId, ConciergeAction> = {
 
 // Never answered on a shared screen (Paul's v1.2.0 kiosk AI restrictions)
 const PRIVATE_WORDS = [
-  "owe", "balance", "bill", "pay", "invoice", "refund", "card",
-  "contract", "waiver", "medical", "injury", "rank", "belt", "password",
+  "owe",
+  "balance",
+  "bill",
+  "pay",
+  "invoice",
+  "refund",
+  "card",
+  "contract",
+  "waiver",
+  "medical",
+  "injury",
+  "rank",
+  "belt",
+  "password",
 ];
 
 const includesAny = (text: string, words: string[]) => {
@@ -61,21 +73,36 @@ export function replyTo(question: string): ConciergeReply {
 
   // Checking in always goes through Check In: suggest it, never do it from here
   // "check in", "check-in", and with a name in between: "check Reese in"
-  const isCheckIn = /\b(check|sign)\b.*\bin\b/.test(text) || text.includes("check-in") || text.includes("checkin");
+  const isCheckIn =
+    /\b(check|sign)\b.*\bin\b/.test(text) ||
+    text.includes("check-in") ||
+    text.includes("checkin");
   if (isCheckIn) {
     return {
       kind: "goTo",
       target: "checkIn",
       title: "Let's get you checked in",
-      lines: ["Checking in always goes through Check In, so you confirm it yourself."],
+      lines: [
+        "Checking in always goes through Check In, so you confirm it yourself.",
+      ],
     };
   }
 
-  if (includesAny(text, ["try", "trial", "first class", "free class", "guest"])) {
+  if (
+    includesAny(text, ["try", "trial", "first class", "free class", "guest"])
+  ) {
     return { kind: "action", action: ACTIONS["request-trial"] };
   }
 
-  if (includesAny(text, ["staff", "help me", "someone", "instructor", "front desk"])) {
+  if (
+    includesAny(text, [
+      "staff",
+      "help me",
+      "someone",
+      "instructor",
+      "front desk",
+    ])
+  ) {
     return { kind: "action", action: ACTIONS["call-staff"] };
   }
 
@@ -95,7 +122,9 @@ export function replyTo(question: string): ConciergeReply {
     };
   }
 
-  if (includesAny(text, ["restroom", "bathroom", "toilet", "changing", "locker"])) {
+  if (
+    includesAny(text, ["restroom", "bathroom", "toilet", "changing", "locker"])
+  ) {
     return {
       kind: "answer",
       title: "Restrooms and changing rooms",
@@ -122,20 +151,26 @@ export function replyTo(question: string): ConciergeReply {
 }
 
 // Returns null if the body isn't shaped like an action command
-export function readActionCommand(body: unknown): ConciergeActionCommand | null {
+export function readActionCommand(
+  body: unknown,
+): ConciergeActionCommand | null {
   if (typeof body !== "object" || body === null) return null;
   const command = body as Partial<ConciergeActionCommand>;
 
   if (typeof command.idempotencyKey !== "string") return null;
   if (typeof command.correlationId !== "string") return null;
-  if (command.actionId !== "request-trial" && command.actionId !== "call-staff") {
+  if (
+    command.actionId !== "request-trial" &&
+    command.actionId !== "call-staff"
+  ) {
     return null;
   }
 
   const trial = command.trial;
   if (command.actionId === "request-trial") {
     if (typeof trial !== "object" || trial === null) return null;
-    if (typeof trial.firstName !== "string" || trial.firstName.trim() === "") return null;
+    if (typeof trial.firstName !== "string" || trial.firstName.trim() === "")
+      return null;
     if (typeof trial.sessionId !== "string") return null;
     if (typeof trial.sessionTitle !== "string") return null;
     if (typeof trial.startsAt !== "string") return null;
@@ -151,7 +186,10 @@ export function readActionCommand(body: unknown): ConciergeActionCommand | null 
 
 // The receipt for a confirmed action. The real service would have created a
 // trial lead or a staff notification in Odoo; the mock only says what it did.
-export function receiptFor(command: ConciergeActionCommand, id: string): ConciergeReceipt {
+export function receiptFor(
+  command: ConciergeActionCommand,
+  id: string,
+): ConciergeReceipt {
   const at = new Date().toISOString();
 
   if (command.actionId === "request-trial" && command.trial) {
@@ -172,7 +210,9 @@ export function receiptFor(command: ConciergeActionCommand, id: string): Concier
     id,
     actionId: command.actionId,
     headline: "Staff are on their way",
-    details: [{ label: "Next", value: "Please wait here, someone will be right over" }],
+    details: [
+      { label: "Next", value: "Please wait here, someone will be right over" },
+    ],
     at,
   };
 }
@@ -180,7 +220,10 @@ export function receiptFor(command: ConciergeActionCommand, id: string): Concier
 // The mock's memory of confirmed actions, so a retry with the same key gets the
 // original receipt. In memory only, on globalThis so both routes share it.
 type ConciergeStore = {
-  usedKeys: Map<string, { actionId: ConciergeActionId; receipt: ConciergeReceipt }>;
+  usedKeys: Map<
+    string,
+    { actionId: ConciergeActionId; receipt: ConciergeReceipt }
+  >;
   nextReceiptNumber: number;
 };
 
@@ -208,6 +251,5 @@ export async function conciergeMockRoute(
     );
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 500));
   return handleRequest();
 }

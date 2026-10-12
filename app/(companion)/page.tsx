@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
 import { odooTestMode } from "@/server/odoo-runtime";
-
+import TodayView from "@/components/workspace/TodayView";
 export default function Home() {
-  redirect(odooTestMode() ? "/ops" : "/people/5001");
+  return <TodayView connected={odooTestMode()} />;
 }

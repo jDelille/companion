@@ -3,7 +3,7 @@
 
 export const companionScenarios = [
   "normal",
-  "slow", // every route waits ~2.5s instead of 400ms
+  "slow", // every route waits ~2.5s instead of responding immediately
   "not-understood", // every typed or spoken request comes back notUnderstood
   "action-rejected", // every approval fails with ACTION_REJECTED
   "unavailable", // every route returns a bare 503 before doing anything

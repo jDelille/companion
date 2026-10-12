@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
-import Link from 'next/link';
+import Link from '@/components/primitives/AppLink';
 import {explainHubError as explain, replacementBlockReason, runHubAction, type ActionFeedback} from '@/domain/hub-actions';
 import styles from './page.module.css';
 import Select from '@/components/primitives/select/Select';

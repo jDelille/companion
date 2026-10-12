@@ -56,7 +56,7 @@ const ConfirmScreen = ({
       </dl>
 
       {/* The one committing action on this screen */}
-      <PrimaryButton tone="glass" disabled={isSending} onClick={onConfirm}>
+      <PrimaryButton tone="brand" disabled={isSending} onClick={onConfirm}>
         {isSending ? "Checking in…" : "Confirm check-in"}
       </PrimaryButton>
 

@@ -26,11 +26,7 @@ import {
 export type TaskStatus = "working" | "done" | "failed" | "notConfirmed";
 
 export type RequestStatus =
-  | "idle"
-  | "thinking"
-  | "understood"
-  | "notUnderstood"
-  | "unavailable";
+  "idle" | "thinking" | "understood" | "notUnderstood" | "unavailable";
 
 export type ContextStatus = "loading" | "loaded" | "unavailable";
 
@@ -42,7 +38,7 @@ type PageState = {
   receipts: Receipt[];
   requested: Suggestion[]; // tasks made from typed or spoken requests
   requestStatus: RequestStatus;
-  answer?: {text: string; mode: string};
+  answer?: { text: string; mode: string };
 };
 
 const emptyPage: PageState = {
@@ -58,7 +54,12 @@ function applyRequestAnswer(
   page: PageState,
   answer: CompanionRequestAnswer,
 ): PageState {
-  if (answer.outcome === "answer") return {...page, answer: {text: answer.answer, mode: answer.mode}, requestStatus: "understood"};
+  if (answer.outcome === "answer")
+    return {
+      ...page,
+      answer: { text: answer.answer, mode: answer.mode },
+      requestStatus: "understood",
+    };
   if (answer.outcome === "newTask") {
     const task = answer.suggestion;
     const others = page.requested.filter((request) => request.id !== task.id);
@@ -70,7 +71,11 @@ function applyRequestAnswer(
     };
   }
   if (answer.outcome === "existingTask") {
-    return { ...page, openId: answer.suggestionId, requestStatus: "understood" };
+    return {
+      ...page,
+      openId: answer.suggestionId,
+      requestStatus: "understood",
+    };
   }
   if (answer.outcome === "notUnderstood") {
     return { ...page, requestStatus: "notUnderstood" };
@@ -83,6 +88,12 @@ const useCompanion = () => {
   const view = viewFromPath(pathname);
 
   const [revision, setRevision] = useState(0);
+  useEffect(() => {
+    const refresh = () => setRevision((value) => value + 1);
+    window.addEventListener("dojang:companion-updated", refresh);
+    return () =>
+      window.removeEventListener("dojang:companion-updated", refresh);
+  }, []);
   const [loadedContext, setLoadedContext] = useState<{
     viewKey: string;
     answer: ContextAnswer;
@@ -123,15 +134,32 @@ const useCompanion = () => {
   }
 
   const page = pages[view.key] ?? emptyPage;
+  const receipts = [
+    ...new Map(
+      [...page.receipts, ...(context?.receipts ?? [])].map((receipt) => [
+        receipt.id,
+        receipt,
+      ]),
+    ).values(),
+  ];
+  const status: Record<string, TaskStatus> = { ...page.status };
+  for (const receipt of receipts) status[receipt.suggestionId] = "done";
 
-  const updatePage = (viewKey: string, change: (page: PageState) => PageState) => {
+  const updatePage = (
+    viewKey: string,
+    change: (page: PageState) => PageState,
+  ) => {
     setPages((all) => {
       const current = all[viewKey] ?? emptyPage;
       return { ...all, [viewKey]: change(current) };
     });
   };
 
-  const setTaskStatus = (viewKey: string, taskId: string, status: TaskStatus) => {
+  const setTaskStatus = (
+    viewKey: string,
+    taskId: string,
+    status: TaskStatus,
+  ) => {
     updatePage(viewKey, (current) => ({
       ...current,
       status: { ...current.status, [taskId]: status },
@@ -139,7 +167,14 @@ const useCompanion = () => {
   };
 
   // Requested tasks show first
-  const suggestions = [...new Map([...page.requested, ...(context?.suggestions ?? [])].map(task=>[task.id,task])).values()];
+  const suggestions = [
+    ...new Map(
+      [...page.requested, ...(context?.suggestions ?? [])].map((task) => [
+        task.id,
+        task,
+      ]),
+    ).values(),
+  ];
   const featured = context?.featured;
 
   const toggle = (id: string) => {
@@ -156,7 +191,7 @@ const useCompanion = () => {
 
     // 1. Ignore a second approve while one is working, or once it's done
     if (approvalsInFlight.current.has(taskKey)) return;
-    if (page.status[suggestion.id] === "done") return;
+    if (status[suggestion.id] === "done") return;
     approvalsInFlight.current.add(taskKey);
 
     // 2. After notConfirmed, resend the same command and key. Otherwise it's a new attempt.
@@ -183,7 +218,6 @@ const useCompanion = () => {
       return;
     }
 
-    setRevision(value=>value+1);
     window.dispatchEvent(new Event("dojang:companion-updated"));
     updatePage(viewKey, (current) => ({
       ...current,
@@ -193,7 +227,10 @@ const useCompanion = () => {
   };
 
   // A typed or spoken request
-  const request = async (text: string, followUp?: CompanionRequestBody["followUp"]) => {
+  const request = async (
+    text: string,
+    followUp?: CompanionRequestBody["followUp"],
+  ) => {
     const trimmed = text.trim();
     if (!trimmed) return;
 
@@ -210,12 +247,15 @@ const useCompanion = () => {
       onScreenIds.push(featured.suggestion.id);
     }
 
-    updatePage(viewKey, (current) => ({ ...current, requestStatus: "thinking" }));
+    updatePage(viewKey, (current) => ({
+      ...current,
+      requestStatus: "thinking",
+    }));
     const answer = await sendRequest({
       text: trimmed,
       memberId: view.memberId,
-      ...(view.sessionId ? {sessionId:view.sessionId} : {}),
-      ...(followUp ? {followUp} : {}),
+      ...(view.sessionId ? { sessionId: view.sessionId } : {}),
+      ...(followUp ? { followUp } : {}),
       onScreenIds,
     });
 
@@ -226,7 +266,8 @@ const useCompanion = () => {
 
   // Typing again clears the last answer's message, but not "Thinking…"
   const clearRequestStatus = () => {
-    if (page.requestStatus === "idle" || page.requestStatus === "thinking") return;
+    if (page.requestStatus === "idle" || page.requestStatus === "thinking")
+      return;
     updatePage(view.key, (current) => ({ ...current, requestStatus: "idle" }));
   };
 
@@ -243,8 +284,9 @@ const useCompanion = () => {
     featured,
     openId: page.openId,
     toggle,
-    status: page.status,
-    receipts: page.receipts,
+    status,
+    receipts,
+    refresh: () => setRevision((value) => value + 1),
     approve,
     request,
     requestStatus: page.requestStatus,

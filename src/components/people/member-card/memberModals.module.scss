@@ -1,300 +1,113 @@
-@use "../../../../styles/breakpoints" as bp;
+@use "../../../../styles/separators";
 
-// Book
 .list {
   display: flex;
   flex-direction: column;
 }
-
 .option {
+  @include separators.short-rule;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  cursor: pointer;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--line);
-  background: var(--raised);
-  font-size: 14px;
-  color: var(--text);
-
-  .optionText {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    p {
-      color: var(--text);
-      font-size: 14px;
-      font-weight: 500;
-    }
-    span {
-      color: var(--muted);
-      font-size: 12px;
-    }
-  }
-
-  .optionValue {
-    font-weight: 500;
-  }
+  gap: 1rem;
+  padding: 1rem 0;
+  font-size: var(--text-sm);
 }
-
-// Payment
-.currentMembership {
-  background-color: var(--raised);
-  display: flex;
-  flex-direction: column;
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  gap: 10px;
-
-  span,
-  small {
+.optionText {
+  display: grid;
+  gap: 0.4rem;
+  span {
     color: var(--text-secondary);
-    font-size: 13px;
   }
 }
-
-// edit
-.row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-
-  // Phones: stack (fields in Profile & Training, Will do / Will not in the AI modal)
-  @include bp.compact {
-    flex-direction: column;
-  }
-
-  // the labels are the flex items, so they're what needs to grow
-  label {
-    flex: 1;
-    min-width: 0; // lets them shrink below the input's default ~20-character width
-  }
-
-  input,
-  select {
-    width: 100%;
+.optionValue {
+  color: var(--text-secondary);
+}
+.note {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  p + p {
+    margin-top: 0.75rem;
   }
 }
-
-.eligibility {
-  background-color: var(--raised);
-  padding: 1rem;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  span {
-    font-size: 10px;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  p {
-    font-size: 12px;
-  }
-}
-
-// askAI
-.scope {
-  background-color: var(--raised);
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .scopeText {
-    color: var(--muted);
-    font-size: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .scopeValue {
-    font-weight: 500;
-    font-size: 18px;
-  }
-}
-
-.permissionBox,
-.checkpoint {
-  background-color: var(--raised);
-  padding: 1rem;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  span {
-    font-size: 11px;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  p {
-    font-size: 12px;
-  }
-
-  ul {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    li {
-      font-size: 12px;
-    }
-  }
-}
-
-// Details: 2 x 2 grid of boxes (same look as the member card's info boxes)
 .details {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-
   > div {
+    @include separators.short-rule;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 12px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-control);
-    background: var(--raised);
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.9rem 0;
   }
-
   dt {
-    font-size: 11px;
-    color: var(--muted);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
   }
-
   dd {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
+    font-size: var(--text-sm);
+    text-align: right;
+    overflow-wrap: anywhere;
   }
 }
-
-// Details
 .detailActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-
-  button {
-    padding: 10px 12px;
-    border: 1px solid var(--dark-border);
-    border-radius: 8px;
+  gap: 0.75rem;
+  button,
+  a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.7rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
     background: var(--panel);
     color: var(--text);
     font: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    white-space: nowrap;
+    font-size: var(--text-sm);
+    text-decoration: none;
     cursor: pointer;
-
-    &:hover {
+    &:hover:not(:disabled) {
       background: var(--raised);
     }
-  }
-
-  .checkInBtn {
-    border-color: transparent;
-    background: var(--brand); // red = action
-
-    &:hover {
-      background: var(--brand);
-      filter: brightness(1.1);
+    &:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
   }
-  
 }
-
-.tip {
-  font-size: 12px;
-  padding: 15px;
-  background-color: var(--raised);
-  border-radius: 6px;
-  line-height: 20px;
-
-  strong {
-    color: var(--text);
-  }
-
-  p {
-    color: var(--text-secondary);
-  }
-}
-
-// Context menu (hold on the member): sections of title + description rows
 .menuSection {
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-
-  & + & {
-    margin-top: 12px;
-  }
-
-  // the modal header already draws a line above the first section
-  &:first-child {
-    padding-top: 0;
-    border-top: none;
-  }
-
-  h3 {
-    margin-bottom: 10px;
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
   ul {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+    display: grid;
+    gap: 0.4rem;
   }
-
   button {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     gap: 1rem;
     width: 100%;
     min-height: 52px;
-    padding: 10px 12px;
-    border: none;
-    border-radius: var(--radius-control);
-    background: var(--raised);
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-pill);
+    background: var(--panel);
     color: var(--text);
     font: inherit;
     text-align: left;
     cursor: pointer;
-
-    &:hover:not(:disabled) {
-      background: var(--interactive);
-    }
-
-    &:disabled {
-      cursor: default;
-    }
   }
 }
-
 .menuLabel {
-  flex-shrink: 0;
-  max-width: 45%;
-  font-size: 13px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
-
 .menuHint {
-  font-size: 12px;
-  line-height: 1.4;
   color: var(--text-secondary);
+  font-size: var(--text-xs);
   text-align: right;
+  max-width: 55%;
 }

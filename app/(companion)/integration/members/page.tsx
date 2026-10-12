@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import Link from "next/link";
+import Link from "@/components/primitives/AppLink";
 import { odooRoute } from "@/server/odoo-runtime";
 import { ChevronRightIcon } from "@/icons";
 import styles from "@/components/ai/follow-up/FollowUp.module.scss";

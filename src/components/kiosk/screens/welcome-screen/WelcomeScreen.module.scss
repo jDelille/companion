@@ -1,13 +1,19 @@
+@use "../../../../../styles/motion";
+@use "../../../../../styles/glass";
+
 .screen {
   flex: 1; // fills the shell's column; width comes from the shell
   display: flex;
   flex-direction: column;
   justify-content: center;
   .heading {
+    @include motion.reveal;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     h1 {
+      font-family: var(--font-display);
+      font-weight: 400;
       font-size: var(--kiosk-title-welcome);
     }
     p {
@@ -15,14 +21,53 @@
     }
   }
 
-  // Card styles live in primitives/action-card. This file only handles layout.
   .checkIn {
-    margin-top: 3rem;
-    // background-color: var(--brand);
+    @include motion.reveal(60ms);
+    margin-top: 2rem;
+  }
+
+  .checkInButton {
+    @include glass.card;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    min-height: 52px;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius-pill);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 180ms ease-out,
+      border-color 180ms ease-out,
+      transform 180ms ease-out;
+
+    svg {
+      flex: none;
+      color: var(--brand-bright);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--brand-bright);
+      outline-offset: 5px;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        @include glass.card-active;
+      }
+    }
+
+    &:active {
+      transform: scale(0.98);
+    }
   }
 
   .ask {
-    margin-top: 1rem;
+    margin-top: 1.5rem;
   }
 
   // Quiet, but always there
@@ -33,10 +78,11 @@
   }
 
   .secondaryActions {
+    @include motion.reveal(100ms);
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-top: 2rem;
+    margin-top: 1rem;
     width: 100%;
 
     .secondaryCard {
@@ -57,4 +103,13 @@
       color: var(--muted);
     }
   }
+}
+
+.screen {
+  padding-block: 3rem;
+}
+.heading h1 {
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  max-width: 15ch;
 }

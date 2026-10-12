@@ -20,14 +20,26 @@ const selectedDetail = (member: Member) => {
 
 const Member360View = ({ member, attendance, liveTest = false }: Props) => {
   return (
-    <article className={styles.member360}>
+    <article
+      key={member.id}
+      className={styles.member360}
+      data-member-id={member.id}
+    >
       {/* Tells the side pane who's on screen */}
-      <SelectMember id={member.id} name={member.name} detail={selectedDetail(member)} />
-      <Identity member={member} readOnly={liveTest} />
+      <SelectMember
+        id={member.id}
+        name={member.name}
+        detail={selectedDetail(member)}
+      />
+      <Identity key={member.id} member={member} readOnly={liveTest} />
       <Tabs
         panels={{
           Overview: (
-            <MemberGrid attendance={attendance} liveMember={liveTest ? member : undefined} />
+            <MemberGrid
+              member={member}
+              attendance={attendance}
+              liveTest={liveTest}
+            />
           ),
           Attendance: <CheckInHistory attendance={attendance} />,
         }}

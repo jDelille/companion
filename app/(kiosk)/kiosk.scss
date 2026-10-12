@@ -1,6 +1,9 @@
 // Kiosk-only base styles. Shares the token variables with the Companion,
 // but not the Companion's globals (reset, body layout).
 @use "../../styles/variables";
+@use "../../styles/motion";
+
+@include motion.preferences;
 
 // Kiosk-only layout token. Every portrait screen sits in one centered column this wide.
 // Landscape (Check In left, Today right) will get its own layout later.
@@ -25,10 +28,14 @@ body {
 }
 
 body {
-  // Faint violet light behind the glass cards. Fixed, so it stays put
+  // Faint red light behind the glass cards. Fixed, so it stays put
   // while screens change and never animates.
   background:
-    radial-gradient(50rem 40rem at 100% 110%, var(--glow-agent), transparent 70%),
+    radial-gradient(
+      ellipse at center,
+      rgba(168, 27, 37, 0.065),
+      transparent 65%
+    ),
     var(--canvas);
   background-attachment: fixed;
   color: var(--text);
@@ -42,6 +49,12 @@ body {
 }
 
 // Card -> header morph (share="morph" on SessionCard and SessionHeader).
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
 // Short and direct, as the motion rules ask.
 ::view-transition-group(.morph) {
   animation-duration: 350ms;

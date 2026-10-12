@@ -3,7 +3,6 @@ import { getScenario } from "./kiosk-scenario";
 
 // Helpers shared by the mock kiosk routes
 
-const NORMAL_DELAY = 400; // ms, long enough to actually see loading states
 const SLOW_DELAY = 2500; // ms, for the "slow" scenario
 
 const wait = (milliseconds: number) => {
@@ -74,7 +73,7 @@ export async function mockRoute(
   }
 
   const scenario = getScenario();
-  await wait(scenario === "slow" ? SLOW_DELAY : NORMAL_DELAY);
+  if (scenario === "slow") await wait(SLOW_DELAY);
 
   const response = await handleRequest();
 

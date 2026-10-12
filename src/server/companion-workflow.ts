@@ -53,7 +53,7 @@ export async function workflowContext(c: GatewayConfig, memberId: string | null,
   if (!validWorkflowData(result)) throw new Error('Invalid context');
   const records = sessionId ? result.roster.map(r=>({id:r.memberId,label:r.displayName,detail:r.attendanceState === 'pending' ? 'Not yet checked in' : r.attendanceState,href:`/people/${r.memberId}`})) : result.sessions.map(s=>({id:s.sessionId,label:s.title,detail:s.startsAt,href:`/ops/sessions/${s.sessionId}`}));
   return {label:'Connected Odoo records',heading:sessionId ? result.sessionTitle || 'Class roster' : memberId ? 'Member companion' : 'Staff companion',suggestions:[],records,
-    sessions:result.sessions.map(s=>({sessionId:s.sessionId,title:s.title,startsAt:s.startsAt})),followUps:result.followUps.map(f=>({id:f.id,memberId:f.memberId,sessionId:f.sessionId,memberName:f.memberName,summary:f.summary,replyDraft:f.replyDraft,at:f.at,status:f.status,mode:f.mode})),followUpEnabled:result.followUpEnabled,
+    sessions:result.sessions.map(s=>({sessionId:s.sessionId,title:s.title,startsAt:s.startsAt,endsAt:s.endsAt,capacity:s.capacity,seatsTaken:s.seatsTaken,version:s.version})),followUps:result.followUps.map(f=>({id:f.id,memberId:f.memberId,sessionId:f.sessionId,memberName:f.memberName,summary:f.summary,replyDraft:f.replyDraft,at:f.at,status:f.status,mode:f.mode})),followUpEnabled:result.followUpEnabled,
     intel:[{label:'Drafting',value:result.aiEnabled ? 'Configured AI provider; templates if unavailable' : 'Template mode; AI not enabled'}, {label:'Follow-up',value:'Internal review queue. No outbound messages or automatic bookings.'},...(sessionId ? [{label:'Not yet checked in',value:String(result.roster.filter(r=>r.attendanceState==='pending').length)}] : [])]};
 }
 

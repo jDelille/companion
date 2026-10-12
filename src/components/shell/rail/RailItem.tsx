@@ -2,7 +2,7 @@
 
 import React from "react";
 import styles from "./Rail.module.scss";
-import Link from "next/link";
+import Link from "@/components/primitives/AppLink";
 
 type Props = {
   item: { id: string; abbrv: string; label: string; href: string };

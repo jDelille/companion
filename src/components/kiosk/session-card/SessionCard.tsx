@@ -33,11 +33,17 @@ const SessionCard = ({ session, onSelect }: Props) => {
 
         <span className={styles.details}>
           <span className={styles.title}>{session.title}</span>
-          <span className={styles.duration}>{duration}</span>
+          <span className={styles.duration}>
+            {duration}
+            <span aria-hidden="true"> · </span>
+            <span>
+              {session.seatsTaken}/{session.capacity} booked
+            </span>
+          </span>
         </span>
 
-        <span className={styles.capacity}>
-          {session.seatsTaken}/{session.capacity}
+        <span className={styles.arrow} aria-hidden="true">
+          ↗
         </span>
       </button>
     </ViewTransition>

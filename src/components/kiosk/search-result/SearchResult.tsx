@@ -26,6 +26,9 @@ const SearchResult = ({ candidate, onSelect }: Props) => {
         {initialsOf(candidate.displayName)}
       </span>
       <span className={styles.name}>{candidate.displayName}</span>
+      <span className={styles.arrow} aria-hidden="true">
+        ↗
+      </span>
     </button>
   );
 };

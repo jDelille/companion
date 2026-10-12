@@ -1,339 +1,488 @@
-@use "../../../styles/breakpoints" as bp;
+@use "../../../styles/glass";
 
 .adaptiveShell {
-  display: flex;
-  width: 100%;
+  position: relative;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  height: 100vh;
   height: 100dvh;
-  background: var(--canvas);
-
-  // Phones: stack workspace above the bottom nav
-  @include bp.compact {
-    flex-direction: column;
-  }
-
-  /* ---------- Rail ---------- */
-
-  .railSlot {
-    @include bp.compact {
-      display: none; // replaced by the bottom nav on phones
-    }
-  }
-
-  /* ---------- Context pane ---------- */
-
-  .contextSlot {
-    @include bp.below-expanded {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      width: min(300px, 85vw);
-      z-index: 20;
-      background: var(--panel);
-      transform: translateX(-100%); // parked off-screen to the left
-      visibility: hidden;
-      transition:
-        transform 200ms ease,
-        visibility 0s linear 200ms;
-    }
-
-    .contextClose {
-      display: none; // no close button when it's a permanent column
-
-      @include bp.below-expanded {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: var(--radius-control);
-        background: var(--interactive);
-        color: var(--text);
-        cursor: pointer;
-        z-index: 2;
-      }
-    }
-  }
-
-  &[data-context-open="true"] .contextSlot {
-    @include bp.below-expanded {
-      transform: none;
-      visibility: visible;
-      transition:
-        transform 200ms ease,
-        visibility 0s;
-    }
-  }
-
-  /* ---------- Workspace ---------- */
-
-  .workspaceSlot {
-    display: flex;
-    color: var(--text);
-    flex-direction: column;
-    flex: 1; // fills what's left: beside the panes on desktop, above the bottom nav on phones
-    min-width: 0;
-    min-height: 0;
-  }
-
-  // The page content scrolls here, so tall pages stay inside the shell
-  .workspaceBody {
-    flex: 1;
-    min-height: 0;
-    overflow-y: auto;
-    container: workspace / inline-size; // pages size themselves to this, see bp.workspace-split
-    scrollbar-width: none; // still scrolls (wheel, trackpad, touch), just no visible bar
-    flex: 1;
-    &::-webkit-scrollbar {
-      display: none; // older Safari
-    }
-  }
-
-  // Expanded only: the open Companion shares the space instead of covering it
-  &[data-companion-open="true"] .workspaceSlot {
-    @include bp.expanded {
-      margin-right: var(--companion-width);
-    }
-  }
-
-  /* ---------- Companion ---------- */
-
-  .companionSlot {
-    // Below wide: side panel parked off-screen to the right
-    @include bp.below-wide {
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      right: 0;
-      width: min(var(--companion-width), 90vw);
-      z-index: 20;
-      background: var(--panel);
-      transform: translateX(100%);
-      // Closed = hidden, not just off-screen. Otherwise switching between the side panel and the
-      // bottom tray (crossing the phone breakpoint) animates it across the page.
-      // visibility waits for the 200ms slide-out before hiding.
-      visibility: hidden;
-      transition:
-        transform 200ms ease,
-        visibility 0s linear 200ms;
-    }
-
-    // Phones: bottom tray parked below the screen (overrides the side panel above)
-    @include bp.compact {
-      top: auto;
-      left: 1rem; // same 1rem gaps and border as the modal bottom sheet
-      right: 1rem;
-      bottom: calc(
-        1rem + env(safe-area-inset-bottom)
-      ); // floats above the bottom edge
-      width: auto;
-      height: 60dvh; // real height, not just a cap
-      max-height: 75dvh;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-tray);
-      overflow: hidden; // clip the rail's square corners to the rounded ones
-      transform: translateY(
-        calc(100% + 2rem)
-      ); // parked fully below the screen, past the gap
-    }
-
-    .companionClose {
-      display: none;
-
-      @include bp.below-wide {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 32px;
-        height: 32px;
-        border: none;
-        border-radius: var(--radius-control);
-        background: var(--interactive);
-        color: var(--text);
-        cursor: pointer;
-        z-index: 1;
-      }
-    }
-  }
-
-  // Open = no offset, whether it came in from the side or the bottom
-  &[data-companion-open="true"] .companionSlot {
-    @include bp.below-wide {
-      transform: none;
-      visibility: visible;
-      transition:
-        transform 200ms ease,
-        visibility 0s; // show right away, then slide in
-    }
-  }
-
-  .companionTrigger {
-    display: none;
-
-    @include bp.below-wide {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: fixed;
-      right: 24px;
-      bottom: 24px;
-      z-index: 15;
-      width: 45px;
-      height: 45px;
-      border: none;
-      border-radius: 50%;
-      background: var(--agent);
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    @include bp.compact {
-      bottom: 88px; // sits above the bottom nav
-    }
-  }
-
-  /* ---------- Bottom nav (phones only) ---------- */
-
-  .bottomNavSlot {
-    display: none;
-
-    @include bp.compact {
-      display: block;
-    }
-  }
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at center, rgba(168, 27, 37, 0.065), transparent 65%),
+    var(--canvas);
+  color: var(--text);
+  isolation: isolate;
 }
-
-// Odoo-mode staff navigation (Classes, Members, Follow-ups). Text links only.
-.connectedNav,
-.connectedBottomNav {
+.railSlot {
+  min-height: 0;
+  border-right: 1px solid var(--line);
+  background: rgba(8, 7, 9, 0.2);
+}
+.workspaceSlot {
+  position: relative;
+  isolation: isolate;
   display: flex;
-  gap: 4px;
-  background: var(--canvas);
-
-  a {
-    display: flex;
-    align-items: center;
-    min-height: 40px;
-    padding: 0 12px;
-    border-radius: var(--radius-control);
-    color: var(--text-secondary);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background 150ms ease, color 150ms ease;
-
-    &:hover {
-      background: var(--panel);
-      color: var(--text);
-    }
-  }
-
-  // You are here: white text on a soft panel
-  a[aria-current="page"] {
-    background: var(--raised);
-    color: var(--text);
-    font-weight: 600;
-  }
-
-  a:focus-visible {
-    outline: 2px solid var(--text-secondary);
-    outline-offset: 2px;
-  }
-}
-
-// Desktop: a fixed-width sidebar so it doesn't change size with the labels
-.connectedNav {
   flex-direction: column;
-  width: 108px;
-  height: 100%;
-  padding: 20px 8px;
-  border-right: 1px solid var(--dark-border);
-
-  // A little less inner padding so "Follow-ups" still fits on one line
-  a {
-    padding: 0 10px;
-  }
+  min-height: 0;
+  min-width: 0;
 }
-
-// Phones: bottom bar, links spread evenly
-.connectedBottomNav {
-  justify-content: space-around;
-  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--dark-border);
-
-  a {
-    flex: 1;
-    justify-content: center;
-  }
-
+.workspaceBody {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 24px;
+  padding-bottom: 32px;
+  container: workspace / inline-size;
 }
 .connectedHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 16px 24px;
-  color: var(--text);
-  border-bottom: 1px solid var(--dark-border);
-  div {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
+  gap: 16px;
+  min-height: 82px;
+  padding: 16px 40px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line);
+}
+.headerLocation {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  strong {
+    font-weight: 500;
   }
-  span {
-    color: var(--muted);
-    font-size: 12px;
-  }
+}
+.locationDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand);
+}
+.headerDate {
+  margin-left: 16px;
+  color: var(--text-secondary);
 }
 .contextTrigger {
-  display: none;
-  @include bp.below-expanded {
-    display: block;
-    flex-shrink: 0;
-    padding: 8px;
-    min-height: 44px;
-    border: 1px solid var(--dark-border);
-    border-radius: 8px;
-    background: var(--panel);
-    color: var(--text);
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.035);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.demoBanner {
+  padding: 9px 24px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+  background: transparent;
+  flex-shrink: 0;
+}
+.connectedNav,
+.connectedBottomNav {
+  a,
+  button {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-height: 48px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    padding: 12px 16px;
     cursor: pointer;
+    transition:
+      background 150ms,
+      color 150ms;
+    &:active .navSymbol {
+      transform: scale(0.9);
+    }
+    svg {
+      flex-shrink: 0;
+    }
+    &:hover {
+      background: var(--raised);
+      color: var(--text);
+    }
+    &:focus-visible {
+      outline: 2px solid var(--brand);
+      outline-offset: -2px;
+    }
+    &[aria-current="page"],
+    &[aria-expanded="true"] {
+      color: var(--text);
+      background: var(--brand-soft);
+      svg {
+        color: var(--brand-bright);
+      }
+    }
   }
 }
-.connectedContext {
-  width: 240px;
-  flex-shrink: 0;
-  padding: 24px 16px;
-  border-right: 1px solid var(--dark-border);
-  background: var(--panel);
-  color: var(--text);
+.connectedNav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 28px 16px;
+  gap: 6px;
+  .wordmark {
+    padding: 0 10px;
+    margin-bottom: 48px;
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    background: none;
+    small {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+  }
+  .brandMark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--brand);
+    color: white;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: var(--radius-circle);
+    font-size: 29px;
+    letter-spacing: -0.1em;
+    span {
+      font-size: 22px;
+    }
+  }
+  .kioskLink {
+    margin-top: auto;
+    border-top: 1px solid var(--line);
+    border-radius: 0;
+    font-size: 12px;
+    padding-inline: 8px;
+    justify-content: space-between;
+  }
+}
+.mobileBrand,
+.bottomNavSlot {
+  display: none;
+}
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  border: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+.contextSlot,
+.companionSlot {
+  @include glass.card;
+  position: fixed;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: min(420px, 100%);
+  z-index: 41;
+  visibility: hidden;
+  transform: translateX(100%);
   overflow-y: auto;
-  
+  border-left: 1px solid var(--line);
+  transition:
+    transform 260ms var(--ease-out),
+    visibility 260ms;
+}
+.adaptiveShell[data-context-open="true"] .contextSlot,
+.adaptiveShell[data-companion-open="true"] .companionSlot {
+  visibility: visible;
+  transform: none;
+}
+.contextSlot {
+  padding: 72px 28px 32px;
+}
+.panelClose {
+  position: absolute;
+  z-index: 3;
+  right: 14px;
+  top: 14px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--raised);
+  color: var(--text);
+  cursor: pointer;
+}
+.guide {
+  display: grid;
+  gap: 20px;
   h2 {
-    font-size: 16px;
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: -0.035em;
   }
   p {
-    font-size: 13px;
+    font-size: 15px;
     line-height: 1.7;
-    color: var(--muted);
+    color: var(--text-secondary);
   }
   a {
     color: var(--text);
-    text-underline-offset: 4px;
+    text-underline-offset: 5px;
+  }
+}
+@media (max-width: 1023px) {
+  .adaptiveShell {
+    grid-template-columns: 176px minmax(0, 1fr);
+  }
+  .connectedHeader {
+    padding: 16px 24px;
+  }
+  .headerDate {
+    display: none;
+  }
+  .connectedNav {
+    padding: 24px 8px;
+    .wordmark {
+      font-size: 16px;
+      gap: 10px;
+    }
+    .brandMark {
+      width: 32px;
+      height: 32px;
+      font-size: 24px;
+    }
+  }
+}
+@media (max-width: 767px) {
+  .adaptiveShell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
+    padding-top: env(safe-area-inset-top);
+  }
+  .railSlot {
+    display: none;
+  }
+  .workspaceSlot {
+    grid-row: 1;
+  }
+  .workspaceBody {
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom));
+  }
+  .connectedHeader {
+    min-height: 64px;
+    padding: 12px 20px;
+    gap: 10px;
+  }
+  .headerLocation {
+    display: none;
+  }
+  .mobileBrand {
+    display: block;
+    color: var(--text);
+    font-weight: 850;
+    letter-spacing: 0.05em;
+    font-size: 21px;
+    text-decoration: none;
+    span {
+      color: var(--brand-bright);
+    }
+  }
+  .contextTrigger {
+    font-size: 11px;
+    min-height: 36px;
+  }
+  .demoBanner {
+    padding: 7px 12px;
+    font-size: 10px;
+  }
+  // Float outside the scroller; reserve end-of-content space above the pill.
+  .bottomNavSlot {
+    display: block;
+    position: absolute;
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    max-width: 520px;
+    margin-inline: auto;
+    height: 82px;
+    min-width: 0;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .dockSurface {
+    @include glass.card;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 82px;
+    border-radius: var(--radius-pill);
+    pointer-events: none;
+    transition:
+      width 460ms cubic-bezier(0.25, 0.8, 0.25, 1),
+      height 460ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  .dockExpanded {
+    position: relative;
+    pointer-events: auto;
+    transition:
+      opacity 240ms ease 150ms,
+      visibility 0s;
+  }
+  .dockCompact {
+    background: transparent;
+    border: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: var(--text);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 160ms ease,
+      visibility 0s linear 160ms;
+    svg {
+      width: 25px;
+      height: 25px;
+    }
+    &:focus-visible {
+      outline: 2px solid var(--brand-bright);
+      outline-offset: 4px;
+    }
+  }
+  .dockIndicator {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    top: 13px;
+    right: 12px;
+    border-radius: 50%;
+    background: var(--brand-bright);
+  }
+  .bottomNavSlot[data-collapsed="true"] {
+    .dockSurface {
+      width: 60px;
+      height: 60px;
+    }
+    .dockExpanded {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity 150ms ease,
+        visibility 0s linear 150ms;
+    }
+    .dockCompact {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transition:
+        opacity 220ms ease 200ms,
+        visibility 0s;
+    }
+  }
+  .connectedBottomNav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    margin: 0 auto;
+    padding: 6px;
+    a,
+    button {
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      min-width: 0;
+      min-height: 64px;
+      padding: 7px 0;
+      font-size: 10px;
+      line-height: 1.25;
+      white-space: nowrap;
+      border-radius: var(--radius-pill);
+      svg {
+        width: 21px;
+        height: 21px;
+      }
+    }
+  }
+  .contextSlot,
+  .companionSlot {
+    width: 100%;
+    max-width: 440px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contextSlot,
+  .companionSlot {
+    transition: none;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .adaptiveShell .contextSlot,
-  .adaptiveShell .companionSlot {
-    transition: none;
+.companionSlot > div {
+  width: 100%;
+}
+
+// Symbols get circles; labels sit on the dock's clear background.
+.navSymbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 160ms ease,
+    color 160ms ease;
+}
+@media (max-width: 767px) {
+  .connectedBottomNav {
+    .navSymbol {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-circle);
+    }
+    a,
+    button {
+      background: transparent;
+      &:hover {
+        background: transparent;
+        .navSymbol {
+          background: var(--raised);
+        }
+      }
+      &[aria-current="page"],
+      &[aria-expanded="true"] {
+        background: transparent;
+        .navSymbol {
+          background: var(--text);
+          svg {
+            color: var(--brand);
+          }
+        }
+      }
+    }
   }
 }

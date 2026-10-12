@@ -8,6 +8,7 @@ import StatusMessage, {
   type StatusAction,
 } from "@/components/kiosk/status-message/StatusMessage";
 import PrimaryButton from "@/components/primitives/primary-button/PrimaryButton";
+import SuccessMark from "@/components/kiosk/success-mark/SuccessMark";
 import type { CheckInOutcome } from "@/domain/kiosk/checkInOutcome";
 import { formatClockTime } from "@/domain/kiosk/sessionFormat";
 import styles from "./ResultScreen.module.scss";
@@ -35,11 +36,14 @@ const ResultScreen = ({
 }: Props) => {
   return (
     <div className={styles.screen}>
-      <SessionHeader session={session} />
+      {outcome.kind !== "success" && outcome.kind !== "alreadyCheckedIn" && (
+        <SessionHeader session={session} />
+      )}
 
       {outcome.kind === "success" && (
         <Receipt
           headline="You're checked in"
+          animate
           session={session}
           member={member}
           receipt={outcome.receipt}
@@ -50,6 +54,7 @@ const ResultScreen = ({
       {outcome.kind === "alreadyCheckedIn" && (
         <Receipt
           headline="You're already checked in"
+          animate={false}
           session={session}
           member={member}
           receipt={outcome.receipt}
@@ -106,6 +111,7 @@ const ResultScreen = ({
 
 type ReceiptProps = {
   headline: string;
+  animate: boolean;
   session: SessionOption;
   member: RosterMember;
   receipt: AttendanceReceipt;
@@ -113,11 +119,23 @@ type ReceiptProps = {
 };
 
 // Success and already-checked-in: the receipt always names the selected session
-const Receipt = ({ headline, session, member, receipt, onDone }: ReceiptProps) => {
+const Receipt = ({
+  headline,
+  animate,
+  session,
+  member,
+  receipt,
+  onDone,
+}: ReceiptProps) => {
   return (
     <>
-      <div className={styles.titles}>
-        <p className={styles.eyebrow}>Check-in</p>
+      <div
+        className={`${styles.titles} ${styles.receiptHeading}`}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <SuccessMark animate={animate} />
         <h1 className={styles.headline}>{headline}</h1>
       </div>
 
@@ -139,7 +157,9 @@ const Receipt = ({ headline, session, member, receipt, onDone }: ReceiptProps) =
           <dd>
             {formatClockTime(receipt.checkedInAt)}
             {/* Neutral, just information: not a warning */}
-            {receipt.status === "late" && <span className={styles.tag}>Late</span>}
+            {receipt.status === "late" && (
+              <span className={styles.tag}>Late</span>
+            )}
           </dd>
         </div>
       </dl>

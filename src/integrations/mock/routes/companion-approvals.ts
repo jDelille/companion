@@ -5,10 +5,10 @@ import type {
   ApprovalReply,
   Receipt,
 } from "@/domain/companion";
-import { findSuggestion } from "@/integrations/mock/companion";
-import { mockRoute, problem } from "@/integrations/mock/companion-http";
-import { getScenario } from "@/integrations/mock/companion-scenario";
-import { getStore } from "@/integrations/mock/companion-store";
+import { scopedSuggestion } from "../companion";
+import { mockRoute, problem } from "../companion-http";
+import { getScenario } from "../companion-scenario";
+import { getStore } from "../companion-store";
 
 // Returns null if the body isn't shaped like an approval command
 function readCommand(body: unknown): ApprovalCommand | null {
@@ -18,7 +18,8 @@ function readCommand(body: unknown): ApprovalCommand | null {
   if (typeof command.idempotencyKey !== "string") return null;
   if (typeof command.correlationId !== "string") return null;
   if (typeof command.suggestionId !== "string") return null;
-  if (command.memberId !== null && typeof command.memberId !== "string") return null;
+  if (command.memberId !== null && typeof command.memberId !== "string")
+    return null;
 
   return {
     idempotencyKey: command.idempotencyKey,
@@ -64,7 +65,10 @@ export async function POST(request: Request) {
     // 2. Key's been used before: same task gets the original receipt back, anything else is a conflict
     const usedKey = store.usedKeys.get(idempotencyKey);
     if (usedKey) {
-      if (usedKey.suggestionId !== suggestionId) {
+      if (
+        usedKey.suggestionId !== suggestionId ||
+        usedKey.memberId !== command.memberId
+      ) {
         return problem(
           "IDEMPOTENCY_CONFLICT",
           correlationId,
@@ -76,7 +80,7 @@ export async function POST(request: Request) {
 
     // 3. The task has to be one we know. The receipt is built from our copy,
     //    not from anything the browser sent.
-    const suggestion = findSuggestion(suggestionId);
+    const suggestion = scopedSuggestion(suggestionId, command.memberId);
     if (!suggestion) {
       return problem(
         "UNKNOWN_SUGGESTION",
@@ -94,7 +98,11 @@ export async function POST(request: Request) {
       at: new Date().toISOString(),
     };
     store.nextReceiptNumber += 1;
-    store.usedKeys.set(idempotencyKey, { suggestionId, receipt });
+    store.usedKeys.set(idempotencyKey, {
+      suggestionId,
+      memberId: command.memberId,
+      receipt,
+    });
 
     return approvalResponse(receipt, false, correlationId, 201);
   });

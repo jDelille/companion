@@ -3,6 +3,7 @@ import SessionCard from "@/components/kiosk/session-card/SessionCard";
 import StatusMessage from "@/components/kiosk/status-message/StatusMessage";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { SessionsLoad } from "@/domain/kiosk/checkInFlow";
+import { sessionsInTimeOrder } from "@/domain/kiosk/sessionFormat";
 import styles from "./SessionSelectScreen.module.scss";
 
 type Props = {
@@ -84,7 +85,7 @@ const SessionSelectScreen = ({
 
       {sessions.status === "ready" && sessions.list.length > 0 && (
         <ul className={styles.list}>
-          {sessions.list.map((session) => (
+          {sessionsInTimeOrder(sessions.list).map((session) => (
             <li
               key={session.sessionId}
               // The card the header lands in shows straight away; the others fade in

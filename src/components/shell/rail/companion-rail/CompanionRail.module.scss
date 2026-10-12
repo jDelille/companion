@@ -2,8 +2,8 @@
 
 .companionRail {
   width: 325px;
-  background: var(--panel);
-  border-left: 1px solid var(--dark-border);
+  background: transparent;
+  border-left: 0;
   height: 100%;
   padding: 0 1.25rem;
   display: flex;
@@ -176,7 +176,7 @@
     button {
       padding: 8px 12px;
       border: 1px solid var(--line);
-      border-radius: 6px;
+      border-radius: var(--radius-pill);
       background: none;
       color: var(--text);
       font-size: 11px;

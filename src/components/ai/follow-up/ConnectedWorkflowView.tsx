@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/primitives/AppLink";
 import { getCompanionContext } from "@/integrations/companion";
 import type { CompanionContext } from "@/domain/companion";
 import styles from "./FollowUp.module.scss";
@@ -42,16 +42,21 @@ export default function ConnectedWorkflowView({
   }, [path, revision]);
 
   const data = result?.path === path ? result.data : undefined;
+  const Heading = historyOnly ? "h1" : "h2";
 
   return (
     <section className={styles.workspace}>
       <header className={styles.pageHeader}>
         <div className={styles.pageTitles}>
-          <h2 className={styles.pageTitle}>
-            {historyOnly
-              ? "Companion follow-up history"
-              : data?.heading || "Staff workspace"}
-          </h2>
+          <Heading className={styles.pageTitle}>
+            {historyOnly ? "Follow-ups" : data?.heading || "Staff workspace"}
+          </Heading>
+          {historyOnly && (
+            <p className={styles.intro}>
+              Reviewed drafts and saved follow-ups. Prepare a new one from a
+              member’s Companion.
+            </p>
+          )}
           {!historyOnly && data && (
             <p className={styles.intro}>
               Class attendance comes from the same Odoo records as kiosk
@@ -118,7 +123,8 @@ export default function ConnectedWorkflowView({
             {!data.followUps?.length ? (
               <p className={styles.empty}>
                 <strong>No approved follow-ups yet.</strong>
-                Open a member and use “Prepare parent follow-up” in the Companion.
+                Open a member and use “Prepare parent follow-up” in the
+                Companion.
               </p>
             ) : (
               <ul className={styles.itemList}>

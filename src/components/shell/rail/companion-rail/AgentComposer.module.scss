@@ -32,10 +32,10 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  height: 48px;
+  height: 52px;
   padding: 0 0.375rem 0 0.875rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-pill);
   background-color: var(--raised);
 
   input {
@@ -52,23 +52,23 @@
   .micBtn {
     all: unset;
     flex-shrink: 0;
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-control);
+    border-radius: var(--radius-circle);
     cursor: pointer;
   }
 
-  // Send: the one violet button
+  // Send: the primary action
   .agentBtn {
     background-color: var(--agent);
     color: var(--text);
     font-weight: 700;
   }
 
-  // Mic: neutral button, violet icon
+  // Mic: neutral button, red icon
   .micBtn {
     background-color: var(--interactive);
     color: var(--agent);
@@ -78,3 +78,5 @@
     }
   }
 }
+
+.agentComposer:focus-within { border-color: var(--text-secondary); }

@@ -22,9 +22,11 @@
     &__avatar {
       color: var(--text);
       background-color: var(--canvas);
-      background-color: black;
-      min-width: 50px;
-      height: 50px;
+      background-color: var(--brand-soft);
+      border: 1px solid var(--line);
+      color: var(--brand-bright);
+      min-width: 56px;
+      height: 56px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -42,7 +44,10 @@
         flex-direction: column;
         gap: 8px;
         h2 {
-          font-size: 18px;
+          font-family: var(--font-display);
+          font-weight: 400;
+          font-size: clamp(30px, 3.4vw, 42px);
+          letter-spacing: -0.04em;
         }
         p {
           color: var(--text-secondary);
@@ -96,23 +101,33 @@
     li {
       display: flex;
 
-      button {
+      button,
+      a {
         white-space: nowrap; // keeps "Do For Me" on one line
         border: 1px solid var(--dark-border);
         font-size: 12px;
         font-weight: 600;
-        padding: 10px 12px;
-        border-radius: 8px;
+        padding: 10px 16px;
+        min-height: 44px;
+        border-radius: var(--radius-pill);
         color: var(--text);
         background-color: var(--panel);
         cursor: pointer;
-        &:disabled { opacity: .45; cursor: not-allowed; }
+        transition:
+          transform 160ms var(--ease-out),
+          background-color 160ms ease;
+        &:active:not(:disabled) {
+          transform: scale(0.97);
+        }
+        &:disabled {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
       }
 
-       .checkInBtn {
-          background-color: var(--brand);
-
-        }
+      .checkInBtn {
+        background-color: var(--brand);
+      }
     }
   }
 }

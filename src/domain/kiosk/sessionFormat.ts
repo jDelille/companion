@@ -1,4 +1,13 @@
 // Display helpers for sessions. Plain functions, no React.
+import type { SessionOption } from "@/contracts/kiosk-attendance";
+
+export function sessionsInTimeOrder(
+  sessions: SessionOption[],
+): SessionOption[] {
+  return [...sessions].sort(
+    (a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt),
+  );
+}
 
 // "2026-10-06T00:00:00Z" -> { time: "5:00", period: "PM" } in the kiosk's own locale.
 // period is empty for 24-hour locales.

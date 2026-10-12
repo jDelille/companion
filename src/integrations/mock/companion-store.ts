@@ -6,6 +6,7 @@ import type { Receipt } from "@/domain/companion";
 // What an idempotency key was first used for, so a reuse can be recognised
 export type UsedKey = {
   suggestionId: string;
+  memberId: string | null;
   receipt: Receipt;
 };
 

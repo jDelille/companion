@@ -117,7 +117,8 @@
       gap: 10px;
 
       li {
-        button {
+        button,
+        a {
           all: unset;
           white-space: nowrap; // labels stay on one line
           border: 1px solid var(--dark-border);
@@ -130,7 +131,6 @@
 
         .checkInBtn {
           background-color: var(--brand);
-
         }
       }
     }

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import styles from "./ContextPane.module.scss";
-import Link from "next/link";
+import Link from "@/components/primitives/AppLink";
 import { usePathname } from "next/navigation";
 import { useSelectedMember } from "./selected-member/selectedMember";
 import { countMembers } from "@/integrations/staff-members";

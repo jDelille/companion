@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { Member } from "@/domain/member";
 import Modal from "@/components/primitives/modal/Modal";
-import { modals, ModalType } from "@/components/people/member-card/memberModals";
+import {
+  getMemberModal,
+  ModalType,
+} from "@/components/people/member-card/memberModals";
 import styles from "./Identity.module.scss";
+import Link from "@/components/primitives/AppLink";
+import { memberInitials } from "@/domain/member-presentation";
 
 type Props = {
   member: Member;
@@ -17,31 +22,33 @@ const btns: { label: string; modal?: ModalType }[] = [
   { label: "Message", modal: "message" },
   { label: "Book", modal: "book" },
   { label: "Payment", modal: "payment" },
-  { label: "✎ Edit", modal: "edit" },
+  { label: "Profile details", modal: "edit" },
   { label: "...", modal: "quickActions" }, // the hold-menu from the member card
-  { label: "✦ Do For Me", modal: "ask" },
+  { label: "Companion context", modal: "ask" },
 ];
 
 const Identity = ({ member, readOnly = false }: Props) => {
   const [open, setOpen] = useState<ModalType | null>(null);
-  const [checkedIn, setCheckedIn] = useState(false);
-  const current = open ? modals[open] : null;
+  const current = open ? getMemberModal(open, member) : null;
 
   const handleClick = (btn: (typeof btns)[number]) => {
-    if (btn.label === "Check in") setCheckedIn(true);
-    else if (btn.modal) setOpen(btn.modal);
+    if (btn.modal) setOpen(btn.modal);
   };
 
   return (
     <>
       <div className={styles.identity}>
         <div className={styles.member}>
-          <div className={styles.member__avatar}>{readOnly ? member.name.split(" ").filter(Boolean).map(part => part[0]).slice(0, 2).join("") : "MC"}</div>
+          <div className={styles.member__avatar}>{memberInitials(member)}</div>
 
           <div className={styles.memberName}>
             <div className={styles.text}>
               <h2>{member.name}</h2>
-              <p>{readOnly ? member.memberNumber : <>Children Advanced · {member.householdName}</>}</p>
+              <p>
+                {[member.memberNumber, member.householdName]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
             </div>
             <div className={styles.status}>
               {member.membershipState} · {member.rank.name}
@@ -53,14 +60,24 @@ const Identity = ({ member, readOnly = false }: Props) => {
         <ul>
           {btns.map((btn) => (
             <li key={btn.label}>
-              <button
-                className={btn.label === "Check in" ? styles.checkInBtn : ""}
-                onClick={() => handleClick(btn)}
-                disabled={readOnly || (btn.label === "Check in" && checkedIn)}
-                title={readOnly ? "Not connected in this integration test" : undefined}
-              >
-                {btn.label === "Check in" && checkedIn ? "✓ Checked in" : btn.label}
-              </button>
+              {btn.label === "Check in" && !readOnly ? (
+                <Link href="/kiosk" className={styles.checkInBtn}>
+                  Open check-in
+                </Link>
+              ) : (
+                <button
+                  className={btn.label === "Check in" ? styles.checkInBtn : ""}
+                  onClick={() => handleClick(btn)}
+                  disabled={readOnly}
+                  title={
+                    readOnly
+                      ? "Not connected in this integration test"
+                      : undefined
+                  }
+                >
+                  {btn.label}
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -76,14 +93,12 @@ const Identity = ({ member, readOnly = false }: Props) => {
       >
         {current && (
           <current.Body
+            key={`${member.id}:${open}`}
+            member={member}
             onDone={() => setOpen(null)}
             onCancel={() => setOpen(null)}
             onAskAI={() => setOpen("ask")}
             onOpen={setOpen}
-            onCheckIn={() => {
-              setCheckedIn(true);
-              setOpen(null);
-            }}
           />
         )}
       </Modal>

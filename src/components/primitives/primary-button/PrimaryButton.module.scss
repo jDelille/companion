@@ -14,7 +14,15 @@
   font-size: var(--text-lg);
   font-weight: 600;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease, opacity 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease,
+    transform 160ms var(--ease-out);
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
 
   &:focus-visible {
     outline: 2px solid var(--text-secondary);

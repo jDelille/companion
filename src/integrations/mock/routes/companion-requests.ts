@@ -5,13 +5,9 @@ import type {
   CompanionRequestReply,
   Suggestion,
 } from "@/domain/companion";
-import {
-  findSuggestion,
-  matchExisting,
-  matchRequest,
-} from "@/integrations/mock/companion";
-import { mockRoute, problem } from "@/integrations/mock/companion-http";
-import { getScenario } from "@/integrations/mock/companion-scenario";
+import { scopedSuggestion, matchExisting, matchRequest } from "../companion";
+import { mockRoute, problem } from "../companion-http";
+import { getScenario } from "../companion-scenario";
 
 // Returns null if the body isn't shaped like a request
 function readBody(body: unknown): CompanionRequestBody | null {
@@ -19,7 +15,8 @@ function readBody(body: unknown): CompanionRequestBody | null {
   const request = body as Partial<CompanionRequestBody>;
 
   if (typeof request.text !== "string") return null;
-  if (request.memberId !== null && typeof request.memberId !== "string") return null;
+  if (request.memberId !== null && typeof request.memberId !== "string")
+    return null;
   if (!Array.isArray(request.onScreenIds)) return null;
 
   const onScreenIds: string[] = [];
@@ -50,7 +47,7 @@ export async function POST(request: Request) {
     }
 
     // 2. A request for a new task
-    const newTask = matchRequest(body.text);
+    const newTask = matchRequest(body.text, body.memberId);
     if (newTask) {
       return reply({ outcome: "newTask", suggestion: newTask });
     }
@@ -58,7 +55,7 @@ export async function POST(request: Request) {
     // 3. Otherwise, the task already on screen that it's asking about
     const onScreen: Suggestion[] = [];
     for (const id of body.onScreenIds) {
-      const suggestion = findSuggestion(id);
+      const suggestion = scopedSuggestion(id, body.memberId);
       if (suggestion) onScreen.push(suggestion);
     }
     const existing = matchExisting(body.text, onScreen);

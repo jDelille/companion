@@ -1,142 +1,204 @@
 "use client";
-
 import { ReactNode, useEffect, useRef, useState } from "react";
-import Rail from "./rail/Rail";
-import ContextPane from "./ContextPane";
+import Link from "@/components/primitives/AppLink";
+import { usePathname } from "next/navigation";
 import styles from "./Shell.module.scss";
-import WorkspaceHeader from "./workspace/WorkspaceHeader";
-import WorkspaceTabs from "./workspace/WorkspaceTabs";
-import CompanionRail from "./rail/companion-rail/CompanionRail";
-import AdaptiveBottomNav from "./bottom-nav/AdaptiveBottomNav";
+import dynamic from "next/dynamic";
 import ConnectedNavigation from "./ConnectedNavigation";
+import FloatingNavigation from "./FloatingNavigation";
+import CrestBackdrop from "@/components/branding/CrestBackdrop";
+
+const CompanionRail = dynamic(
+  () => import("./rail/companion-rail/CompanionRail"),
+  {
+    loading: () => <p role="status">Opening Companion…</p>,
+  },
+);
 
 type Props = {
   children: ReactNode;
   context?: ReactNode;
   companion?: ReactNode;
   connectedTest?: boolean;
+  demoMode?: boolean;
 };
-
 export default function AdaptiveShell({
   children,
   context,
   companion,
   connectedTest = false,
+  demoMode = false,
 }: Props) {
   const [contextOpen, setContextOpen] = useState(false);
   const [companionOpen, setCompanionOpen] = useState(false);
-  const companionTrigger = useRef<HTMLButtonElement>(null);
+  const [companionVisited, setCompanionVisited] = useState(false);
+  const pathname = usePathname();
   const contextTrigger = useRef<HTMLButtonElement>(null);
   const companionClose = useRef<HTMLButtonElement>(null);
   const contextClose = useRef<HTMLButtonElement>(null);
+  const lastTrigger = useRef<HTMLElement | null>(null);
+  const workspace = useRef<HTMLDivElement>(null);
+  const closePanel = () => {
+    setContextOpen(false);
+    setCompanionOpen(false);
+    requestAnimationFrame(() => lastTrigger.current?.focus());
+  };
+  const openCompanion = () => {
+    setCompanionVisited(true);
+    lastTrigger.current = document.activeElement as HTMLElement;
+    setContextOpen(false);
+    setCompanionOpen(true);
+  };
   useEffect(() => {
-    if (companionOpen) companionClose.current?.focus();
-    else if (contextOpen) contextClose.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      if (companionOpen) {
-        setCompanionOpen(false);
-        companionTrigger.current?.focus();
-      } else if (contextOpen) {
+    workspace.current?.scrollTo(0, 0);
+  }, [pathname]);
+  useEffect(() => {
+    if (!contextOpen && !companionOpen) return;
+    const panel = document.getElementById(
+      companionOpen ? "roster-companion" : "workspace-context",
+    );
+    (companionOpen ? companionClose : contextClose).current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
         setContextOpen(false);
-        contextTrigger.current?.focus();
+        setCompanionOpen(false);
+        requestAnimationFrame(() => lastTrigger.current?.focus());
+      }
+      if (e.key !== "Tab" || !panel) return;
+      const focusable = Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex="0"]',
+        ),
+      ).filter((el) => el.getClientRects().length);
+      const first = focusable[0],
+        last = focusable.at(-1);
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last?.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first?.focus();
       }
     };
-    if (companionOpen || contextOpen)
-      window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [companionOpen, contextOpen]);
+  const panelOpen = contextOpen || companionOpen;
   return (
     <div
       className={styles.adaptiveShell}
       data-context-open={contextOpen}
       data-companion-open={companionOpen}
     >
-      <div className={styles.railSlot}>
-        {connectedTest ? <ConnectedNavigation /> : <Rail />}
+      <div className={styles.railSlot} inert={panelOpen}>
+        <ConnectedNavigation
+          onCompanion={openCompanion}
+          companionOpen={companionOpen}
+        />
       </div>
-      <div
+      <div className={styles.workspaceSlot} inert={panelOpen}>
+        <CrestBackdrop paused={panelOpen} />
+        <header className={styles.connectedHeader}>
+          <Link href="/" className={styles.mobileBrand}>
+            DOJANG<span>.</span>
+          </Link>
+          <div className={styles.headerLocation}>
+            <span className={styles.locationDot} />
+            <strong>Dojang Downtown</strong>
+            <span className={styles.headerDate}>
+              {connectedTest ? "Test workspace" : "Staff workspace"}
+            </span>
+          </div>
+          <button
+            ref={contextTrigger}
+            className={styles.contextTrigger}
+            aria-controls="workspace-context"
+            aria-expanded={contextOpen}
+            onClick={() => {
+              lastTrigger.current = contextTrigger.current;
+              setCompanionOpen(false);
+              setContextOpen(true);
+            }}
+          >
+            Workspace guide
+          </button>
+        </header>
+        {demoMode && (
+          <div className={styles.demoBanner}>Preview · Sample data</div>
+        )}
+        <main
+          ref={workspace}
+          id="main-content"
+          className={styles.workspaceBody}
+        >
+          {children}
+        </main>
+      </div>
+      <FloatingNavigation
+        workspace={workspace}
+        pathname={pathname}
+        panelOpen={panelOpen}
+        onCompanion={openCompanion}
+        companionOpen={companionOpen}
+      />
+      {panelOpen && (
+        <button
+          className={styles.backdrop}
+          aria-label="Close panel"
+          onClick={closePanel}
+          tabIndex={-1}
+        />
+      )}
+      <aside
         id="workspace-context"
-        className={`${styles.contextSlot} ${connectedTest ? styles.connectedContext : ""}`}
+        role={contextOpen ? "dialog" : undefined}
+        aria-modal={contextOpen || undefined}
+        aria-label="Workspace guide"
+        className={styles.contextSlot}
+        inert={!contextOpen}
       >
         <button
           ref={contextClose}
-          className={styles.contextClose}
-          onClick={() => {
-            setContextOpen(false);
-            contextTrigger.current?.focus();
-          }}
+          className={styles.panelClose}
+          onClick={closePanel}
           aria-label="Close context panel"
         >
           ✕
         </button>
-        {context !== undefined ? (
-          context
-        ) : (
-          <ContextPane>{undefined}</ContextPane>
+        {context ?? (
+          <section className={styles.guide}>
+            <h2>Your Dojang workspace</h2>
+            <p>
+              Explore classes, open a member, or use Companion to review a task.
+            </p>
+            <p>
+              This preview runs the Companion app with fictional sample records.
+              Demo actions are temporary and may reset.
+            </p>
+            <Link href="/kiosk" onClick={closePanel}>
+              Try the check-in kiosk →
+            </Link>
+          </section>
         )}
-      </div>
-      <div className={styles.workspaceSlot}>
-        {connectedTest ? (
-          <header className={styles.connectedHeader}>
-            <div>
-              <strong>Roster Companion</strong>
-              <span>Test workspace</span>
-            </div>
-            <button
-              ref={contextTrigger}
-              className={styles.contextTrigger}
-              aria-controls="workspace-context"
-              aria-expanded={contextOpen}
-              onClick={() => {
-                setCompanionOpen(false);
-                setContextOpen((open) => !open);
-              }}
-            >
-              Workspace guide
-            </button>
-          </header>
-        ) : (
-          <>
-            <WorkspaceHeader
-              onToggleContext={() => setContextOpen((open) => !open)}
-              contextOpen={contextOpen}
-            />
-            <WorkspaceTabs />
-          </>
-        )}
-        <div className={styles.workspaceBody}>{children}</div>
-      </div>
-      <div id="roster-companion" className={styles.companionSlot}>
+      </aside>
+      <aside
+        id="roster-companion"
+        role={companionOpen ? "dialog" : undefined}
+        aria-modal={companionOpen || undefined}
+        aria-label="Companion"
+        className={styles.companionSlot}
+        inert={!companionOpen}
+      >
         <button
           ref={companionClose}
-          className={styles.companionClose}
-          onClick={() => {
-            setCompanionOpen(false);
-            companionTrigger.current?.focus();
-          }}
+          className={styles.panelClose}
+          onClick={closePanel}
           aria-label="Close companion"
         >
           ✕
         </button>
-        {companion !== undefined ? companion : <CompanionRail />}
-      </div>
-      <button
-        ref={companionTrigger}
-        className={styles.companionTrigger}
-        aria-controls="roster-companion"
-        aria-expanded={companionOpen}
-        onClick={() => {
-          setContextOpen(false);
-          setCompanionOpen(true);
-        }}
-        aria-label="Open companion"
-      >
-        ✦
-      </button>
-      <div className={styles.bottomNavSlot}>
-        {connectedTest ? <ConnectedNavigation mobile /> : <AdaptiveBottomNav />}
-      </div>
+        {companionVisited && (companion ?? <CompanionRail />)}
+      </aside>
     </div>
   );
 }

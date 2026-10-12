@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/components/primitives/AppLink";
 import { usePathname } from "next/navigation";
 import { isNavItemActive, navItems, bottomNavIds } from "../navItems";
 import styles from "./AdaptiveBottomNav.module.scss";

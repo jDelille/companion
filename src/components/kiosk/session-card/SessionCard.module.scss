@@ -1,95 +1,99 @@
-@use "../../../../styles/glass" as glass;
-
+@use "../../../../styles/separators";
 .card {
   all: unset;
-  box-sizing: border-box; // all: unset resets this to content-box
+  box-sizing: border-box;
+  @include separators.short-rule;
   display: grid;
-  grid-template-columns: 8rem 1fr auto; // time | name + duration | capacity
+  grid-template-columns: 5.75rem minmax(0, 1fr) 2.25rem;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
   width: 100%;
-  min-height: var(--touch-height);
-  padding: 1.75rem 1.25rem;
-  @include glass.card;
-  border-radius: var(--radius-leaf);
+  min-height: 108px;
+  padding: 1.5rem 0;
   color: var(--text);
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
-
-  &:hover,
-  &:active {
-    @include glass.card-active;
+  &:hover .arrow,
+  &:focus-visible .arrow {
+    color: var(--text);
+    background: var(--brand-soft);
+    border-color: var(--brand-bright);
   }
-
+  &:active .arrow {
+    transform: scale(0.92);
+  }
   &:focus-visible {
-    outline: 2px solid var(--text-secondary);
-    outline-offset: -2px;
+    outline: 2px solid var(--brand-bright);
+    outline-offset: 5px;
+    border-radius: 6px;
   }
 }
-
 .time {
-  font-size: var(--text-xl);
-  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 1.6rem;
+  font-weight: 400;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  letter-spacing: -0.025em;
 }
-
 .period {
-  margin-left: 0.35rem;
-  font-size: var(--text-base);
+  font-size: 0.6875rem;
   font-weight: 500;
-  color: var(--muted);
+  color: var(--text-secondary);
+  letter-spacing: 0.08em;
 }
-
 .details {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  min-width: 0; 
+  gap: 0.6rem;
+  min-width: 0;
 }
-
 .title {
-  font-size: var(--text-lg);
-  font-weight: 600;
+  font-size: var(--text-md);
+  font-weight: 500;
+  line-height: 1.45;
+  text-wrap: pretty;
 }
-
 .duration {
-  font-size: var(--text-sm);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  font-size: var(--text-xs);
   color: var(--text-secondary);
+  line-height: 1.5;
 }
-
-.capacity {
-  font-size: var(--text-base);
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 1.1rem;
   color: var(--text-secondary);
-  font-variant-numeric: tabular-nums;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms var(--ease-out);
 }
-
-// Phones: narrower time column and gaps, so the class name gets the room.
-// A name that still doesn't fit ends in "…" instead of wrapping.
 @container kiosk (width < 540px) {
   .card {
-    grid-template-columns: 4.75rem minmax(0, 1fr) auto;
-    gap: 1.75rem;
-    padding-inline: 1rem;
+    grid-template-columns: 4rem minmax(0, 1fr) 2rem;
+    gap: 0.85rem;
+    padding-block: 1.35rem;
   }
-
   .time {
-    font-size: var(--text-lg);
+    font-size: 1.3rem;
   }
-
-  .period {
-    font-size: var(--text-sm);
-    margin-left: 0.2rem;
-  }
-
   .title {
-    font-size: var(--text-md);
+    font-size: 1rem;
   }
-
-}
-
-.title {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  .duration {
+    font-size: 0.75rem;
+  }
+  .arrow {
+    width: 2rem;
+    height: 2rem;
+  }
 }

@@ -1,56 +1,26 @@
-@use "../../../../../styles/glass" as glass;
-
-// Width comes from the shell, like every kiosk screen
+@use "../../../../../styles/separators";
 .screen {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 2rem 0;
+  padding: 1.5rem 0 3rem;
 }
-
 .topBar {
   display: flex;
   align-items: center;
   min-height: var(--touch-height);
 }
-
 .heading {
   margin-top: 1rem;
   font-size: var(--kiosk-title);
 }
-
-// Student and class, label on the left, value on the right
 .summary {
-  display: flex;
-  flex-direction: column;
-  @include glass.card;
-  border-radius: var(--radius-leaf);
+  @include separators.open-details;
+  margin-bottom: 0.75rem;
 }
-
 .summaryRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  padding: 1.25rem;
-
-  & + & {
-    border-top: 1px solid var(--glass-edge);
-  }
-
-  dt {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-  }
-
-  dd {
-    font-size: var(--text-lg);
-    font-weight: 600;
-    text-align: right;
-  }
+  @include separators.detail-row;
 }
-
-// Read by screen readers, not shown on screen
 .visuallyHidden {
   position: absolute;
   width: 1px;

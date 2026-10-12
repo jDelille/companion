@@ -3,6 +3,7 @@ import type { SessionOption } from "@/contracts/kiosk-attendance";
 import StatusMessage from "@/components/kiosk/status-message/StatusMessage";
 import ActionCard from "@/components/primitives/action-card/ActionCard";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
+import PrimaryButton from "@/components/primitives/primary-button/PrimaryButton";
 import type { SessionsLoad } from "@/domain/kiosk/checkInFlow";
 import {
   CONCIERGE_TOPICS,
@@ -11,7 +12,11 @@ import {
   type ConciergeReceipt,
 } from "@/domain/kiosk/concierge";
 import type { ConciergeState } from "@/domain/kiosk/conciergeFlow";
-import { formatDuration, formatStartTime } from "@/domain/kiosk/sessionFormat";
+import {
+  formatDuration,
+  formatStartTime,
+  sessionsInTimeOrder,
+} from "@/domain/kiosk/sessionFormat";
 import styles from "./ConciergeScreen.module.scss";
 
 type Props = {
@@ -41,11 +46,17 @@ const ConciergeScreen = (props: Props) => {
     <div className={styles.screen}>
       <div className={styles.topBar}>
         {state.view === "ask" && (
-          <PlainButton flush onClick={props.onExit}>← Back</PlainButton>
+          <PlainButton flush onClick={props.onExit}>
+            ← Back
+          </PlainButton>
         )}
         {/* No way back from a receipt, same as the check-in Result: only Done */}
         {state.view !== "ask" && state.view !== "done" && (
-          <PlainButton flush onClick={props.onAskAgain} disabled={state.view === "sending"}>
+          <PlainButton
+            flush
+            onClick={props.onAskAgain}
+            disabled={state.view === "sending"}
+          >
             ← Ask something else
           </PlainButton>
         )}
@@ -95,7 +106,10 @@ const ConciergeScreen = (props: Props) => {
 
       {state.view === "failed" && (
         <>
-          <Titles eyebrow={state.action.title} headline="Please see the front desk" />
+          <Titles
+            eyebrow={state.action.title}
+            headline="Please see the front desk"
+          />
           <StatusMessage
             message="We couldn't do that from here."
             actions={[{ label: "Done", onClick: props.onDone }]}
@@ -106,7 +120,13 @@ const ConciergeScreen = (props: Props) => {
   );
 };
 
-const Titles = ({ eyebrow, headline }: { eyebrow: string; headline: string }) => {
+const Titles = ({
+  eyebrow,
+  headline,
+}: {
+  eyebrow: string;
+  headline: string;
+}) => {
   return (
     <div className={styles.titles}>
       <p className={styles.eyebrow}>{eyebrow}</p>
@@ -118,7 +138,12 @@ const Titles = ({ eyebrow, headline }: { eyebrow: string; headline: string }) =>
 // Questions: one-tap chips, or type your own
 const AskView = ({ state, onTextChange, onAsk }: Props) => {
   const isThinking = state.view === "thinking";
-  const text = state.view === "ask" ? state.text : state.view === "thinking" ? state.question.question : "";
+  const text =
+    state.view === "ask"
+      ? state.text
+      : state.view === "thinking"
+        ? state.question.question
+        : "";
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
@@ -138,7 +163,10 @@ const AskView = ({ state, onTextChange, onAsk }: Props) => {
             disabled={isThinking}
             onClick={() => onAsk(topic.question)}
           >
-            {topic.label}
+            <span>{topic.label}</span>
+            <span className={styles.topicArrow} aria-hidden="true">
+              ↗
+            </span>
           </button>
         ))}
       </div>
@@ -155,8 +183,13 @@ const AskView = ({ state, onTextChange, onAsk }: Props) => {
           disabled={isThinking}
           autoComplete="off"
         />
-        <button type="submit" className={styles.askButton} disabled={isThinking || text.trim() === ""}>
-          Ask
+        <button
+          type="submit"
+          aria-label="Ask"
+          className={styles.askButton}
+          disabled={isThinking || text.trim() === ""}
+        >
+          <span aria-hidden="true">↑</span>
         </button>
       </form>
 
@@ -201,7 +234,10 @@ const ReplyView = ({
   if (answer.kind === "notUnderstood") {
     return (
       <>
-        <Titles eyebrow={question} headline="Sorry, I can't help with that here" />
+        <Titles
+          eyebrow={question}
+          headline="Sorry, I can't help with that here"
+        />
         <StatusMessage
           message="Try one of the suggested questions, or see the front desk."
           actions={[{ label: "See suggestions", onClick: onAskAgain }]}
@@ -230,6 +266,7 @@ const ReplyView = ({
           ))}
         </div>
         <ActionCard
+          appearance="row"
           label="Check In"
           description="Pick your class, then find your name"
           size="large"
@@ -244,6 +281,7 @@ const ReplyView = ({
       <>
         <Titles eyebrow={question} headline={answer.action.title} />
         <ActionCard
+          appearance="row"
           label={answer.action.title}
           description="See what happens before anything is sent"
           size="large"
@@ -266,6 +304,7 @@ const ReplyView = ({
       </div>
       {nextAction && (
         <ActionCard
+          appearance="row"
           label={nextAction.title}
           description="See what happens before anything is sent"
           onClick={() => onStartAction(nextAction)}
@@ -276,9 +315,19 @@ const ReplyView = ({
 };
 
 // Today's classes, read only: checking in still goes through Check In
-const ScheduleList = ({ sessions, onRetry }: { sessions: SessionsLoad | null; onRetry: () => void }) => {
+const ScheduleList = ({
+  sessions,
+  onRetry,
+}: {
+  sessions: SessionsLoad | null;
+  onRetry: () => void;
+}) => {
   if (!sessions || sessions.status === "loading") {
-    return <p className={styles.thinking} role="status">Loading today’s classes…</p>;
+    return (
+      <p className={styles.thinking} role="status">
+        Loading today’s classes…
+      </p>
+    );
   }
   if (sessions.status === "unavailable") {
     return (
@@ -294,7 +343,7 @@ const ScheduleList = ({ sessions, onRetry }: { sessions: SessionsLoad | null; on
 
   return (
     <dl className={styles.schedule}>
-      {sessions.list.map((session) => {
+      {sessionsInTimeOrder(sessions.list).map((session) => {
         const { time, period } = formatStartTime(session.startsAt);
         return (
           <div key={session.sessionId} className={styles.scheduleRow}>
@@ -303,7 +352,9 @@ const ScheduleList = ({ sessions, onRetry }: { sessions: SessionsLoad | null; on
             </dt>
             <dd>
               <span>{session.title}</span>
-              <span className={styles.muted}>{formatDuration(session.startsAt, session.endsAt)}</span>
+              <span className={styles.muted}>
+                {formatDuration(session.startsAt, session.endsAt)}
+              </span>
             </dd>
           </div>
         );
@@ -325,9 +376,14 @@ const PreviewView = ({
   if (state.view !== "preview" && state.view !== "sending") return null;
   const isSending = state.view === "sending";
   const action = state.action;
-  const firstName = state.view === "preview" ? state.firstName : state.command.trial?.firstName ?? "";
+  const firstName =
+    state.view === "preview"
+      ? state.firstName
+      : (state.command.trial?.firstName ?? "");
   const pickedSessionId =
-    state.view === "preview" ? state.session?.sessionId : state.command.trial?.sessionId;
+    state.view === "preview"
+      ? state.session?.sessionId
+      : state.command.trial?.sessionId;
 
   return (
     <>
@@ -363,16 +419,22 @@ const PreviewView = ({
 
       <div className={styles.consequences}>
         <ConsequenceList title="What will happen" items={action.willHappen} />
-        <ConsequenceList title="What won't happen" items={action.willNotHappen} />
+        <ConsequenceList
+          title="What won't happen"
+          items={action.willNotHappen}
+        />
       </div>
 
-      <ActionCard
-        label={isSending ? "Sending…" : action.confirmLabel}
-        description={canSubmit || isSending ? "Nothing is sent until you tap this" : "Add your first name and pick a class"}
-        size="large"
+      <PrimaryButton
+        tone="brand"
         disabled={isSending || !canSubmit}
         onClick={onConfirm}
-      />
+      >
+        {isSending ? "Sending…" : action.confirmLabel}
+      </PrimaryButton>
+      {!canSubmit && !isSending && (
+        <p className={styles.muted}>Add your first name and pick a class.</p>
+      )}
 
       <p className={styles.visuallyHidden} role="status">
         {isSending ? "Sending, please wait." : ""}
@@ -389,9 +451,19 @@ type PickerProps = {
   onRetry: () => void;
 };
 
-const SessionPicker = ({ sessions, pickedSessionId, disabled, onPick, onRetry }: PickerProps) => {
+const SessionPicker = ({
+  sessions,
+  pickedSessionId,
+  disabled,
+  onPick,
+  onRetry,
+}: PickerProps) => {
   if (!sessions || sessions.status === "loading") {
-    return <p className={styles.muted} role="status">Loading today’s classes…</p>;
+    return (
+      <p className={styles.muted} role="status">
+        Loading today’s classes…
+      </p>
+    );
   }
   if (sessions.status === "unavailable") {
     return (
@@ -402,19 +474,25 @@ const SessionPicker = ({ sessions, pickedSessionId, disabled, onPick, onRetry }:
     );
   }
   if (sessions.list.length === 0) {
-    return <p className={styles.muted}>No more classes today. Please see the front desk.</p>;
+    return (
+      <p className={styles.muted}>
+        No more classes today. Please see the front desk.
+      </p>
+    );
   }
 
   return (
     <div className={styles.picker}>
-      {sessions.list.map((session) => {
+      {sessionsInTimeOrder(sessions.list).map((session) => {
         const { time, period } = formatStartTime(session.startsAt);
         const isPicked = session.sessionId === pickedSessionId;
         return (
           <button
             key={session.sessionId}
             type="button"
-            className={isPicked ? `${styles.pick} ${styles.picked}` : styles.pick}
+            className={
+              isPicked ? `${styles.pick} ${styles.picked}` : styles.pick
+            }
             aria-pressed={isPicked}
             disabled={disabled}
             onClick={() => onPick(session)}
@@ -430,7 +508,13 @@ const SessionPicker = ({ sessions, pickedSessionId, disabled, onPick, onRetry }:
   );
 };
 
-const ConsequenceList = ({ title, items }: { title: string; items: string[] }) => {
+const ConsequenceList = ({
+  title,
+  items,
+}: {
+  title: string;
+  items: string[];
+}) => {
   return (
     <div className={styles.consequence}>
       <h2>{title}</h2>
@@ -443,7 +527,13 @@ const ConsequenceList = ({ title, items }: { title: string; items: string[] }) =
   );
 };
 
-const ReceiptView = ({ receipt, onDone }: { receipt: ConciergeReceipt; onDone: () => void }) => {
+const ReceiptView = ({
+  receipt,
+  onDone,
+}: {
+  receipt: ConciergeReceipt;
+  onDone: () => void;
+}) => {
   return (
     <>
       <Titles eyebrow="Done" headline={receipt.headline} />
@@ -455,12 +545,8 @@ const ReceiptView = ({ receipt, onDone }: { receipt: ConciergeReceipt; onDone: (
           </div>
         ))}
       </dl>
-      <ActionCard
-        label="Done"
-        description="Clears the screen for the next person"
-        size="large"
-        onClick={onDone}
-      />
+      <PrimaryButton onClick={onDone}>Done</PrimaryButton>
+      <p className={styles.muted}>Clears the screen for the next person</p>
     </>
   );
 };

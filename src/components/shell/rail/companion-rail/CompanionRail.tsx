@@ -23,11 +23,14 @@ const CompanionRail = ({ children }: Props) => {
     <div className={styles.companionRail}>
       <div className={styles.companionRail__header}>
         <h2>
-          <span className={styles.companionRail__header__icon}>✦</span>Do For Me
+          <span className={styles.companionRail__header__icon}>✦</span>Companion
         </h2>
       </div>
 
       <div className={styles.companionRail__state}>
+        <p className={styles.contextNote}>
+          Ask a question or prepare an action for review.
+        </p>
         {companion.contextStatus === "loading" && (
           <p className={styles.contextNote}>Loading…</p>
         )}
@@ -71,8 +74,20 @@ const CompanionRail = ({ children }: Props) => {
           </div>
         )}
 
-        {companion.view.memberId && companion.followUpEnabled && <FollowUpComposer key={companion.view.key} sessions={companion.sessions || []} busy={companion.requestStatus === "thinking"} onPrepare={companion.request} />}
-        {companion.answer && <div className={followupStyles.answer} role="status"><small>{companion.answer.mode}</small><p>{companion.answer.text}</p></div>}
+        {companion.view.memberId && companion.followUpEnabled && (
+          <FollowUpComposer
+            key={companion.view.key}
+            sessions={companion.sessions || []}
+            busy={companion.requestStatus === "thinking"}
+            onPrepare={companion.request}
+          />
+        )}
+        {companion.answer && (
+          <div className={followupStyles.answer} role="status">
+            <small>{companion.answer.mode}</small>
+            <p>{companion.answer.text}</p>
+          </div>
+        )}
         <ReceiptHistory receipts={companion.receipts} />
       </div>
 

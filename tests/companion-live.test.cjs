@@ -28,3 +28,17 @@ test('model-created send capability cannot become an approval card',async()=>{co
 test('follow-up approval accepts only matching server evidence',async()=>{const command={...cmd,suggestionId:'followup:42'};let op;const r=await liveCompanion(req(command),c,'approval',async(url,init)=>{op=JSON.parse(init.body).params.operation;return Response.json({result:{receipt:{id:'42',suggestionId:command.suggestionId,summary:'Saved internally',actor:'Staff test',at:'2026-10-09T20:00:00Z'},replayed:false,correlationId:command.correlationId,evidence:{source:'odoo-test',memberId:'22'}}})});assert.equal(r.status,200);assert.equal(op,'approve')});
 test('stale follow-up returns explicit conflict, not done',async()=>{const r=await liveCompanion(req({...cmd,suggestionId:'followup:42'}),c,'approval',async()=>Response.json({result:{problem:{code:'VERSION_CONFLICT'}}}));assert.equal(r.status,409)});
 test('session question never reclassifies pending attendance as absent',async()=>{const r=await liveCompanion(req({memberId:null,sessionId:'11',text:'Who has not checked in?',onScreenIds:[]}),c,'request',async()=>Response.json({result:workflowData}));const data=await r.json();assert.equal(data.outcome,'answer');assert.match(data.answer,/Not yet checked in/);assert.doesNotMatch(data.answer,/absent/)});
+
+test('staff home receives complete scoped schedule without a kiosk cookie',async()=>{
+  const request=new Request(c.origin+'/api/v2/companion/context',{headers:{cookie:cookie('staff')}});
+  const response=await liveCompanion(request,c,'context',async(url,init)=>{
+    assert.match(url,/staff\/companion-workflow$/);
+    assert.equal(init.headers.authorization,'Bearer '+c.staffKey);
+    assert.deepEqual(JSON.parse(init.body).params.payload,{});
+    return Response.json({result:{...workflowData,sessions:[{...workflowData.sessions[0],internalNote:'must not reach browser'}]}});
+  });
+  assert.equal(response.status,200);
+  const data=await response.json();
+  assert.deepEqual(data.sessions,workflowData.sessions);
+  assert.equal(data.records[0].href,'/ops/sessions/11');
+});

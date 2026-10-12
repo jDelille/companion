@@ -1,36 +1,30 @@
-@use "../../../../styles/glass" as glass;
-
+@use "../../../../styles/separators";
 .result {
   all: unset;
-  box-sizing: border-box; // all: unset resets this to content-box
+  box-sizing: border-box;
+  @include separators.short-rule;
   display: flex;
   align-items: center;
   gap: 1rem;
   width: 100%;
-  min-height: var(--touch-height);
-  padding: 1rem 1.25rem;
-  @include glass.card;
-  border-radius: var(--radius-pill);
+  min-height: 84px;
+  padding: 1rem 0;
   color: var(--text);
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
-
-  &:hover,
-  &:active {
-    @include glass.card-active;
+  &:hover .initials,
+  &:active .initials {
+    background: var(--brand-soft);
+    color: var(--text);
   }
-
   &:focus-visible {
-    outline: 2px solid var(--text-secondary);
-    outline-offset: -2px;
+    outline: 2px solid var(--brand-bright);
+    outline-offset: 4px;
+    border-radius: 6px;
   }
 }
-
-// Neutral circle: no brand red, it isn't an action on its own
 .initials {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
   width: 2.75rem;
   height: 2.75rem;
@@ -38,10 +32,17 @@
   background: var(--interactive);
   color: var(--text-secondary);
   font-size: var(--text-sm);
-  font-weight: 600;
+  font-weight: 500;
+  transition: background 160ms ease;
 }
-
 .name {
-  font-size: var(--text-lg);
-  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  font-size: var(--text-md);
+  font-weight: 500;
+}
+.arrow {
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  padding: 0.5rem;
 }

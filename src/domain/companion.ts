@@ -1,32 +1,45 @@
+import type { SessionOption } from "../contracts/kiosk-attendance";
+
 export type Risk = "low" | "medium" | "high";
 
 export type Suggestion = {
   id: string;
-  title: string;                                  // "Call Parker trial"
-  explanation: string;                            // the evidence, in one line
-  actionLabel: string;                            // "Prepare call"
-  capability: string;                             // "crm.lead.prepare_follow_up"
+  title: string; // "Call Parker trial"
+  explanation: string; // the evidence, in one line
+  actionLabel: string; // "Prepare call"
+  capability: string; // "crm.lead.prepare_follow_up"
   risk: Risk;
-  preview: { label: string; value: string }[];    // what will happen, field by field
+  preview: { label: string; value: string }[]; // what will happen, field by field
 };
 
 // Comes back from the approvals route. Never built in the browser.
 export type Receipt = {
   id: string;
   suggestionId: string; // the task it completed
-  summary: string;      // "Send waiver reminder"
-  actor: string;        // "Jamie · via Companion"
-  at: string;           // ISO time; the browser formats it as "2:14 PM"
+  summary: string; // "Send waiver reminder"
+  actor: string; // "Jamie · via Companion"
+  at: string; // ISO time; the browser formats it as "2:14 PM"
 };
 
 // What the Companion shows for one page (front desk, or one member)
 export type CompanionContext = {
+  receipts?: Receipt[]; // mock approvals already confirmed by the server
   label?: string;
   heading?: string;
   suggestions: Suggestion[];
-  records?: {id: string; label: string; detail: string; href: string}[];
-  sessions?: {sessionId: string; title: string; startsAt: string}[];
-  followUps?: {id: string; memberId: string; sessionId: string; memberName: string; summary: string; replyDraft: string; at: string; status: string; mode: string}[];
+  records?: { id: string; label: string; detail: string; href: string }[];
+  sessions?: SessionOption[];
+  followUps?: {
+    id: string;
+    memberId: string;
+    sessionId: string;
+    memberName: string;
+    summary: string;
+    replyDraft: string;
+    at: string;
+    status: string;
+    mode: string;
+  }[];
   followUpEnabled?: boolean;
   intel?: { label: string; value: string }[];
   featured?: { suggestion: Suggestion; summary: string };
@@ -41,7 +54,7 @@ export type CompanionContext = {
 // Which page the Companion is looking at. Results always go back to the
 // page they started on, never to whatever page is open when they arrive.
 export type CompanionView = {
-  key: string;             // "front-desk" or "member:5001"
+  key: string; // "front-desk" or "member:5001"
   memberId: string | null; // null on the front desk
   sessionId?: string;
 };
@@ -51,7 +64,12 @@ export type CompanionRequestBody = {
   text: string;
   memberId: string | null;
   sessionId?: string;
-  followUp?: {sessionId: string; message: string; idempotencyKey: string; correlationId: string};
+  followUp?: {
+    sessionId: string;
+    message: string;
+    idempotencyKey: string;
+    correlationId: string;
+  };
   onScreenIds: string[]; // tasks already showing, so "review the waiver" can open one
 };
 
@@ -64,8 +82,7 @@ export type CompanionRequestReply =
 // What the integration layer hands back: the route's reply, or "unavailable"
 // for anything we couldn't get or couldn't read (offline, timeout, 503)
 export type CompanionRequestAnswer =
-  | CompanionRequestReply
-  | { outcome: "unavailable" };
+  CompanionRequestReply | { outcome: "unavailable" };
 
 // POST /api/v2/companion/approvals: run one approved task
 export type ApprovalCommand = {
@@ -103,8 +120,7 @@ export type ApprovalAnswer =
   | { outcome: "notConfirmed" };
 
 export type ContextAnswer =
-  | { outcome: "loaded"; context: CompanionContext }
-  | { outcome: "unavailable" };
+  { outcome: "loaded"; context: CompanionContext } | { outcome: "unavailable" };
 
 // PROVISIONAL: not agreed yet. How long a Companion call may take before we
 // stop waiting. A timed-out approval may still have run, hence notConfirmed.
