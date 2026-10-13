@@ -90,13 +90,8 @@
 // 350ms morph in kiosk.scss). Everything else waits until it has mostly landed,
 // then fades in, the reverse of the forward pick. Back stays put, so the
 // control you just used doesn't flicker.
-.returning {
-  .heading,
-  .today,
-  .list > li:not(.landing) {
-    animation: after-morph 220ms ease-out 260ms both;
-  }
-}
+// The morph is off (it looked wrong full-screen), so coming back to the class list
+// no longer staggers the cards in either: the list just appears.
 
 @keyframes after-morph {
   from {

@@ -1,4 +1,3 @@
-import { ViewTransition } from "react";
 import type { SessionOption } from "@/contracts/kiosk-attendance";
 import { formatDuration, formatStartTime } from "@/domain/kiosk/sessionFormat";
 import styles from "./SessionCard.module.scss";
@@ -16,12 +15,8 @@ const SessionCard = ({ session, onSelect }: Props) => {
   const spokenLabel = `${session.title}, ${time} ${period}, ${duration}, ${session.instructor || 'Instructor to be confirmed'}, ${session.seatsTaken} of ${session.capacity} spots taken`;
 
   return (
-    // Same as SessionHeader on K03: tapping this card morphs it into the header
-    <ViewTransition
-      name={`session-${session.sessionId}`}
-      share="morph"
-      default="none"
-    >
+    // No morph into the header: on the full-screen kiosk the animation looked wrong
+    <>
       <button
         type="button"
         className={styles.card}
@@ -48,7 +43,7 @@ const SessionCard = ({ session, onSelect }: Props) => {
           ↗
         </span>
       </button>
-    </ViewTransition>
+    </>
   );
 };
 

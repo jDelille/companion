@@ -1,4 +1,3 @@
-import { ViewTransition } from "react";
 import type { SessionOption } from "@/contracts/kiosk-attendance";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import { formatDuration, formatStartTime } from "@/domain/kiosk/sessionFormat";
@@ -20,11 +19,7 @@ const SessionHeader = ({
   const duration = formatDuration(session.startsAt, session.endsAt);
 
   return (
-    <ViewTransition
-      name={`session-${session.sessionId}`}
-      share="morph"
-      default="none"
-    >
+    <>
       <header className={styles.header}>
         <span className={styles.time}>
           {time}
@@ -42,7 +37,7 @@ const SessionHeader = ({
           </PlainButton>
         )}
       </header>
-    </ViewTransition>
+    </>
   );
 };
 
