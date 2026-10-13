@@ -22,6 +22,10 @@ env:
     value: "true"
   - variable: DOJANG_HUB_SITE_ID
     value: "1"
+  # Parent check-in with phone + PIN on the kiosk (Jodi, 2026-10-13). Baked in at build time.
+  - variable: NEXT_PUBLIC_DOJANG_GUARDIAN_CHECKIN
+    value: "true"
+    availability: [BUILD, RUNTIME]
 
   - variable: DOJANG_COOKIE_SECRET
     secret: dojang-cookie-secret
