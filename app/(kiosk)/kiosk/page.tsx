@@ -249,14 +249,7 @@ function KioskJourney() {
           onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
           onBack={() => startTransition(() => dispatch({ type: "back" }))}
         />
-        {GUARDIAN_CHECK_IN && <GuardianCheckIn key={flow.session.sessionId} session={flow.session}
-          onFinished={() => dispatch({ type: "reset" })}
-          // A parent picks a child: continue with the normal Confirm and Result (receipt) screens
-          onChooseStudent={(memberId) => {
-            if (flow.roster.status !== "ready") return;
-            const member = flow.roster.list.find((rosterMember) => rosterMember.memberId === memberId);
-            if (member) dispatch({ type: "selectMember", member });
-          }} />}
+        {GUARDIAN_CHECK_IN && <GuardianCheckIn key={flow.session.sessionId} session={flow.session} onFinished={() => dispatch({ type: "reset" })} />}
         </>
       );
     }
