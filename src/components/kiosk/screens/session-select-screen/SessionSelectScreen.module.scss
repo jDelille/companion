@@ -32,11 +32,12 @@
     color: var(--text-secondary);
   }
 
+  // Classes as a grid of cards, like Paul's HTML kiosk
   .list {
     list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+    gap: 12px;
     margin-top: 1rem;
   }
 
