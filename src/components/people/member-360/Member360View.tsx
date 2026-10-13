@@ -6,6 +6,7 @@ import MemberGrid from "./member-grid/MemberGrid";
 import CheckInHistory from "./check-in-history/CheckInHistory";
 import { SelectMember } from "@/components/shell/selected-member/selectedMember";
 import ConnectedMemberDetails from "./ConnectedMemberDetails";
+import ConnectedWorkflowView from "@/components/ai/follow-up/ConnectedWorkflowView";
 
 type Props = {
   member: Member;
@@ -48,7 +49,8 @@ const Member360View = ({ member, attendance, liveTest = false }: Props) => {
             Progress: <ConnectedMemberDetails memberId={member.id} section="progress" />,
             Membership: <ConnectedMemberDetails memberId={member.id} section="membership" />,
             Billing: <ConnectedMemberDetails memberId={member.id} section="billing" />,
-            Messages: <ConnectedMemberDetails memberId={member.id} section="messages" />,
+            // Messages also lists this member's reviewed follow-ups (filtered by the member page)
+            Messages: <><ConnectedMemberDetails memberId={member.id} section="messages" /><ConnectedWorkflowView historyOnly embedded /></>,
             Family: <ConnectedMemberDetails memberId={member.id} section="family" />,
             Documents: <ConnectedMemberDetails memberId={member.id} section="documents" />,
             Safety: <ConnectedMemberDetails memberId={member.id} section="safety" />,

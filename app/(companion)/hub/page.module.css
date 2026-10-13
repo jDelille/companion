@@ -487,3 +487,76 @@
   padding: 0 12px;
   font-size: 12px;
 }
+
+/* ---------- Sales, VNext design (CSS only, so Jodi's Sales code stays untouched) ---------- */
+
+/* The page title already says Sales: hide the second "Sales & tasks" heading and its developer note,
+   keep "Refresh CRM" on the right */
+.root section[aria-label="CRM workspace"] > header {
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.root section[aria-label="CRM workspace"] > header h2,
+.root section[aria-label="CRM workspace"] > header + .muted {
+  display: none;
+}
+
+/* Summary numbers: the same full-width row as Today's Business pulse */
+.crmPulse {
+  gap: 0;
+  margin: 8px -24px 8px;
+  border-block: 1px solid var(--line);
+}
+.crmPulse > div,
+.crmPulse > button {
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-radius: 0;
+  padding: 22px 24px;
+  background: transparent;
+}
+.crmPulse > :last-child {
+  border-right: 0;
+}
+.crmPulse > button:hover:not(:disabled) {
+  background: var(--interactive);
+}
+.crmPulse strong {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Search: box and button on one line */
+.root section[aria-label="CRM workspace"] > form.fields {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  max-width: 720px;
+  margin-top: 20px;
+}
+
+/* Board: one fixed-width column per stage, scrolling sideways */
+.pipelineBoard {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+}
+.pipelineLane {
+  flex: 0 0 240px;
+  border-radius: var(--radius-card, 16px);
+  background: var(--panel);
+}
+.pipelineLane > header h3 {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.leadCard {
+  border-radius: var(--radius-control);
+  background: var(--raised);
+}

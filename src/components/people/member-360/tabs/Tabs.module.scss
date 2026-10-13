@@ -3,10 +3,10 @@
 .objectTabs {
   display: flex;
   gap: 4px;
-  padding: 0 2rem;
+  padding: 0 24px;
 
   @include bp.compact {
-    padding: 0 1rem;
+    padding: 0 16px;
   }
   border-bottom: 1px solid var(--dark-border);
   overflow-x: auto; // 10 tabs: scroll sideways on small screens instead of wrapping
@@ -37,11 +37,11 @@
 
 // Placeholder for a tab with no content yet, so it doesn't look broken
 .notBuilt {
-  padding: 2rem;
+  padding: 1.5rem 24px;
   font-size: 13px;
   color: var(--muted);
 
   @include bp.compact {
-    padding: 1.5rem 1rem;
+    padding: 1.5rem 16px;
   }
 }

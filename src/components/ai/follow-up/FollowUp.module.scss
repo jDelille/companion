@@ -9,6 +9,11 @@
   color: var(--text);
 }
 
+// Inside a member tab: same side padding as the member's cards
+.embedded {
+  padding: 1.25rem 24px;
+}
+
 // Small uppercase label above the title, like every page
 .kicker {
   font-family: var(--font-label);

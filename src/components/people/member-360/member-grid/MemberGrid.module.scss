@@ -4,10 +4,10 @@
   display: grid;
   grid-template-columns: 1fr; // narrow: stacked
   gap: 1rem;
-  padding: 1.25rem 2rem;
+  padding: 1.25rem 24px;
 
   @include bp.compact {
-    padding: 1rem;
+    padding: 1rem 16px;
   }
 
   @include bp.workspace-split {

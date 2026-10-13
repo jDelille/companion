@@ -19,8 +19,10 @@ const pillTone = (detail: string) =>
 
 export default function ConnectedWorkflowView({
   historyOnly = false,
+  embedded = false,
 }: {
   historyOnly?: boolean;
+  embedded?: boolean; // inside a member tab: just the follow-ups card, no page header
 }) {
   const path = usePathname();
   const [revision, setRevision] = useState(0);
@@ -50,8 +52,8 @@ export default function ConnectedWorkflowView({
   const Heading = historyOnly ? "h1" : "h2";
 
   return (
-    <section className={styles.workspace}>
-      <header className={styles.pageHeader}>
+    <section className={`${styles.workspace} ${embedded ? styles.embedded : ""}`}>
+      {!embedded && <header className={styles.pageHeader}>
         <div className={styles.pageTitles}>
           <span className={styles.kicker}>
             {historyOnly ? "Engagement · Follow-ups" : "Operations · Class roster"}
@@ -83,7 +85,7 @@ export default function ConnectedWorkflowView({
           <RefreshIcon color="currentColor" size={16} />
           Refresh
         </button>
-      </header>
+      </header>}
 
       {data === undefined ? (
         <p className={styles.notice} role="status">

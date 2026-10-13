@@ -3,11 +3,15 @@
 .identity {
   display: flex;
   width: 100%;
-  padding: 1rem;
+  padding: 1rem 24px; // sides match the top bar
+
+  @include bp.compact {
+    padding-inline: 16px;
+  }
 
   .member {
     color: var(--text);
-    padding: 1rem;
+    padding: 1rem 0;
     padding-bottom: 0;
     display: flex;
     align-items: center;
@@ -81,12 +85,12 @@
 }
 
 .memberActions {
-  padding: 1rem 2rem;
+  padding: 1rem 24px;
   border-bottom: 1px solid var(--dark-border);
   padding-bottom: 1.5rem;
 
   @include bp.compact {
-    padding-inline: 1rem;
+    padding-inline: 16px;
   }
   ul {
     list-style-type: none;
