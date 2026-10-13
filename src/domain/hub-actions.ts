@@ -3,10 +3,18 @@ export type ActionFeedback = {
   kind: 'success' | 'error' | 'uncertain';
   text: string;
   refreshWarning?: string;
+  intake?: {memberId: string; memberNumber: string};
   checkout?: {url: string; invoiceId: string; invoiceNumber: string; amount: number; currency: string};
 };
 
 const messages: Record<string, string> = {
+  INTAKE_FIELDS_REQUIRED: 'Required intake fields are missing or invalid. Choose Review new student to see exactly what needs attention.',
+  INTAKE_REVIEW_CHANGED: 'The intake changed after review. Review the current fields again before creating a student.',
+  INTAKE_DETAILS_UNAVAILABLE: 'The intake review could not be verified. Nothing is confirmed; reload the options and review again.',
+  INTAKE_SCOPE_REVIEW_REQUIRED: 'This school has more records than the bounded intake check can inspect. Ask an administrator to review the native record before creating it.',
+  DUPLICATE_STUDENT_REVIEW_REQUIRED: 'A student with this name and birth date already exists in this school, including archived records. Nothing new was created. Choose Review new student to open the existing profile.',
+  GUARDIAN_DUPLICATE_REVIEW_REQUIRED: 'That guardian contact already appears in this school. Nothing new was created. Choose Review new student to use the matching household; an archived or unlinked contact needs administrator review in Odoo.',
+  GUARDIAN_UNAVAILABLE: 'The selected guardian or household is no longer available in this school. Refresh and select the exact verified relationship again.',
   HUB_NOT_CONFIGURED: 'The hub connection has not been configured on this deployment.',
   SIGN_IN_REQUIRED: 'Sign in with your Odoo account.',
   SIGN_IN_FAILED_OR_MFA_REQUIRED: 'Sign-in failed. Check your credentials. This hub login does not yet support accounts requiring MFA.',
@@ -65,7 +73,7 @@ export function replacementBlockReason(original: {startsAt: string; future: bool
 
 /** Do not turn an acknowledged write into a failure when its follow-up read fails. */
 export async function runHubAction(
-  send: () => Promise<{enrollmentId?: unknown; checkoutUrl?: string; invoiceId?: string; invoiceNumber?: string; amount?: number; currency?: string; state?: string}>,
+  send: () => Promise<{enrollmentId?: unknown; memberId?: string; memberNumber?: string; checkoutUrl?: string; invoiceId?: string; invoiceNumber?: string; amount?: number; currency?: string; state?: string}>,
   refresh: () => Promise<void>,
   onAcknowledged: (feedback: ActionFeedback) => void,
 ): Promise<ActionFeedback> {
@@ -83,10 +91,12 @@ export async function runHubAction(
     kind: 'success',
     text: result.checkoutUrl ? 'Secure invoice checkout is ready. Payment has not been submitted.' :
       result.state==='ai_enabled' ? 'Live AI drafting passed the connection check and is enabled for this school.' :
+      result.state==='student_created' ? `Student profile created in Odoo. Member number: ${result.memberNumber}. No membership, trial booking, portal access or message was created.` :
       result.state==='clocked_in' ? 'Clock-in confirmed in Odoo.' :
       result.state==='clocked_out' ? 'Clock-out confirmed in Odoo.' :
       result.state==='timesheet_corrected' ? 'Timesheet correction confirmed in Odoo. Payroll has not been approved.' :
       result.enrollmentId ? `Registration saved in Odoo. Receipt: ${result.enrollmentId}.` : 'Saved in Odoo.',
+    ...(result.state==='student_created' && result.memberId && result.memberNumber ? {intake:{memberId:result.memberId,memberNumber:result.memberNumber}} : {}),
     ...(result.checkoutUrl && result.invoiceId && result.invoiceNumber && typeof result.amount==='number' && result.currency ?
       {checkout:{url:result.checkoutUrl,invoiceId:result.invoiceId,invoiceNumber:result.invoiceNumber,amount:result.amount,currency:result.currency}} : {}),
   };

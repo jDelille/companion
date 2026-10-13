@@ -28,6 +28,7 @@ export default function MemberDirectory({
           <h1>Your people.</h1>
           <p>Find a familiar face. See their story. Take the next step.</p>
         </div>
+        <Link href="/hub?view=intake">New student →</Link>
       </header>
       <input
         className={styles.search}

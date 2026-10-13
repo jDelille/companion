@@ -6,8 +6,8 @@ type Config = {origin:string; backend:string; database:string; siteId:string; se
 const cookieName = 'dojang_hub_session';
 const responseHeaders = {'cache-control':'private, no-store', vary:'Cookie'};
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const reads = new Set(['context','member_details','member_workspace','crm_context','lead_details','ai_settings','instructor_context','operations_report','session_roster']);
-const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai','add_lead_note','prepare_lead_action','assign_lead','instructor_clock','correct_timesheet']);
+const reads = new Set(['context','member_details','member_workspace','crm_context','lead_details','ai_settings','instructor_context','operations_report','session_roster','intake_context','intake_preview']);
+const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai','add_lead_note','prepare_lead_action','assign_lead','instructor_clock','correct_timesheet','create_student']);
 const reject = (code:string,status=400) => Response.json({error:{code,status}},{status,headers:responseHeaders});
 
 export function hubConfig(env: NodeJS.ProcessEnv): Config {
@@ -128,6 +128,12 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
         (expected==='clocked_in'?shift.checkOut!==null:typeof shift.checkOut!=='string'||!Number.isFinite(Date.parse(shift.checkOut)))||
         (operation==='correct_timesheet'&&shift.id!==data.payload.shiftId)||
         (operation==='instructor_clock'&&data.payload.direction==='out'&&shift.id!==data.payload.currentShiftId))return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);
+    }
+    if(operation==='create_student'){
+      if(result.state!=='student_created'||typeof result.memberId!=='string'||!(/^[1-9][0-9]{0,9}$/).test(result.memberId)||
+        typeof result.memberNumber!=='string'||!result.memberNumber||typeof result.replayed!=='boolean'||
+        result.subscriptionCreated!==false||result.enrollmentCreated!==false||result.portalAccessGranted!==false||result.messageSent!==false)
+        return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);
     }
     if(operation==='payment_link'){
       // Never let backend data navigate the browser to a different origin or
