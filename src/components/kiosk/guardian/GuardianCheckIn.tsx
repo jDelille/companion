@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { SessionOption } from "@/contracts/kiosk-attendance";
 import { guardianCheckIn, newGuardianCommand, verifyGuardian, type GuardianCommand, type GuardianVerified } from "@/integrations/guardian";
 import styles from "./GuardianCheckIn.module.scss";
+import Avatar from "@/components/primitives/avatar/Avatar";
 
 type Outcome = { text: string; retry?: GuardianCommand };
 
@@ -37,7 +38,7 @@ export default function GuardianCheckIn({ session }: { session: SessionOption })
       : answer.kind === "problem" ? { text: answer.title }
       : { text: `We could not confirm ${student}'s check-in.`, retry: command } }));
   }
-  if (!open) return <div className={styles.panel}><button onClick={() => setOpen(true)}>Parent check-in with phone and PIN</button></div>;
+  if (!open) return <div className={styles.start}><button onClick={() => setOpen(true)}>Parent check-in with phone and PIN</button></div>;
   return <section className={styles.panel} aria-label="Parent check-in">
     {!verified ? <>
       <p>Enter the phone number the school has for you and your 6-digit kiosk PIN. Only your own children are shown.</p>
@@ -49,7 +50,7 @@ export default function GuardianCheckIn({ session }: { session: SessionOption })
     </> : <>
       <p>Hello {verified.guardian}. Choose who is here for {session.title}.</p>
       {verified.students.map(s => <div key={s.memberId} className={styles.student} role="group" aria-label={`Student ${s.displayName}`}>
-        <strong>{s.displayName}</strong>
+        <span className={styles.who}><Avatar name={s.displayName} /><strong>{s.displayName}</strong></span>
         {outcomes[s.memberId] ? <span role="status">{outcomes[s.memberId].text}</span> : null}
         {!s.onRoster ? <span>Not booked in this class. Please see the front desk.</span>
           : s.attendanceState !== "pending" ? <span>Already recorded.</span>
