@@ -11,7 +11,8 @@ type ReceiptLine = { memberId: string; name: string; text: string };
 const RECEIPT_SECONDS = 10; // the receipt returns to Welcome on its own after this
 
 // onFinished: the kiosk's privacy reset (clear everything, back to Welcome), same as Done after a normal check-in
-export default function GuardianCheckIn({ session, onFinished }: { session: SessionOption; onFinished?: () => void }) {
+// onChooseStudent: hand the chosen child to the normal kiosk flow (Confirm, then the Result receipt)
+export default function GuardianCheckIn({ session, onFinished, onChooseStudent }: { session: SessionOption; onFinished?: () => void; onChooseStudent?: (memberId: string) => void }) {
   const [open, setOpen] = useState(false), [phone, setPhone] = useState(""), [pin, setPin] = useState("");
   const [verified, setVerified] = useState<GuardianVerified | null>(null), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
   const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({});
@@ -84,6 +85,8 @@ export default function GuardianCheckIn({ session, onFinished }: { session: Sess
         <span className={styles.who}><Avatar name={s.displayName} /><strong>{s.displayName}</strong></span>
         {outcomes[s.memberId] ? <span role="status">{outcomes[s.memberId].text}</span> : null}
         {!s.onRoster ? <span>Not booked in this class. Please see the front desk.</span>
+          // Normal flow: Confirm, then the Result receipt (it says "already checked in" when it is)
+          : onChooseStudent ? <button disabled={busy} onClick={() => onChooseStudent(s.memberId)}>Continue with {s.displayName}</button>
           : s.attendanceState !== "pending" ? <span>Already recorded.</span>
           : !outcomes[s.memberId] || outcomes[s.memberId].retry ? <button disabled={busy} onClick={() => void checkIn(s.memberId, outcomes[s.memberId]?.retry)}>{outcomes[s.memberId]?.retry ? `Try ${s.displayName} again` : `Check in ${s.displayName}`}</button> : null}
       </div>)}
