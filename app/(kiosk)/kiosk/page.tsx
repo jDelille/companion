@@ -31,6 +31,7 @@ import type { SessionOption } from "@/contracts/kiosk-attendance";
 import { checkIn, getRoster, getSessions } from "@/integrations/kiosk";
 
 const GUARDIAN_CHECK_IN = process.env.NEXT_PUBLIC_DOJANG_GUARDIAN_CHECKIN === "true";
+const ROSTER_GRID = process.env.NEXT_PUBLIC_DOJANG_KIOSK_ROSTER_GRID === "true";
 
 export default function KioskPage() {
   return <PublicModeGate><KioskJourney /></PublicModeGate>;
@@ -248,6 +249,7 @@ function KioskJourney() {
           }
           onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
           onBack={() => startTransition(() => dispatch({ type: "back" }))}
+          roster={ROSTER_GRID ? (flow.roster.status === "ready" ? flow.roster.list : []) : undefined}
         />
         {GUARDIAN_CHECK_IN && <GuardianCheckIn key={flow.session.sessionId} session={flow.session} onFinished={() => dispatch({ type: "reset" })} />}
         </>

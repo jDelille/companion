@@ -87,3 +87,79 @@
     font-size: var(--text-md);
   }
 }
+
+.grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 12px; // same gap as the other kiosk cards
+  margin-top: 1.5rem;
+}
+
+.tile {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--interactive); // a readable pill, like the other status pills
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: var(--text-sm, 0.85rem);
+  pointer-events: none;
+}
+
+/* ---------- Tap-your-name grid, laid out like Paul's HTML kiosk ----------
+   Each tile: a large avatar circle, the name centred under it; checked-in students get a
+   green border and a green "Checked in" pill. Doc token colours only. */
+.grid {
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+}
+
+.tile > button {
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  min-height: 170px;
+  padding: 20px 12px 40px;
+  text-align: center;
+
+  // the avatar circle, larger
+  > span:first-child {
+    width: 72px;
+    height: 72px;
+    font-size: var(--text-lg);
+  }
+
+  // no arrow on a tile: the whole tile is the button
+  > span:last-child {
+    display: none;
+  }
+}
+
+// Already checked in: green border on the tile
+.tile:has(.badge) > button {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 8%, var(--panel));
+}
+
+// "Checked in" pill: green, under the name
+.tile .badge {
+  top: auto;
+  right: auto;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--success);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

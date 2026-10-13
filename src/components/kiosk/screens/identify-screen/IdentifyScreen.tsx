@@ -21,6 +21,7 @@ type Props = {
   onChangeSession: () => void;
   onStaffHelp: () => void; // "no match -> offer search / call staff" (Miro 13)
   onBack: () => void;
+  roster?: RosterMember[];
 };
 
 // K03: find your name in the selected class. Nobody is listed until you type,
@@ -36,6 +37,7 @@ const IdentifyScreen = ({
   onChangeSession,
   onStaffHelp,
   onBack,
+  roster,
 }: Props) => {
   const searchField = useRef<HTMLInputElement>(null);
   const canSearch = rosterStatus !== "unavailable";
@@ -44,8 +46,12 @@ const IdentifyScreen = ({
   // after Try again recovers, so nobody has to tap it first. Focusing also
   // opens the on-screen keyboard, which is what this screen is for.
   useEffect(() => {
-    if (canSearch) searchField.current?.focus();
-  }, [canSearch]);
+    if (canSearch && !roster) searchField.current?.focus();
+  }, [canSearch, roster]);
+  const filter = query.trim().toLocaleLowerCase();
+  const tiles = (roster ?? [])
+    .filter((member) => !filter || member.displayName.toLocaleLowerCase().startsWith(filter))
+    .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   return (
     <div className={styles.screen}>
@@ -61,7 +67,7 @@ const IdentifyScreen = ({
           never slides over the heading and search field */}
       <div className={styles.body}>
         <h1 id="find-your-name" className={styles.heading}>
-          Find your name
+          {roster ? "Tap your name" : "Find your name"}
         </h1>
 
         <input
@@ -70,7 +76,7 @@ const IdentifyScreen = ({
           type="text"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Start typing your first name"
+          placeholder={roster ? "Type to filter names" : "Start typing your first name"}
           aria-labelledby="find-your-name"
           disabled={!canSearch}
           autoComplete="off"
@@ -97,7 +103,26 @@ const IdentifyScreen = ({
             />
           )}
 
-          {rosterStatus === "ready" && search.status === "noMatch" && (
+          {roster && rosterStatus === "ready" && (tiles.length ? (
+            <ul className={styles.grid} aria-label="Students in this class">
+              {tiles.map((member) => (
+                <li key={member.memberId} className={styles.tile}>
+                  <SearchResult candidate={member} onSelect={() => onSelectMember(member)} />
+                  {member.attendanceState === "present" && <span className={styles.badge}>Checked in</span>}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <StatusMessage
+              message={roster.length ? "No names match that filter." : `No students are booked in ${session.title} yet.`}
+              actions={[
+                { label: "Change class", onClick: onChangeSession },
+                { label: "Get help from staff", onClick: onStaffHelp },
+              ]}
+            />
+          ))}
+
+          {!roster && rosterStatus === "ready" && search.status === "noMatch" && (
             <StatusMessage
               message={`We couldn't find that name in ${session.title}.`}
               detail="Check the spelling, or get help from staff."
@@ -108,7 +133,7 @@ const IdentifyScreen = ({
             />
           )}
 
-          {rosterStatus === "ready" && search.status === "found" && (
+          {!roster && rosterStatus === "ready" && search.status === "found" && (
             <ul className={styles.matches} aria-label="Matching names">
               {search.matches.map((member) => (
                 <li key={member.memberId}>

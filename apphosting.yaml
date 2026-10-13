@@ -26,6 +26,10 @@ env:
   - variable: NEXT_PUBLIC_DOJANG_GUARDIAN_CHECKIN
     value: "true"
     availability: [BUILD, RUNTIME]
+  # Tap-your-name grid on the kiosk (Jodi PR #41). Baked in at build time.
+  - variable: NEXT_PUBLIC_DOJANG_KIOSK_ROSTER_GRID
+    value: "true"
+    availability: [BUILD, RUNTIME]
 
   - variable: DOJANG_COOKIE_SECRET
     secret: dojang-cookie-secret
