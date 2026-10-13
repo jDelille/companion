@@ -5,7 +5,7 @@ import Link from "@/components/primitives/AppLink";
 import { getCompanionContext } from "@/integrations/companion";
 import type { CompanionContext } from "@/domain/companion";
 import styles from "./FollowUp.module.scss";
-import { PersonName } from "@/components/primitives/avatar/Avatar";
+import Avatar, { PersonName } from "@/components/primitives/avatar/Avatar";
 import RefreshIcon from "@/icons/RefreshIcon";
 import { ChevronRightIcon } from "@/icons";
 
@@ -140,6 +140,11 @@ export default function ConnectedWorkflowView({
           <section className={styles.section}>
             <header className={styles.sectionHeader}>
               <h3 className={styles.sectionLabel}>Reviewed follow-ups</h3>
+              {!!data.followUps?.length && (
+                <span className={styles.sectionCount}>
+                  {data.followUps.length} saved
+                </span>
+              )}
             </header>
             {!data.followUps?.length ? (
               <p className={styles.empty}>
@@ -151,14 +156,17 @@ export default function ConnectedWorkflowView({
               <ul className={styles.itemList}>
                 {data.followUps.map((f) => (
                   <li key={f.id} className={styles.followUpItem}>
-                    {/* Name and its date/status read as one header */}
+                    {/* Avatar + name on the left, date and status on the right */}
                     <div className={styles.followUpHeader}>
-                      <Link
-                        href={`/people/${f.memberId}`}
-                        className={styles.itemTitle}
-                      >
-                        {f.memberName}
-                      </Link>
+                      <span className={styles.followUpWho}>
+                        <Avatar name={f.memberName} />
+                        <Link
+                          href={`/people/${f.memberId}`}
+                          className={styles.itemTitle}
+                        >
+                          {f.memberName}
+                        </Link>
+                      </span>
                       <div className={styles.metaRow}>
                         <span className={styles.meta}>
                           {new Date(f.at).toLocaleString()}

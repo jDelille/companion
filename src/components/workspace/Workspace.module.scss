@@ -6,6 +6,13 @@
   width: 100%;
   padding: 52px 44px 48px;
 }
+
+// A footer link under a page section: 24px below it (cancels most of the section's 56px bottom padding)
+.pageFooter {
+  width: 100%;
+  margin-top: -32px;
+  padding: 0 24px 56px;
+}
 .eyebrow {
   font-size: 10px;
   font-weight: 650;

@@ -14,15 +14,16 @@ const ModalActions = ({ confirmLabel, askAILabel, onConfirm, onCancel, askAI }: 
     <button type="button" className={styles.cancel} onClick={onCancel}>
       Cancel
     </button>
-    <button type="button" className={styles.confirm} onClick={onConfirm}>
-      {confirmLabel}
-    </button>
     {askAI && (
       // same look as Cancel
       <button type="button" className={styles.cancel} onClick={askAI}>
         {askAILabel}
       </button>
     )}
+    {/* The main action is last, on the right */}
+    <button type="button" className={styles.confirm} onClick={onConfirm}>
+      {confirmLabel}
+    </button>
   </div>
 );
 

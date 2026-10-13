@@ -45,8 +45,11 @@ export default function MemberGrid({
   return (
     <div className={styles.memberGrid}>
       <article>
-        <span className={styles.label}>Member story</span>
-        <h2 className={styles.headline}>{storyHeadline(member, attendance)}</h2>
+        {/* Card header: label + the one-sentence story, with a line under it */}
+        <header className={styles.cardHeader}>
+          <span className={styles.label}>Member story</span>
+          <h2 className={styles.headline}>{storyHeadline(member, attendance)}</h2>
+        </header>
         <StatList
           stats={[
             { label: "Check-ins (7 days)", value: attendance.lastSevenDays },
@@ -65,10 +68,8 @@ export default function MemberGrid({
                 <strong>
                   <LocalTime iso={checkIn.checkedInAt} />
                 </strong>
-                <span>
-                  {checkIn.sessionTitle}
-                  {checkIn.late && " · Late"}
-                </span>
+                <span>{checkIn.sessionTitle}</span>
+                {checkIn.late && <em className={styles.latePill}>Late</em>}
               </li>
             ))}
           </ul>
@@ -78,7 +79,9 @@ export default function MemberGrid({
       </article>
 
       <article>
-        <span className={styles.label}>Membership</span>
+        <header className={styles.cardHeader}>
+          <span className={styles.label}>Membership</span>
+        </header>
         <StatList
           stats={[
             { label: "Status", value: `${membershipLabel(member)} membership` },

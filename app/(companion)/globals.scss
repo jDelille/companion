@@ -50,9 +50,9 @@ ul {
   align-items: center;
   justify-content: space-between;
   margin-block: 4px;
-  padding: 14px 16px 14px 22px;
+  padding: 14px 16px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control); // same corners as every other button
   background: var(--raised);
   color: var(--text);
   font-size: 14px;

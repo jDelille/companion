@@ -260,30 +260,91 @@
 // Desktop: a fixed-width sidebar so it doesn't change size with the labels
 .connectedNav {
   flex-direction: column;
-  width: 140px;
+  flex-shrink: 0;
+  width: 188px;
   overflow-y: auto;
   scrollbar-width: none;
   height: 100%;
-  padding: 20px 8px;
+  padding: 20px 12px;
+  gap: 2px;
   border-right: 1px solid var(--dark-border);
 
-  // A little less inner padding so "Follow-ups" still fits on one line
   a {
-    padding: 0 10px;
+    padding: 0 12px;
+    font-size: 13px;
   }
 }
 
-// Phones: bottom bar, links spread evenly
+// Phones: bottom bar, links spread evenly, a little taller for thumbs
 .connectedBottomNav {
   justify-content: space-around;
-  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
   border-top: 1px solid var(--dark-border);
 
   a {
     flex: 1;
     justify-content: center;
+    min-height: 48px;
+  }
+}
+
+// "⋯" at the end of the bottom bar: opens the rest of the pages
+.moreButton {
+  display: flex;
+  flex: 0 0 48px;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+
+  &:hover,
+  &[aria-current="page"] {
+    background: var(--raised);
+    color: var(--text);
   }
 
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// The pages inside the "More pages" sheet: one row each, with lines between
+.moreList {
+  display: grid;
+
+  a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 52px;
+    padding: 0 4px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+
+    span {
+      color: var(--text-secondary);
+    }
+
+    &:last-child {
+      border-bottom: 0;
+      color: var(--text-secondary);
+    }
+
+    &[aria-current="page"] {
+      font-weight: 700;
+    }
+  }
 }
 .connectedHeader {
   display: flex;
@@ -293,6 +354,12 @@
   padding: 16px 24px;
   color: var(--text);
   border-bottom: 1px solid var(--dark-border);
+
+  // Phones: same 16px sides as the page content below
+  @include bp.compact {
+    padding: 12px 16px;
+  }
+
   div {
     display: flex;
     flex-wrap: wrap;
@@ -309,12 +376,15 @@
   @include bp.below-expanded {
     display: block;
     flex-shrink: 0;
-    padding: 8px;
-    min-height: 44px;
-    border: 1px solid var(--dark-border);
-    border-radius: 8px;
-    background: var(--panel);
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
     color: var(--text);
+    font: inherit;
+    font-size: 12px; // small, like the other top bar text
+    font-weight: 600;
     cursor: pointer;
   }
 }
@@ -350,35 +420,72 @@
 
 /* ---------- Added after the VNext build (kept from the current app) ---------- */
 
-// Navigation extras: text-only like the rest of the menu
-.navSymbol,
-.brandMark {
+// Navigation links are text only (icons stay hidden)
+.navSymbol {
   display: none;
 }
 
-.wordmark {
+// Logo, as on monday-release: red "D." circle + DOJANG / COMPANION
+.connectedNav .wordmark {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin: 0 10px 16px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  min-height: 0;
+  margin: 0 0 24px;
+  padding: 0 4px;
   color: var(--text);
-  font-size: 0.8125rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
   text-decoration: none;
+
+  &:hover {
+    background: none;
+  }
 
   small {
     display: block;
-    color: var(--muted);
-    font-size: 0.625rem;
-    font-weight: 600;
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
   }
 }
 
+.brandMark {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: var(--text);
+  font-size: 26px;
+  letter-spacing: -0.1em;
+
+  span {
+    font-size: 20px;
+  }
+}
+
+// Kiosk link: its own footer at the bottom, with a line above it
 .connectedNav .kioskLink {
+  justify-content: space-between;
   margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
   color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: 12px;
+
+  &:hover {
+    background: none;
+    color: var(--text);
+  }
 }
 
 // Section links under the workspace guide

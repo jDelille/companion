@@ -18,7 +18,7 @@
   padding: 0.625rem 0.75rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
-  background: var(--panel);
+  background: var(--raised); // same as every input in the app
   color: var(--text);
   font-size: var(--text-sm);
   cursor: pointer;

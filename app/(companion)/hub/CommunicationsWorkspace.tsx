@@ -2,6 +2,7 @@
 
 import {useEffect,useRef,useState} from 'react';
 import {explainHubError,type ActionFeedback} from '@/domain/hub-actions';
+import {PersonName} from '@/components/primitives/avatar/Avatar';
 import styles from './page.module.css';
 import intakeStyles from './intake.module.css';
 
@@ -16,6 +17,7 @@ type Review={operation:string;payload:Record<string,unknown>;lines:string[]};
 type Props={members:{id:string;name:string}[];busy:boolean;locked:boolean;feedback?:ActionFeedback;clearFeedback:()=>void;
   retry?:()=>Promise<ActionFeedback|undefined>;act:(operation:string,payload:Record<string,unknown>)=>Promise<ActionFeedback|undefined>};
 const REASONS:Record<string,string>={no_contact:'No address for this channel',opted_out:'Opted out',no_marketing_consent:'No marketing consent',consent_or_contact_changed:'Consent or contact changed before approval',cancelled:'Cancelled'};
+const AUTOMATIONS_SHOWN=5; // how many automations show before "Show all"
 const PROVIDER:Record<string,string>={not_configured:'No messaging provider is connected. Approved messages stay queued and nothing is sent.',configured_not_exercised:'A provider is configured but not yet proven. Messages count as sent only when the provider confirms.'};
 async function read(operation:string,payload:Record<string,unknown>){
   const response=await fetch('/api/hub',{method:'POST',cache:'no-store',headers:{'content-type':'application/json'},body:JSON.stringify({operation,payload,requestKey:null})});
@@ -30,6 +32,8 @@ export default function CommunicationsWorkspace({members,busy,locked,feedback,cl
   const [reasons,setReasons]=useState<Record<string,string>>({});
   const [memberId,setMemberId]=useState(''),[contacts,setContacts]=useState<Contact[]|null>(null),[consent,setConsent]=useState<Record<string,{channel:string;purpose:string;state:string;source:string;evidence:string}>>({});
   const [automations,setAutomations]=useState<{automations:Automation[];canManage:boolean}|null>(null);
+  // Show the first few automations; the rest open with "Show all"
+  const [showAllAutomations,setShowAllAutomations]=useState(false);
   const [review,setReview]=useState<Review|null>(null),[confirmed,setConfirmed]=useState(false);
   const inFlight=useRef(false),reviewRef=useRef<HTMLDivElement>(null);
   const blocked=busy||locked;
@@ -62,7 +66,11 @@ export default function CommunicationsWorkspace({members,busy,locked,feedback,cl
   const form=(id:string)=>consent[id]||{channel:'sms',purpose:'marketing',state:'granted',source:'paper_form',evidence:''};
   return <section aria-label="Messaging and consent">
     <div className={styles.card}><h2>Messages, consent and automations.</h2><p>Broadcasts are reviewed, frozen to a consented audience and approved before anything is queued. Consent is recorded with its source and kept as history.</p>
-      {context&&<p className={styles.muted}>{PROVIDER[context.provider]} Quiet hours {context.quietHours.start}:00–{context.quietHours.end}:00 ({context.quietHours.timeZone}): approvals inside them are scheduled for {context.quietHours.end}:00.</p>}</div>
+      {context&&<div className={styles.warningBox} role="status"><i aria-hidden="true">!</i><div>
+        {/* The provider sentence is the title; the rest and the quiet hours go under it */}
+        <strong>{PROVIDER[context.provider].split('. ')[0].replace(/\.$/,'')}</strong>
+        <p>{PROVIDER[context.provider].split('. ').slice(1).join('. ')} Quiet hours {context.quietHours.start}:00–{context.quietHours.end}:00 ({context.quietHours.timeZone}): approvals inside them are scheduled for {context.quietHours.end}:00.</p>
+      </div></div>}</div>
     {error&&<p role="alert" className={styles.card}>{error}</p>}
     <div className={styles.card} role="region" aria-label="Broadcast">
       <h2>New broadcast</h2>
@@ -72,7 +80,11 @@ export default function CommunicationsWorkspace({members,busy,locked,feedback,cl
         <label>Purpose<select aria-label="Purpose" value={draft.purpose} disabled={blocked} onChange={e=>setDraftField('purpose',e.target.value)}><option value="service">Service notice (classes, closures)</option><option value="marketing">Marketing (needs consent)</option></select></label>
         <label>Audience<select aria-label="Audience" value={draft.audience} disabled={blocked} onChange={e=>setDraftField('audience',e.target.value)}><option value="">Choose</option>{context.audiences.map(a=><option key={a.id} value={a.id}>{a.label}</option>)}</select></label>
         <label>Message<textarea aria-label="Message" value={draft.body} maxLength={draft.channel==='email'?5000:1000} disabled={blocked} onChange={e=>setDraftField('body',e.target.value)}/></label>
-        <button disabled={blocked||!draft.audience||!draft.body.trim()} onClick={()=>void loadPreview()}>Preview audience</button>
+        <small className={styles.charCount}>{draft.body.length} characters</small>
+        <div className={styles.formActions}>
+          <button disabled={blocked||!draft.audience||!draft.body.trim()} onClick={()=>void loadPreview()}>Preview audience</button>
+          {(!draft.audience||!draft.body.trim())&&<p>Add an audience and message to preview.</p>}
+        </div>
       </div>}
       {preview&&<div role="region" aria-label="Broadcast preview">
         <p>{preview.recipientCount} recipients in {preview.audience}.</p>
@@ -101,11 +113,19 @@ export default function CommunicationsWorkspace({members,busy,locked,feedback,cl
       <h2>Consent</h2>
       <label className={styles.fields}>Student<select aria-label="Student for consent" value={memberId} disabled={blocked} onChange={e=>{setMemberId(e.target.value);setContacts(null);}}>
         <option value="">Choose a student</option>{members.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}</select></label>
-      {contacts?.map(c=>{const f=form(c.partnerId);const set=(k:string,v:string)=>setConsent(s=>({...s,[c.partnerId]:{...f,[k]:v}}));return <div key={c.partnerId} className={styles.auditEntry} role="group" aria-label={`Consent for ${c.name}`}>
-        <strong>{c.name}{c.student?' (student)':''}</strong>
-        {c.channels.map(ch=><p key={ch.channel}>{ch.channel.toUpperCase()} {ch.address||'no address'} · service {ch.service||'not recorded'} · marketing {ch.marketing||'not recorded'}{ch.nativeOptOut?' · opted out in Odoo':''}</p>)}
-        {c.history.map((h,i)=><small key={i}>{h.by} recorded {h.channel} {h.purpose} {h.state} ({h.source}) · {new Date(h.at).toLocaleString()} · {h.evidence}</small>)}
-        <div className={styles.row}>
+      {contacts?.map(c=>{const f=form(c.partnerId);const set=(k:string,v:string)=>setConsent(s=>({...s,[c.partnerId]:{...f,[k]:v}}));return <div key={c.partnerId} className={styles.consentContact} role="group" aria-label={`Consent for ${c.name}`}>
+        {/* Who: avatar + name (+ Student) */}
+        <div className={styles.consentHead}><PersonName name={c.name} size="medium"/>{c.student&&<span className={styles.statusPill}>Student</span>}</div>
+        {/* One line per channel: name · address · service and marketing consent */}
+        <ul className={styles.consentChannels}>{c.channels.map(ch=><li key={ch.channel}>
+          <span className={styles.channelName}>{ch.channel.toUpperCase()}</span>
+          <span className={styles.channelAddress}>{ch.address||'No address'}</span>
+          <span className={styles.statusPill} data-status={ch.service||'none'}>Service: {ch.service||'not recorded'}</span>
+          <span className={styles.statusPill} data-status={ch.marketing||'none'}>Marketing: {ch.marketing||'not recorded'}</span>
+          {ch.nativeOptOut&&<span className={styles.statusPill}>Opted out in Odoo</span>}
+        </li>)}</ul>
+        {c.history.length>0&&<div className={styles.consentHistory}><small className={styles.consentLabel}>History</small>{c.history.map((h,i)=><small key={i}>{h.by} recorded {h.channel} {h.purpose} {h.state} ({h.source}) · {new Date(h.at).toLocaleString()} · {h.evidence}</small>)}</div>}
+        <div className={`${styles.row} ${styles.consentForm}`}>
           <label>Channel<select aria-label={`Consent channel for ${c.name}`} value={f.channel} disabled={blocked} onChange={e=>set('channel',e.target.value)}><option value="sms">SMS</option><option value="email">Email</option><option value="whatsapp">WhatsApp</option></select></label>
           <label>Purpose<select aria-label={`Consent purpose for ${c.name}`} value={f.purpose} disabled={blocked} onChange={e=>set('purpose',e.target.value)}><option value="marketing">Marketing</option><option value="service">Service notices</option></select></label>
           <label>Decision<select aria-label={`Consent decision for ${c.name}`} value={f.state} disabled={blocked} onChange={e=>set('state',e.target.value)}><option value="granted">Granted</option><option value="withdrawn">Withdrawn</option></select></label>
@@ -119,15 +139,20 @@ export default function CommunicationsWorkspace({members,busy,locked,feedback,cl
     <div className={styles.card} role="region" aria-label="Automations">
       <h2>Automations</h2>
       <p className={styles.muted}>Native Odoo rules and scheduled jobs from the dojo modules. Pausing stops them from running until resumed. Only an owner can pause or resume.</p>
-      {automations?.automations.map(a=><div key={a.id} className={styles.auditEntry} role="group" aria-label={`Automation ${a.name}`}>
-        <strong>{a.name} · {a.active?'running':'paused'}</strong>
-        <p>{a.kind} · {a.module} · {a.model} · {a.trigger}{a.nextRun?` · next ${new Date(a.nextRun).toLocaleString()}`:''}{a.sendsMessages?' · sends messages':''}</p>
+      {automations?.automations.slice(0,showAllAutomations?undefined:AUTOMATIONS_SHOWN).map(a=><div key={a.id} className={`${styles.auditEntry} ${styles.automationRow}`} role="group" aria-label={`Automation ${a.name}`}>
+        {/* Name + Running/Paused, detail chips under it, next run on the right */}
+        <div>
+          <div className={styles.automationTitle}><strong>{a.name}</strong><span className={styles.statusPill} data-status={a.active?'running':'paused'}>{a.active?'Running':'Paused'}</span></div>
+          <ul className={styles.chips} aria-label="Details"><li>{a.kind}</li><li>{a.module}</li><li>{a.model}</li><li>{a.trigger}</li>{a.sendsMessages&&<li>Sends messages</li>}</ul>
+        </div>
+        {a.nextRun&&<div className={styles.nextRun}><small>Next</small><span>{new Date(a.nextRun).toLocaleString()}</span></div>}
         {automations.canManage&&<div className={styles.row}>
           <label>Reason<input aria-label={`Reason for ${a.name}`} value={reasons[a.id]||''} maxLength={500} disabled={blocked} onChange={e=>setReasons(r=>({...r,[a.id]:e.target.value}))}/></label>
           <button disabled={blocked||!(reasons[a.id]||'').trim()} onClick={()=>open({operation:'set_automation_active',payload:{automationId:a.id,active:!a.active,expectedVersion:a.version,reason:(reasons[a.id]||'').trim()},
             lines:[`${a.active?'Pause':'Resume'} ${a.name}.`,a.active?'It will not run until an owner resumes it.':'It will run again on its native trigger.']})}>{a.active?'Review pause':'Review resume'}</button>
         </div>}
       </div>)}
+      {automations&&automations.automations.length>AUTOMATIONS_SHOWN&&<button className={styles.showAll} aria-expanded={showAllAutomations} onClick={()=>setShowAllAutomations(v=>!v)}>{showAllAutomations?'Show fewer':`Show all ${automations.automations.length} automations`}</button>}
     </div>
     <div ref={reviewRef} tabIndex={-1} className={intakeStyles.result}>
       {review&&<div className={styles.card} aria-label="Review communications action"><h2>Review before saving</h2>

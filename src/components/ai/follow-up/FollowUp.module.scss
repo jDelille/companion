@@ -274,11 +274,20 @@ a.itemTitle:hover {
   text-underline-offset: 4px;
 }
 
-// Name + date/status: tight, so they read as the card's header
+// Avatar + name on the left, date and status on the right
 .followUpHeader {
   display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.followUpWho {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
 }
 
 // No default paragraph margin inside the draft toggle
@@ -298,13 +307,14 @@ a.itemTitle:hover {
   color: var(--text-secondary);
 }
 
-// Saved state from Odoo, e.g. "Saved internally; not sent"
+// Saved state from Odoo, e.g. "Saved internally; not sent": same pill as the rest of the app
 .statusBadge {
-  padding: 0.25rem 0.7rem;
+  padding: 2px 10px;
+  border: 1px solid color-mix(in srgb, var(--success) 40%, transparent);
   border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--success) 14%, transparent);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
   color: var(--success);
-  font-size: 0.6875rem;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -458,7 +468,7 @@ a.itemTitle:hover {
     padding: 0.625rem 0.75rem;
     border: 1px solid var(--line);
     border-radius: var(--radius-control);
-    background: var(--panel);
+    background: var(--raised); // same as every input in the app
     color: var(--text);
     font: inherit;
     font-size: var(--text-sm);
@@ -616,4 +626,19 @@ a.itemTitle:hover {
 // "3 MEMBERS" sits close to its list (the page puts 24px between blocks)
 .sectionLabel + .memberList {
   margin-top: -14px;
+}
+
+/* Follow-ups rows: the summary and draft line up under the name, past the avatar */
+.followUpItem > .summary,
+.followUpItem > .draft,
+.followUpItem > .rosterLink {
+  margin-left: 48px;
+}
+
+@media (max-width: 600px) {
+  .followUpItem > .summary,
+  .followUpItem > .draft,
+  .followUpItem > .rosterLink {
+    margin-left: 0;
+  }
 }

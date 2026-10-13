@@ -7,6 +7,8 @@ import { headers } from "next/headers";
 import { odooRoute, odooTestMode } from "@/server/odoo-runtime";
 import { InfoIcon } from "@/icons";
 import styles from "@/components/people/member-360/Member360View.module.scss";
+import pageStyles from "@/components/ai/follow-up/FollowUp.module.scss";
+import Link from "@/components/primitives/AppLink";
 export const dynamic = "force-dynamic";
 
 // Hidden for the VNext design. Set to true to show the "Connected Odoo records" notice again.
@@ -31,13 +33,20 @@ export default async function MemberPage({
     );
     if (response.status === 404) notFound();
     if (!response.ok)
+      // Same look as the Follow-ups page when its records can't load
       return (
-        <section>
-          <h1>Member information unavailable</h1>
-          <p>
+        <section className={pageStyles.workspace}>
+          <header className={pageStyles.pageTitles}>
+            <span className={pageStyles.kicker}>People · Member</span>
+            <h1 className={pageStyles.pageTitle}>Member information unavailable</h1>
+          </header>
+          <div className={pageStyles.empty} role="alert">
+            <strong>This record couldn&apos;t be loaded</strong>
             Connect an authorized staff test device, then reload this record.
-          </p>
-          <a href="/integration/pair">Connect device</a>
+            <Link href="/integration/pair" className={pageStyles.connectButton}>
+              Connect staff device
+            </Link>
+          </div>
         </section>
       );
     const data = (await response.json()) as {

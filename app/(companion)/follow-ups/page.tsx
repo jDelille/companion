@@ -8,7 +8,8 @@ export default function FollowUpsPage() {
     return (
       <>
         <ConnectedWorkflowView historyOnly />
-        <div className={styles.page}>
+        {/* Sits 24px under the follow-ups, not a whole page padding below */}
+        <div className={styles.pageFooter}>
           <Link className={styles.quietButton} href="/hub">
             Open staff Hub →
           </Link>

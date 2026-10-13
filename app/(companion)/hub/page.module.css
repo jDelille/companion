@@ -26,6 +26,13 @@
   padding: 32px 24px 56px; /* same as Today: sides match the top bar */
 }
 
+/* Phones: 16px sides, same as the top bar and the other pages */
+@media (max-width: 599px) {
+  .root {
+    padding: 28px 16px 48px;
+  }
+}
+
 .root * {
   box-sizing: border-box;
 }
@@ -459,17 +466,6 @@
 .score small { font-size:14px; color:var(--text-secondary); }
 .score p { max-width:540px; font-size:12px; color:var(--text-secondary); }
 @media(max-width:700px){ .crmPulse{grid-template-columns:repeat(2,minmax(0,1fr));} .pipelineBoard,.pipelineList{grid-template-columns:minmax(0,1fr);} .score{align-items:flex-start;gap:16px;} .crmPulse > div,.crmPulse > button{padding:16px;} }
-
-/* Sign in is the main action on its card: red, like every primary action */
-.card:has(input[type="password"]) button {
-  background: var(--brand);
-  border-color: var(--brand);
-}
-
-.card:has(input[type="password"]) button:hover:not(:disabled) {
-  background: var(--brand-bright);
-  border-color: var(--brand-bright);
-}
 
 /* Who's signed in + Refresh / Sign out: one quiet line under the title, not a second header */
 .accountRow {
@@ -1008,8 +1004,8 @@
   font-weight: 600;
 }
 
-/* No instructor profile: amber box, "!" tile, title, text */
-.noProfile {
+/* Amber warning box: "!" tile, bold title, text (Instructor no-profile, Messaging provider) */
+.warningBox {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
@@ -1020,7 +1016,7 @@
   background: color-mix(in srgb, var(--warning) 10%, transparent);
 }
 
-.noProfile > i {
+.warningBox > i {
   display: grid;
   place-items: center;
   width: 28px;
@@ -1032,13 +1028,13 @@
   font-weight: 700;
 }
 
-.noProfile strong {
+.warningBox strong {
   display: block;
   margin-bottom: 4px;
   color: var(--warning);
 }
 
-.noProfile p {
+.warningBox p {
   margin: 0;
   color: var(--text);
   font-size: 13px;
@@ -1647,6 +1643,812 @@
 .root section[aria-label="Belt testing"] .rosterForm > button:hover:not(:disabled),
 .root section[aria-label="Belt testing"] [aria-label="Testing roster"] .fields > button:hover:not(:disabled),
 .root section[aria-label="Belt testing"] [aria-label="Review testing action"] .row > button:first-child:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* ---------- Messaging & consent (new-msg mockups) ---------- */
+
+/* Intro card */
+.root section[aria-label="Messaging and consent"] > .card:first-child h2 {
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.root section[aria-label="Messaging and consent"] > .card:first-child > p {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.root section[aria-label="Messaging and consent"] > .card:first-child > .warningBox {
+  margin-top: 16px;
+}
+
+/* New broadcast, Consent, Automations: header with a line across the card */
+.root section[aria-label="Messaging and consent"] [role="region"] > h2:first-child {
+  margin: -20px -22px 0;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  font-size: 18px;
+}
+
+.root section[aria-label="Messaging and consent"] [role="region"] > h2:first-child + * {
+  margin-top: 20px;
+}
+
+/* New broadcast form: name, Channel | Purpose, audience, message, counter, Preview */
+.root section[aria-label="Messaging and consent"] [aria-label="Broadcast"] > .fields {
+  grid-template-columns: 1fr 1fr;
+  max-width: 760px;
+}
+
+.root section[aria-label="Messaging and consent"] [aria-label="Broadcast"] > .fields > * {
+  grid-column: 1 / -1;
+}
+
+.root section[aria-label="Messaging and consent"] [aria-label="Broadcast"] > .fields > label:nth-of-type(2),
+.root section[aria-label="Messaging and consent"] [aria-label="Broadcast"] > .fields > label:nth-of-type(3) {
+  grid-column: auto;
+}
+
+.root section[aria-label="Messaging and consent"] [aria-label="Broadcast"] textarea {
+  min-height: 110px;
+}
+
+/* "0 characters" under the message box */
+.charCount {
+  justify-self: end;
+  margin: -8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Preview audience + hint beside it */
+.formActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.formActions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Consent: student picker capped like the form */
+.root section[aria-label="Messaging and consent"] [aria-label="Consent"] > label.fields {
+  max-width: 760px;
+}
+
+/* Automations: title, the description under it, then a line across the card */
+.root section[aria-label="Messaging and consent"] [aria-label="Automations"] > h2:first-child {
+  padding-bottom: 6px;
+  border-bottom: 0;
+}
+
+.root section[aria-label="Messaging and consent"] [aria-label="Automations"] > h2:first-child + p {
+  margin: 0 -22px;
+  padding: 0 22px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* One automation per row: name + status, detail chips, next run on the right */
+.automationRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 16px;
+  margin: 0 -22px;
+  padding: 14px 22px;
+}
+
+.root section[aria-label="Messaging and consent"] .automationRow + .automationRow {
+  border-top: 1px solid var(--line);
+}
+
+.automationRow > .row {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+}
+
+.automationTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.automationTitle strong {
+  font-size: 14px;
+}
+
+/* Detail chips: same chip style as Instructor, a little smaller in rows */
+.automationRow .chips li {
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Running = green, like the other status pills; Paused stays grey */
+.statusPill[data-status="running"] {
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+}
+
+/* "Next" + date on the right */
+.nextRun {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  text-align: right;
+}
+
+.nextRun small {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.nextRun span {
+  color: var(--text);
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .automationRow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nextRun {
+    justify-items: start;
+    text-align: left;
+  }
+}
+
+/* Red = the main action: Preview audience, Review broadcast, Confirm communications action */
+.root section[aria-label="Messaging and consent"] .formActions > button:not(:disabled),
+.root section[aria-label="Messaging and consent"] [aria-label="Broadcast preview"] > button:not(:disabled),
+.root section[aria-label="Messaging and consent"] [aria-label="Review communications action"] .row > button:first-child:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label="Messaging and consent"] .formActions > button:hover:not(:disabled),
+.root section[aria-label="Messaging and consent"] [aria-label="Broadcast preview"] > button:hover:not(:disabled),
+.root section[aria-label="Messaging and consent"] [aria-label="Review communications action"] .row > button:first-child:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* "Show all 12 automations" under the first five: a quiet full-width link-style button */
+.root .showAll {
+  display: block;
+  width: calc(100% + 44px);
+  margin: 0 -22px -20px;
+  padding: 14px 22px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: center;
+}
+
+.root .showAll:hover:not(:disabled) {
+  border-color: var(--line);
+  background: var(--raised);
+  color: var(--text);
+}
+
+/* ---------- Consent: one sub-card per person after choosing a student ---------- */
+.consentContact {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.consentHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+/* SMS · address · Service: granted · Marketing: not recorded */
+.consentChannels {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.consentChannels li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+
+.consentChannels li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+.channelName {
+  min-width: 70px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.channelAddress {
+  flex: 1 1 160px;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* Granted consent = green, like the other status pills; anything else stays grey */
+.statusPill[data-status="granted"] {
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+}
+
+.consentHistory {
+  display: grid;
+  gap: 4px;
+}
+
+.consentHistory small {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.root .consentHistory .consentLabel {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Channel | Purpose | Decision | Source, then Evidence + Review consent change */
+.root .consentForm {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+}
+
+.root .consentForm > label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.root .consentForm > label:nth-of-type(5) {
+  grid-column: 1 / span 3;
+}
+
+.root .consentForm > button {
+  min-height: 42px;
+}
+
+.root .consentForm > button:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root .consentForm > button:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+@media (max-width: 760px) {
+  .root .consentForm {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .root .consentForm > label:nth-of-type(5),
+  .root .consentForm > button {
+    grid-column: 1 / -1;
+  }
+
+  .root .consentForm > button {
+    justify-self: start;
+  }
+}
+
+/* ---------- School setup (and the member Onboarding checklist, which shares the list) ---------- */
+
+/* Card header: title + READ-ONLY pill on the right, a line across the card under it */
+.root section[aria-label="School setup"] > h2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: -20px -22px 0;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--line);
+  font-size: 18px;
+}
+
+.root section[aria-label="School setup"] > h2::after {
+  content: "Read-only";
+  padding: 3px 10px;
+  border: 1px solid color-mix(in srgb, var(--info) 45%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--info) 12%, transparent);
+  color: var(--info);
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.root section[aria-label="School setup"] > h2 + p {
+  margin-top: 20px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* "5 of 8 ready" + green progress bar */
+.setupProgress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.root section[aria-label="School setup"] > .setupProgress {
+  margin-top: 20px;
+}
+
+.setupProgress p {
+  flex: none;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.setupProgress p strong {
+  color: var(--text);
+}
+
+.setupProgress > i {
+  flex: 1;
+  display: block;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+  overflow: hidden;
+}
+
+.setupProgress > i > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--success);
+}
+
+/* Checklist rows inside one bordered list (card colour, not the dark black) */
+.checklist {
+  display: grid;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.checkItem {
+  display: grid;
+  /* tile · name + detail · where · status pill on the far right */
+  grid-template-columns: 28px minmax(0, 1.4fr) minmax(0, 1fr) 140px;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+}
+
+.checkItem + .checkItem {
+  border-top: 1px solid var(--line);
+}
+
+/* ✓ green tile when ready, ! amber tile when it needs attention */
+.checkItem > i {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+  color: var(--warning);
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.checkItem[data-done="true"] > i {
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--success);
+}
+
+.checkTitle {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+/* "WHERE  Settings → Companies" */
+.root .checkItem .checkWhere {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.checkWhere span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.checkItem > .statusPill {
+  justify-self: end;
+}
+
+@media (max-width: 760px) {
+  .checkItem {
+    grid-template-columns: 28px minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .checkItem > .checkWhere,
+  .checkItem > .statusPill {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+.checkItem p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+
+/* Needs attention = amber, like Late */
+.statusPill[data-status="attention"] {
+  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  color: var(--warning);
+}
+
+/* ---------- AI drafting ---------- */
+
+/* Card header: title + Refresh AI status on the right, a line across the card under it */
+.root section[aria-label="AI drafting settings"] > .row:first-child {
+  justify-content: space-between;
+  margin: -20px -22px 0;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.root section[aria-label="AI drafting settings"] > .row:first-child h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.root section[aria-label="AI drafting settings"] > .row:first-child + * {
+  margin-top: 20px;
+}
+
+/* Drafting mode · Provider · Model · Last check, as four small tiles */
+.aiStatus {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.aiStatus > div {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.root .aiStatus small {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.aiStatus strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .aiStatus {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.aiNote {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.root section[aria-label="AI drafting settings"] > .warningBox {
+  margin-top: 16px;
+}
+
+/* The activation review box */
+.root section[aria-label="AI drafting settings"] [aria-label="Review AI activation"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.root section[aria-label="AI drafting settings"] [aria-label="Review AI activation"] > p {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* Red = the main action: Review AI activation / live check, Check and enable AI drafting */
+.root section[aria-label="AI drafting settings"] > button:not(:disabled),
+.root section[aria-label="AI drafting settings"] [aria-label="Review AI activation"] > button:first-of-type:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label="AI drafting settings"] > button:hover:not(:disabled),
+.root section[aria-label="AI drafting settings"] [aria-label="Review AI activation"] > button:first-of-type:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* ---------- Member management (Manage <member>) ---------- */
+
+/* Card header: "Manage Demo Student" + Refresh member details, a line across the card under it */
+.root section[aria-label="Member management"] > .row:first-child {
+  justify-content: space-between;
+  margin: -20px -22px 0;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.root section[aria-label="Member management"] > .row:first-child h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+/* "active · White belt · 0 stripes · Born …" right under the header */
+.root section[aria-label="Member management"] > .row:first-child + p,
+.root section[aria-label="Member management"] > p:not([role]) {
+  margin-top: 14px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Sections: an accordion, one full-width row each with a line above it */
+.root section[aria-label="Member management"] > details.booking {
+  margin: 0 -22px;
+  padding: 0 22px;
+  border-top: 1px solid var(--line);
+}
+
+.root section[aria-label="Member management"] > p + details.booking,
+.root section[aria-label="Member management"] > div + details.booking {
+  margin-top: 16px;
+}
+
+.root section[aria-label="Member management"] > details.booking + details.booking {
+  margin-top: 0;
+}
+
+.root section[aria-label="Member management"] > details.booking:last-child {
+  margin-bottom: -20px;
+}
+
+.root section[aria-label="Member management"] > details.booking > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.root section[aria-label="Member management"] > details.booking > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* › on the right, turning down when open */
+.root section[aria-label="Member management"] > details.booking > summary::after {
+  content: "\203A";
+  color: var(--text-secondary);
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 150ms ease;
+}
+
+.root section[aria-label="Member management"] > details.booking[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+.root section[aria-label="Member management"] > details.booking > summary:hover::after {
+  color: var(--text);
+}
+
+/* An open section: its content, then 20px before the next line */
+.root section[aria-label="Member management"] > details.booking[open] {
+  padding-bottom: 20px;
+}
+
+.root section[aria-label="Member management"] > details.booking[open] > summary {
+  margin-bottom: 4px;
+}
+
+.root section[aria-label="Member management"] > details.booking > * + * {
+  margin-top: 12px;
+}
+
+.root section[aria-label="Member management"] > details.booking > p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Sub-headings ("Posted invoices and credit notes"): small uppercase labels */
+.root section[aria-label="Member management"] > details.booking > h3 {
+  margin-top: 20px;
+}
+
+/* Notes under a list */
+.root section[aria-label="Member management"] > details.booking > small {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Records (subscriptions, invoices, registrations, attendance): one bordered list */
+.root section[aria-label="Member management"] > details.booking > .auditEntry {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-top: 0;
+}
+
+.root section[aria-label="Member management"] > details.booking > :not(.auditEntry) + .auditEntry {
+  border-top: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+}
+
+.root section[aria-label="Member management"] > details.booking > .auditEntry + .auditEntry {
+  margin-top: 0;
+}
+
+.root section[aria-label="Member management"] > details.booking > .auditEntry:not(:has(+ .auditEntry)) {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.root section[aria-label="Member management"] > details.booking > :not(.auditEntry) + .auditEntry:not(:has(+ .auditEntry)) {
+  border-radius: 12px;
+}
+
+.root section[aria-label="Member management"] .auditEntry > p {
+  margin: 2px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Each record: text on the left, its button on the right (stacks only on phones) */
+.root section[aria-label="Member management"] > details.booking > .auditEntry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 16px;
+  align-items: center;
+}
+
+.root section[aria-label="Member management"] > details.booking > .auditEntry > * {
+  grid-column: 1;
+}
+
+.root section[aria-label="Member management"] > details.booking > .auditEntry > button {
+  grid-column: 2;
+  grid-row: 1 / span 4;
+  align-self: center;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.root section[aria-label="Member management"] .auditEntry > small {
+  margin-top: 6px;
+}
+
+@media (max-width: 599px) {
+  .root section[aria-label="Member management"] > details.booking > .auditEntry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .root section[aria-label="Member management"] > details.booking > .auditEntry > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 10px;
+    white-space: normal;
+  }
+}
+
+/* Links on their own in a section ("Manage course rosters →"): quiet secondary buttons */
+.root section[aria-label="Member management"] > details.booking > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.root section[aria-label="Member management"] > details.booking > a:hover {
+  border-color: var(--text-secondary);
+  background: var(--interactive);
+}
+
+/* The embedded Family panel sits flush inside its section (no second set of padding) */
+.root section[aria-label="Member management"] > details.booking > section[aria-label$="records"] {
+  padding: 0;
+}
+
+/* Review before saving: the confirm button is the red main action */
+.root section[aria-label="Member management"] [aria-label="Review member action"] {
+  margin-top: 16px;
+}
+
+.root section[aria-label="Member management"] [aria-label="Review member action"] .row > button:first-child:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label="Member management"] [aria-label="Review member action"] .row > button:first-child:hover:not(:disabled) {
   background: var(--brand-bright);
   border-color: var(--brand-bright);
 }

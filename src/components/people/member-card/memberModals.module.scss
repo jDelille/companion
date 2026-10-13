@@ -184,22 +184,30 @@
 .detailActions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 
-  button {
-    padding: 10px 12px;
-    border: 1px solid var(--dark-border);
-    border-radius: 8px;
-    background: var(--panel);
+  // Buttons and links in the row look the same: quiet secondary buttons
+  button,
+  a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-height);
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
     color: var(--text);
     font: inherit;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
+    text-decoration: none;
     white-space: nowrap;
     cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
 
     &:hover {
-      background: var(--raised);
+      border-color: var(--text-secondary);
+      background: var(--interactive);
     }
   }
 
@@ -208,7 +216,7 @@
     background: var(--brand); // red = action
 
     &:hover {
-      background: var(--brand);
+      background: var(--brand-bright);
       filter: brightness(1.1);
     }
   }

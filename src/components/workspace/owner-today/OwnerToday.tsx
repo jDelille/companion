@@ -144,7 +144,7 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
         ) : sessions === null ? (
           // Placeholder rows the same size as class rows, so nothing jumps when they arrive
           <div role="status" aria-label="Loading today's classes">
-            {[1, 2, 3].map((placeholder) => (
+            {[1].map((placeholder) => (
               <div key={placeholder} className={styles.row} aria-hidden="true">
                 <i className={`${styles.skeleton} ${styles.skeletonTime}`} />
                 <span>
@@ -216,7 +216,7 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
         ))}
         {checking && (
           <div role="status" aria-label="Checking what needs attention">
-            {[1, 2].map((placeholder) => (
+            {[1, 2, 3].map((placeholder) => (
               <div key={placeholder} className={styles.decision} aria-hidden="true">
                 <i className={`${styles.skeleton} ${styles.skeletonIcon}`} />
                 <span>

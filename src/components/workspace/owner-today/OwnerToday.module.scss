@@ -523,8 +523,8 @@ a.metric:hover {
 
 
 /* ---------- Arrival motion ----------
-   The page fades up in reading order (header → Classes → Decisions → pulse),
-   and rows fade in one after another when they replace the placeholders.
+   Only the page sections fade up, in reading order (header → Classes → Decisions → pulse).
+   Data inside them (class rows, decisions, numbers) appears in place with no animation.
    Fade + short upward slide only; nothing moves with reduced motion. */
 @keyframes today-arrive {
   from {
@@ -541,12 +541,7 @@ a.metric:hover {
   .intro,
   .panel,
   .sectionLabel,
-  .metrics,
-  .arrive,
-  .row,
-  .decision,
-  .metric strong,
-  .panelNote {
+  .metrics {
     animation: today-arrive 360ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
   }
 
@@ -560,24 +555,6 @@ a.metric:hover {
   .sectionLabel,
   .metrics {
     animation-delay: 180ms;
-  }
-
-  // Rows inside a panel, one after another (header is the first child)
-  .row:nth-child(2),
-  .decision:nth-child(2) {
-    animation-delay: 30ms;
-  }
-  .row:nth-child(3),
-  .decision:nth-child(3) {
-    animation-delay: 60ms;
-  }
-  .row:nth-child(4),
-  .decision:nth-child(4) {
-    animation-delay: 90ms;
-  }
-  .row:nth-child(n + 5),
-  .decision:nth-child(n + 5) {
-    animation-delay: 120ms;
   }
 }
 
@@ -658,10 +635,4 @@ a.metric:hover {
 // Decision count: a neutral circle
 .count {
   border: 1px solid var(--line);
-}
-
-// Placeholders appear at once and stay still; only the real rows fade in
-.page [role="status"] > .row,
-.page [role="status"] > .decision {
-  animation: none;
 }

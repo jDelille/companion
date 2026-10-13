@@ -53,7 +53,7 @@ export default function Modal({
           </div>
           {!hideClose && (
             <button onClick={onClose} aria-label="Close">
-              x
+              ✕
             </button>
           )}
         </header>
