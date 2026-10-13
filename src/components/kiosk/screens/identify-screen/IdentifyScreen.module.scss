@@ -118,7 +118,8 @@
    Each tile: a large avatar circle, the name centred under it; checked-in students get a
    green border and a green "Checked in" pill. Doc token colours only. */
 .grid {
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); // Paul's kiosk: ~220px per card, more columns on wider screens
+  gap: 18px;
 }
 
 .tile > button {
