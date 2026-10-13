@@ -3,7 +3,9 @@ import styles from "./ContextPane.module.scss";
 import Link from "@/components/primitives/AppLink";
 import { usePathname } from "next/navigation";
 import { useSelectedMember } from "./selected-member/selectedMember";
-import { countMembers } from "@/integrations/staff-members";
+import { listMembers, type StaffMemberSummary } from "@/integrations/staff-members";
+import { getStaffSessions } from "@/integrations/staff-sessions";
+import type { SessionOption } from "@/contracts/kiosk-attendance";
 
 type Props = {
   children: ReactNode;
@@ -47,16 +49,40 @@ const ContextPane = ({ children }: Props) => {
   const onPeople = pathname.startsWith("/people");
   const selectedMember = useSelectedMember();
 
-  // Odoo mode: fetch the real member count once the People pane is open
-  const [memberCount, setMemberCount] = useState<number | null>(null);
+  // Odoo mode: load the members this device may see once the People pane is open.
+  // The count and the search both use this list.
+  const [members, setMembers] = useState<StaffMemberSummary[] | null>(null);
+  const [query, setQuery] = useState("");
   useEffect(() => {
     if (IS_MOCK || !onPeople) return;
     const controller = new AbortController();
-    countMembers(controller.signal).then((count) => {
-      if (!controller.signal.aborted) setMemberCount(count);
+    listMembers(controller.signal).then((list) => {
+      if (!controller.signal.aborted) setMembers(list);
     });
     return () => controller.abort();
   }, [onPeople]);
+  // Odoo mode: today's real classes for "Arriving soon"
+  const [sessions, setSessions] = useState<SessionOption[] | null>(null);
+  const [sessionsFailed, setSessionsFailed] = useState(false);
+  const [classQuery, setClassQuery] = useState("");
+  useEffect(() => {
+    if (IS_MOCK || onPeople) return;
+    const controller = new AbortController();
+    getStaffSessions(controller.signal)
+      .then((list) => {
+        if (controller.signal.aborted) return;
+        setSessions([...list].sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt)));
+        setSessionsFailed(false);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setSessionsFailed(true);
+      });
+    return () => controller.abort();
+  }, [onPeople]);
+  const search = query.trim().toLowerCase();
+  const matches = search && members
+    ? members.filter((member) => member.name.toLowerCase().includes(search)).slice(0, 8)
+    : [];
 
   if (onPeople) {
     return (
@@ -64,11 +90,38 @@ const ContextPane = ({ children }: Props) => {
         <div className={styles.contextPane__header}>
           <h2>Members</h2>
         </div>
-        <input
-          type="text"
-          className={styles.searchBar}
-          placeholder="Search members..."
-        />
+        {/* Search only shows when there's a real list to search */}
+        {members && (
+          <input
+            type="search"
+            className={styles.searchBar}
+            placeholder="Search members..."
+            aria-label="Search members"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        )}
+
+        {search && (
+          <>
+            <p className={styles.label}>
+              {matches.length ? "Results" : "No members match"}
+            </p>
+            {matches.map((member) => (
+              <Link
+                key={member.id}
+                href={`/people/${member.id}`}
+                className={styles.item}
+                onClick={() => setQuery("")}
+              >
+                <div className={styles.avatar}>{initials(member.name)}</div>
+                <div className={styles.info}>
+                  <p>{member.name}</p>
+                </div>
+              </Link>
+            ))}
+          </>
+        )}
 
         <p className={styles.label}>Saved views</p>
         {IS_MOCK ? (
@@ -84,13 +137,16 @@ const ContextPane = ({ children }: Props) => {
             </div>
           ))
         ) : (
-          <div className={`${styles.item} ${styles.active}`}>
+          <Link
+            href="/people"
+            className={`${styles.item} ${pathname === "/people" ? styles.active : ""}`}
+          >
             <div className={styles.info}>
               <p>All members</p>
             </div>
             {/* blank until loaded, or if this device can't read members */}
-            <span>{memberCount ?? ""}</span>
-          </div>
+            <span>{members ? members.length : ""}</span>
+          </Link>
         )}
 
         {/* The member on screen, as the page reported it */}
@@ -118,8 +174,18 @@ const ContextPane = ({ children }: Props) => {
   return (
     <div className={styles.contextPane}>
       <div className={styles.contextPane__header}>
-        <h2>Arriving Soon</h2>
+        <h2>Arriving soon</h2>
       </div>
+      {!IS_MOCK ? (
+        <ArrivingClasses
+          sessions={sessions}
+          failed={sessionsFailed}
+          query={classQuery}
+          onQuery={setClassQuery}
+          pathname={pathname}
+        />
+      ) : (
+      <>
       <input
         type="text"
         className={styles.searchBar}
@@ -151,8 +217,70 @@ const ContextPane = ({ children }: Props) => {
           </div>
         ))}
       </div>
+      </>
+      )}
     </div>
   );
 };
+
+// "5:45" style start time in the browser's timezone
+const startTime = (iso: string) =>
+  new Date(iso).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }).replace(/\s?[AP]M$/i, "");
+
+// Today's classes from Odoo: start time, name, bookings. The running class is highlighted.
+function ArrivingClasses({
+  sessions,
+  failed,
+  query,
+  onQuery,
+  pathname,
+}: {
+  sessions: SessionOption[] | null;
+  failed: boolean;
+  query: string;
+  onQuery: (value: string) => void;
+  pathname: string;
+}) {
+  if (failed) return <p className={styles.label}>Classes couldn’t be loaded</p>;
+  if (sessions === null) return <p className={styles.label}>Loading classes…</p>;
+  if (sessions.length === 0) return <p className={styles.label}>No classes today</p>;
+  const now = Date.now();
+  const search = query.trim().toLowerCase();
+  const shown = search
+    ? sessions.filter((session) => session.title.toLowerCase().includes(search))
+    : sessions;
+  return (
+    <>
+      <input
+        type="search"
+        className={styles.searchBar}
+        placeholder="Search classes..."
+        aria-label="Search today's classes"
+        value={query}
+        onChange={(event) => onQuery(event.target.value)}
+      />
+      {shown.length === 0 && <p className={styles.label}>No classes match</p>}
+      {shown.map((session) => {
+        const running = Date.parse(session.startsAt) <= now && Date.parse(session.endsAt) > now;
+        const href = `/ops/sessions/${session.sessionId}`;
+        return (
+          <Link
+            key={session.sessionId}
+            href={href}
+            className={`${styles.item} ${running || pathname === href ? styles.active : ""}`}
+          >
+            <div className={styles.time}>{startTime(session.startsAt)}</div>
+            <div className={styles.info}>
+              <p>{session.title}</p>
+              <span>
+                {session.seatsTaken} booked{running ? " · on the mat now" : ""}
+              </span>
+            </div>
+          </Link>
+        );
+      })}
+    </>
+  );
+}
 
 export default ContextPane;

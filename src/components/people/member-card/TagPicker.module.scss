@@ -18,7 +18,7 @@
   min-height: 42px;
   padding: 6px 6px 6px 8px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   background: var(--raised);
 }
 
@@ -66,7 +66,7 @@
 .addBtn {
   all: unset;
   padding: 6px 10px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -92,7 +92,7 @@
   min-width: 180px;
   padding: 4px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-control);
   background: var(--panel);
   box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
 
@@ -102,7 +102,7 @@
     width: 100%;
     box-sizing: border-box;
     padding: 8px 10px;
-    border-radius: var(--radius-pill);
+    border-radius: 6px;
     font-size: 13px;
     color: var(--text);
     cursor: pointer;

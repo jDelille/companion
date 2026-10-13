@@ -1,6 +1,4 @@
 .shell {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
@@ -36,4 +34,5 @@
   }
 }
 
+// Kept from the current design: pieces added after the VNext build
 .previewNotice { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 20px; font-size:11px; color:var(--text-secondary); border-bottom:1px solid var(--line); a{color:var(--text);text-decoration:none;} }

@@ -15,9 +15,9 @@
   gap: 0.5rem;
   width: 100%;
   min-height: 40px;
-  padding: 0.625rem 1rem;
+  padding: 0.625rem 0.75rem;
   border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-control);
   background: var(--panel);
   color: var(--text);
   font-size: var(--text-sm);
@@ -74,14 +74,14 @@
   padding: 0.25rem;
   list-style: none;
   border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-control);
   background: var(--raised);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
 .option {
   padding: 0.5rem 0.625rem;
-  border-radius: var(--radius-pill);
+  border-radius: calc(var(--radius-control) - 4px);
   color: var(--text);
   font-size: var(--text-sm);
   cursor: pointer;

@@ -1,4 +1,4 @@
-import type { Member, MemberAttendance } from "@/domain/member";
+import type { Member, MemberAttendance, CheckIn } from "@/domain/member";
 import { membershipLabel } from "@/domain/member-presentation";
 import LocalTime from "@/components/primitives/local-time/LocalTime";
 import type { ReactNode } from "react";
@@ -18,6 +18,20 @@ const StatList = ({ stats }: { stats: Stat[] }) => (
   </ul>
 );
 
+// One plain sentence from real records only, e.g. "Active member · 4 check-ins this week."
+function storyHeadline(member: Member, attendance: MemberAttendance) {
+  const state = `${membershipLabel(member)} member`;
+  const count = attendance.lastSevenDays;
+  if (count === 0) return `${state} · no check-ins this week.`;
+  return `${state} · ${count} ${count === 1 ? "check-in" : "check-ins"} this week.`;
+}
+
+// Newest first, at most three. Falls back to the latest check-in when there's no history.
+function recentCheckIns(attendance: MemberAttendance): CheckIn[] {
+  if (attendance.history?.length) return attendance.history.slice(0, 3);
+  return attendance.latest ? [attendance.latest] : [];
+}
+
 export default function MemberGrid({
   member,
   attendance,
@@ -27,44 +41,51 @@ export default function MemberGrid({
   attendance: MemberAttendance;
   liveTest?: boolean;
 }) {
-  const latest = attendance.latest;
+  const recent = recentCheckIns(attendance);
   return (
     <div className={styles.memberGrid}>
       <article>
-        <span className={styles.label}>Membership</span>
-        <h2>{membershipLabel(member)} membership</h2>
-        <StatList
-          stats={[
-            { label: "Member number", value: member.memberNumber },
-            {
-              label: "Household",
-              value: member.householdName || "Not provided",
-            },
-            { label: "Current rank", value: member.rank.name },
-            { label: "Stripes", value: member.rank.stripes },
-            ...(member.testReadiness !== undefined
-              ? [{ label: "Test readiness", value: `${member.testReadiness}%` }]
-              : []),
-          ]}
-        />
-      </article>
-      <article>
-        <span className={styles.label}>Attendance</span>
-        <h2>{liveTest ? "Verified attendance" : "Recorded check-ins"}</h2>
+        <span className={styles.label}>Member story</span>
+        <h2 className={styles.headline}>{storyHeadline(member, attendance)}</h2>
         <StatList
           stats={[
             { label: "Check-ins (7 days)", value: attendance.lastSevenDays },
-            {
-              label: "Last check-in",
-              value: latest ? (
-                <>
-                  {latest.sessionTitle} · <LocalTime iso={latest.checkedInAt} />
-                  {latest.late && " · Late"}
-                </>
-              ) : (
-                "No check-ins yet"
-              ),
-            },
+            { label: "Current rank", value: member.rank.name },
+            { label: "Stripes", value: member.rank.stripes },
+            { label: "Member number", value: member.memberNumber },
+          ]}
+        />
+        <span className={styles.label}>
+          {liveTest ? "Recent verified check-ins" : "Recent check-ins"}
+        </span>
+        {recent.length ? (
+          <ul className={styles.recent}>
+            {recent.map((checkIn) => (
+              <li key={checkIn.checkedInAt}>
+                <strong>
+                  <LocalTime iso={checkIn.checkedInAt} />
+                </strong>
+                <span>
+                  {checkIn.sessionTitle}
+                  {checkIn.late && " · Late"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.empty}>No check-ins yet.</p>
+        )}
+      </article>
+
+      <article>
+        <span className={styles.label}>Membership</span>
+        <StatList
+          stats={[
+            { label: "Status", value: `${membershipLabel(member)} membership` },
+            { label: "Household", value: member.householdName || "Not provided" },
+            ...(member.nextClass
+              ? [{ label: "Next class", value: member.nextClass }]
+              : []),
           ]}
         />
         <span className={styles.label}>Today&apos;s bookings</span>
@@ -79,6 +100,20 @@ export default function MemberGrid({
                   }))
                 : [{ label: "Bookings", value: "No classes booked today" }]
           }
+        />
+        <span className={styles.label}>Progression</span>
+        <StatList
+          stats={[
+            {
+              label: "Current rank",
+              value: member.rank.stripes
+                ? `${member.rank.name} · ${member.rank.stripes} ${member.rank.stripes === 1 ? "stripe" : "stripes"}`
+                : member.rank.name,
+            },
+            ...(member.testReadiness !== undefined
+              ? [{ label: "Test readiness", value: `${member.testReadiness}%` }]
+              : []),
+          ]}
         />
       </article>
     </div>

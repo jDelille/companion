@@ -13,3 +13,21 @@ export async function countMembers(signal: AbortSignal): Promise<number | null> 
     return null;
   }
 }
+
+export type StaffMemberSummary = { id: string; name: string };
+
+// The members this staff device may see (id + name only), or null if we couldn't
+// read them. Never throws.
+export async function listMembers(
+  signal: AbortSignal,
+): Promise<StaffMemberSummary[] | null> {
+  try {
+    const response = await fetch("/api/v2/members", { cache: "no-store", signal });
+    if (!response.ok) return null;
+    const body = await response.json();
+    if (!Array.isArray(body)) return null;
+    return body.map((member) => ({ id: String(member.id), name: String(member.name) }));
+  } catch {
+    return null;
+  }
+}

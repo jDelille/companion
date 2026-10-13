@@ -35,9 +35,9 @@
     gap: 12px;
     margin-top: 12px;
     padding: 14px;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
 
     // why the agent suggests it
     > p {
@@ -71,9 +71,9 @@
 
   // red = action, like the modals' confirm button
   .approve {
-    min-height: 44px;
+    min-height: 36px;
     border: none;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-control);
     background: var(--brand);
     color: var(--text);
     font: inherit;

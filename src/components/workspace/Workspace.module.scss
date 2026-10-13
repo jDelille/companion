@@ -23,10 +23,10 @@
   margin-bottom: 38px;
   h1 {
     font-family: var(--font-display);
-    font-size: clamp(38px, 4.8vw, 62px);
+    font-size: 28px;
     line-height: 1.06;
-    font-weight: 400;
-    letter-spacing: -0.045em;
+    font-weight: 600;
+    letter-spacing: -0.01em;
     text-wrap: balance;
     max-width: 18ch;
   }
@@ -94,10 +94,10 @@
   margin-bottom: 32px;
   h2 {
     font-family: var(--font-display);
-    font-size: clamp(32px, 3.8vw, 46px);
-    font-weight: 400;
+    font-size: 22px;
+    font-weight: 600;
     line-height: 1.15;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.01em;
     margin: 18px 0 14px;
     max-width: 18ch;
   }
@@ -112,8 +112,8 @@
 }
 .heroTime {
   text-align: right;
-  font-size: clamp(32px, 4.8vw, 56px);
-  letter-spacing: -0.05em;
+  font-size: 28px;
+  letter-spacing: -0.01em;
   font-weight: 300;
   font-variant-numeric: tabular-nums;
   span {
@@ -169,10 +169,10 @@
   }
   strong {
     display: block;
-    font-size: 44px;
+    font-size: 28px;
     font-weight: 350;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.01em;
     margin: 12px 0 5px;
   }
   small {
@@ -194,9 +194,9 @@
   margin: 6px 0 24px;
   h2 {
     font-family: var(--font-display);
-    font-size: clamp(27px, 3vw, 36px);
-    letter-spacing: -0.045em;
-    font-weight: 400;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    font-weight: 600;
   }
   a {
     color: var(--text);
@@ -239,7 +239,7 @@
   }
   time {
     font-size: 25px;
-    letter-spacing: -0.04em;
+    letter-spacing: -0.01em;
     font-weight: 350;
     font-variant-numeric: tabular-nums;
     small {
@@ -408,7 +408,7 @@
   gap: 16px;
   margin-bottom: 32px;
   h1 {
-    font-size: clamp(40px, 5vw, 56px);
+    font-size: 28px;
   }
 }
 // The whole card opens the class roster; the arrow circle is just the cue
@@ -435,7 +435,7 @@
   }
 
   h2 {
-    font-size: clamp(27px, 3.6vw, 36px);
+    font-size: 18px;
     margin: 12px 0 8px;
   }
   p {
@@ -485,7 +485,7 @@
 }
 @media (max-width: 1100px) {
   .heroTime {
-    font-size: 40px;
+    font-size: 24px;
   }
 }
 @media (max-width: 767px) {
@@ -498,7 +498,7 @@
     flex-direction: column;
     gap: 18px;
     h1 {
-      font-size: clamp(37px, 10.5vw, 48px);
+      font-size: 26px;
     }
     p {
       font-size: 13px;
@@ -510,7 +510,7 @@
     grid-template-columns: minmax(0, 1fr);
     border-radius: 26px;
     h2 {
-      font-size: 36px;
+      font-size: 20px;
     }
     .heroTime {
       display: flex;
@@ -532,7 +532,7 @@
       padding-left: 12px;
     }
     strong {
-      font-size: 35px;
+      font-size: 24px;
     }
     p {
       font-size: 10px;

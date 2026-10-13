@@ -5,20 +5,12 @@
   background: var(--glass-fill);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(115%);
-  backdrop-filter: blur(var(--glass-blur)) saturate(115%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
 
   // Without blur support, fall back to the solid panel color so text stays readable
-  @supports not (
-    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
-  ) {
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     background: var(--panel);
-  }
-
-  @media (prefers-reduced-transparency: reduce) {
-    background: var(--panel);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
   }
 }
 

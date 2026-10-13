@@ -1,52 +1,26 @@
 @use "../../../../../styles/breakpoints" as bp;
 
-// Width of the fade on the tab row's right edge (animatable, so it can shrink on scroll)
-@property --tabs-fade {
-  syntax: "<length>";
-  inherits: false;
-  initial-value: 64px;
-}
-
-@keyframes tabs-fade-out {
-  0%,
-  90% {
-    --tabs-fade: 64px;
-  }
-  100% {
-    --tabs-fade: 0px;
-  }
-}
-
 .objectTabs {
   display: flex;
-  gap: 6px;
-  padding: 8px 2rem 14px;
+  gap: 4px;
+  padding: 0 2rem;
 
   @include bp.compact {
-    padding: 8px 1rem 14px;
+    padding: 0 1rem;
   }
-  border-bottom: 0;
+  border-bottom: 1px solid var(--dark-border);
   overflow-x: auto; // 10 tabs: scroll sideways on small screens instead of wrapping
   scrollbar-width: none;
 
-  // Fade the right edge so tabs cut off by the screen look scrollable.
-  // The fade goes away once you scroll to the end.
-  mask-image: linear-gradient(to right, #000 calc(100% - var(--tabs-fade)), transparent);
-  animation: tabs-fade-out linear both;
-  animation-timeline: scroll(self inline);
-
   button {
     all: unset;
-    padding: 11px 16px;
-    border-radius: var(--radius-pill);
-    border: 1px solid transparent; // same height as the active tab, so nothing shifts
+    padding: 12px 10px;
+    border-bottom: 2px solid transparent; // same height as the active tab, so nothing shifts
     font-size: 12px;
     font-weight: 500;
     color: var(--text-secondary);
     white-space: nowrap;
     cursor: pointer;
-
-    &:focus-visible { outline: 2px solid var(--text); outline-offset: -2px; }
 
     &:disabled { opacity: .45; cursor: not-allowed; }
 
@@ -57,8 +31,7 @@
 
   .isActive {
     color: var(--text);
-    background: var(--raised);
-    border-color: var(--line);
+    border-bottom-color: var(--brand);
   }
 }
 

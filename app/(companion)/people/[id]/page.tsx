@@ -8,6 +8,12 @@ import { odooRoute, odooTestMode } from "@/server/odoo-runtime";
 import { InfoIcon } from "@/icons";
 import styles from "@/components/people/member-360/Member360View.module.scss";
 export const dynamic = "force-dynamic";
+
+// Hidden for the VNext design. Set to true to show the "Connected Odoo records" notice again.
+const SHOW_CONNECTION_NOTICE = false;
+// Hidden for the VNext design: the school-wide follow-up list lives on the Follow-ups page.
+// Set to true to show it under the member profile again.
+const SHOW_FOLLOW_UP_HISTORY = false;
 export default async function MemberPage({
   params,
 }: {
@@ -40,20 +46,22 @@ export default async function MemberPage({
     };
     return (
       <>
-        <p role="status" className={styles.notice}>
-          <InfoIcon color="currentColor" size={16} />
-          <span>
-            Connected Odoo records. Private tabs and reviewed actions use your
-            individual staff account. Billing and private member information
-            require manager access; invoice checkout depends on school payment setup.
-          </span>
-        </p>
+        {SHOW_CONNECTION_NOTICE && (
+          <p role="status" className={styles.notice}>
+            <InfoIcon color="currentColor" size={16} />
+            <span>
+              Connected Odoo records. Private tabs and reviewed actions use your
+              individual staff account. Billing and private member information
+              require manager access; invoice checkout depends on school payment setup.
+            </span>
+          </p>
+        )}
         <Member360View
           member={data.member}
           attendance={data.attendance}
           liveTest
         />
-        <ConnectedWorkflowView historyOnly />
+        {SHOW_FOLLOW_UP_HISTORY && <ConnectedWorkflowView historyOnly />}
       </>
     );
   }

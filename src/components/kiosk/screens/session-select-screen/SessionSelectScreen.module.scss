@@ -1,6 +1,5 @@
-@use "../../../../../styles/separators";
 .screen {
-  padding: 1.5rem 0 3rem;
+  padding: 2rem 0; // width comes from the shell
   display: flex;
   flex-direction: column;
 
@@ -16,7 +15,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     h1 {
       font-size: var(--kiosk-title-large);
     }
@@ -25,6 +24,7 @@
   .today {
     margin-top: 2.5rem;
     padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
     font-size: var(--text-xs);
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -36,22 +36,20 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0;
-    margin-top: 0;
-    > li:last-child > button::after {
-      display: none;
-    }
+    gap: 10px;
+    margin-top: 1rem;
   }
 
   // Loading placeholders, same size and layout as SessionCard
   .skeletonRow {
-    @include separators.short-rule;
     display: grid;
-    grid-template-columns: 5.75rem 1fr;
+    grid-template-columns: 8rem 1fr;
     align-items: center;
-    gap: 1.5rem;
-    min-height: 108px;
-    padding: 1.5rem 0;
+    gap: 2rem;
+    padding: 1.75rem 1.25rem;
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-leaf);
+    background: var(--glass-fill);
     animation: pulse 1.6s ease-in-out infinite;
   }
 
@@ -59,7 +57,7 @@
   .skeletonTitle,
   .skeletonDuration {
     display: block;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-control);
     background: var(--raised);
   }
 
@@ -109,9 +107,9 @@
 // Phones: same shape as the tighter class cards
 @container kiosk (width < 540px) {
   .screen .skeletonRow {
-    grid-template-columns: 4rem 1fr;
-    gap: 0.85rem;
-    padding-inline: 0;
+    grid-template-columns: 4.75rem 1fr;
+    gap: 1.75rem;
+    padding-inline: 1rem;
   }
 }
 

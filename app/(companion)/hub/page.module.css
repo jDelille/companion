@@ -49,8 +49,8 @@
 .header h1 {
   margin: 2px 0;
   font-family: var(--font-display, Georgia, serif);
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 400;
+  font-size: 1.75rem;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 

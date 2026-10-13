@@ -1,17 +1,13 @@
 @use "../../../../styles/breakpoints" as bp;
-@use "../../../../styles/glass";
-@use "../../../../styles/motion";
 
 .modal {
-  @include glass.card;
   padding: 0;
-  border-radius: 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
   color: var(--text);
   width: min(560px, 92vw);
   margin: auto; // the global `* { margin: 0 }` reset removes the dialog's built-in centering
-  &[open] {
-    @include motion.reveal;
-  }
 
   &::backdrop {
     background: rgb(0 0 0 / 0.4);
@@ -25,9 +21,7 @@
     max-height: 90dvh;
     // auto top margin pushes it to the bottom; floats 1rem above it (plus the iPhone home bar)
     margin: auto 1rem calc(1rem + env(safe-area-inset-bottom));
-    border-radius: var(
-      --radius-tray
-    ); // all four corners, since the bottom is visible now
+    border-radius: var(--radius-tray); // all four corners, since the bottom is visible now
     overflow-y: auto;
 
     // grab handle, like iOS sheets
@@ -53,9 +47,7 @@
 
 @keyframes sheet-up {
   from {
-    transform: translateY(
-      calc(100% + 1rem)
-    ); // start fully below the screen, past the 1rem gap
+    transform: translateY(calc(100% + 1rem)); // start fully below the screen, past the 1rem gap
   }
 }
 
@@ -91,9 +83,7 @@
 
   h2 {
     margin: 0;
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 32px;
+    font-size: 26px;
   }
 
   p {
@@ -144,7 +134,7 @@
   textarea {
     padding: 10px 12px;
     border: 1px solid var(--line);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-control);
     background: var(--raised);
     color: var(--text);
     font: inherit;
@@ -159,11 +149,9 @@
   textarea {
     width: 100%;
     min-height: 117px;
-    border: 0;
-    border-bottom: 1px solid var(--line);
-    border-radius: 0;
-    background: transparent;
+
   }
+
 }
 
 // Cancel + action row (ModalActions)
@@ -173,9 +161,9 @@
   margin-top: 10px;
 
   button {
-    min-height: var(--touch-height);
+    min-height: var(--control-height);
     padding: 0 18px;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-control);
     color: var(--text);
     font-weight: 600;
     cursor: pointer;

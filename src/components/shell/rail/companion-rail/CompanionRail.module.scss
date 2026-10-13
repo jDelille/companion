@@ -2,8 +2,8 @@
 
 .companionRail {
   width: 325px;
-  background: transparent;
-  border-left: 0;
+  background: var(--panel);
+  border-left: 1px solid var(--dark-border);
   height: 100%;
   padding: 0 1.25rem;
   display: flex;
@@ -176,7 +176,7 @@
     button {
       padding: 8px 12px;
       border: 1px solid var(--line);
-      border-radius: var(--radius-pill);
+      border-radius: 6px;
       background: none;
       color: var(--text);
       font-size: 11px;
@@ -185,3 +185,78 @@
     }
   }
 }
+
+// Kept from the current design: pieces added after the VNext build
+.companionRail__header {
+    height: 65px;
+    flex-shrink: 0;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: var(--text-base);
+    }
+
+    &__icon {
+      color: var(--agent);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+.companionRail__state {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0; // lets it shrink to the space left and scroll instead of growing
+    overflow-y: auto;
+    padding-bottom: 12px; // breathing room above the composer
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    // "Connected Odoo records": a green pill
+    .statusLine {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+      border-radius: var(--radius-pill);
+      background: color-mix(in srgb, var(--success) 12%, transparent);
+      color: var(--success);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+
+      .statusIcon {
+        width: 7px;
+        height: 7px;
+        background-color: var(--success);
+        border-radius: 50%;
+      }
+    }
+
+    // "Member companion"
+    h3 {
+      color: var(--text);
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0;
+    }
+
+    .tasks {
+      margin-bottom: 0.5rem;
+    }
+  }
