@@ -52,7 +52,7 @@ export default function AdaptiveShell({
   // Operations pages share a pane listing the section's pages
   const onOperations =
     pathname === "/ops" ||
-    (pathname === "/hub" && ["instructor", "operations"].includes(routeView ?? ""));
+    (pathname === "/hub" && ["instructor", "operations", "attendance"].includes(routeView ?? ""));
   const sectionPane = onPeople || onClasses || onOperations;
   // Today uses the full width, like the VNext Owner Today screen
   const fullWidth = pathname === "/";

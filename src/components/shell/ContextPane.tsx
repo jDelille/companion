@@ -92,6 +92,7 @@ const ContextPane = ({ children, section }: Props) => {
     const links = [
       { href: "/ops", label: "Schedule", active: pathname === "/ops" },
       { href: "/hub?view=instructor", label: "Instructor & timesheets", active: hubView === "instructor" },
+      { href: "/hub?view=attendance", label: "Attendance review", active: hubView === "attendance" },
       { href: "/hub?view=operations", label: "Reports & rosters", active: hubView === "operations" },
       { href: "/hub?view=courses", label: "Course rosters", active: hubView === "courses" },
     ];
