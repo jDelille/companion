@@ -9,6 +9,8 @@ import ReceiptHistory from "./ReceiptHistory";
 import AgentComposer from "./AgentComposer";
 import MemberIntel from "./MemberIntel";
 import SuggestedCard from "./SuggestedCard";
+import TodayBrief from "./TodayBrief";
+import { usePathname } from "next/navigation";
 import styles from "./CompanionRail.module.scss";
 
 type Props = {
@@ -18,6 +20,7 @@ type Props = {
 const CompanionRail = ({ children }: Props) => {
   const companion = useCompanion();
   const featured = companion.featured;
+  const onToday = usePathname() === "/";
 
   return (
     <div className={styles.companionRail}>
@@ -46,7 +49,8 @@ const CompanionRail = ({ children }: Props) => {
             {companion.label}
           </div>
         )}
-        {companion.heading && <h3>{companion.heading}</h3>}
+        {/* On Today the Companion greets and lists what needs attention, instead of a generic heading */}
+        {onToday ? <TodayBrief /> : companion.heading && <h3>{companion.heading}</h3>}
 
         {companion.intel && <MemberIntel items={companion.intel} />}
         {featured && (

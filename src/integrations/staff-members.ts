@@ -14,9 +14,9 @@ export async function countMembers(signal: AbortSignal): Promise<number | null> 
   }
 }
 
-export type StaffMemberSummary = { id: string; name: string };
+export type StaffMemberSummary = { id: string; name: string; membershipState?: string };
 
-// The members this staff device may see (id + name only), or null if we couldn't
+// The members this staff device may see (id, name, membership state), or null if we couldn't
 // read them. Never throws.
 export async function listMembers(
   signal: AbortSignal,
@@ -26,7 +26,11 @@ export async function listMembers(
     if (!response.ok) return null;
     const body = await response.json();
     if (!Array.isArray(body)) return null;
-    return body.map((member) => ({ id: String(member.id), name: String(member.name) }));
+    return body.map((member) => ({
+      id: String(member.id),
+      name: String(member.name),
+      membershipState: typeof member.membershipState === "string" ? member.membershipState : undefined,
+    }));
   } catch {
     return null;
   }

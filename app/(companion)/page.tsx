@@ -1,5 +1,5 @@
 import { odooTestMode } from "@/server/odoo-runtime";
-import TodayView from "@/components/workspace/TodayView";
+import OwnerToday from "@/components/workspace/owner-today/OwnerToday";
 export default function Home() {
-  return <TodayView connected={odooTestMode()} />;
+  return <OwnerToday connected={odooTestMode()} />;
 }

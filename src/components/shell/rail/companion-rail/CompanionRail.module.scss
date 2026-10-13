@@ -69,6 +69,7 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      font-family: var(--font-label);
 
       .statusIcon {
         width: 7px;
@@ -100,6 +101,7 @@
     font-weight: 700;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    font-family: var(--font-label);
     color: var(--agent);
   }
 
@@ -239,6 +241,7 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      font-family: var(--font-label);
 
       .statusIcon {
         width: 7px;
@@ -260,3 +263,63 @@
       margin-bottom: 0.5rem;
     }
   }
+
+// Today: greeting, what needs attention, Review all
+.todayBrief {
+  display: grid;
+  gap: 10px;
+  margin-top: 1.5rem;
+
+  h3 {
+    color: var(--text);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  ul {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  li a {
+    display: block;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--brand-bright);
+    }
+  }
+
+  button {
+    justify-self: start;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--text-secondary);
+    }
+  }
+}
+
+.todayBriefNote a {
+  color: var(--text);
+}

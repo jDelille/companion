@@ -44,9 +44,13 @@ export default function AdaptiveShell({
   const contextClose = useRef<HTMLButtonElement>(null);
   const workspace = useRef<HTMLElement>(null);
   // The second column follows the section, as in the VNext design
-  const onPeople = pathname.startsWith("/people");
+  const onPeople =
+    pathname.startsWith("/people") ||
+    (pathname === "/hub" && ["intake", "archived", "courses", "manage", "book"].includes(routeView ?? ""));
   const onClasses = pathname.startsWith("/ops");
   const sectionPane = onPeople || onClasses;
+  // Today uses the full width, like the VNext Owner Today screen
+  const fullWidth = pathname === "/";
 
   // Shared-device privacy: hide staff pages when the browser restores them from history,
   // and follow other tabs to the kiosk when one switches to public mode.
@@ -116,7 +120,7 @@ export default function AdaptiveShell({
         <ConnectedNavigation />
       </div>
 
-      <div
+      {!fullWidth && <div
         id="workspace-context"
         className={`${styles.contextSlot} ${sectionPane ? "" : styles.connectedContext}`}
         onClick={(event) => {
@@ -136,7 +140,7 @@ export default function AdaptiveShell({
           ✕
         </button>
         {sectionPane ? (
-          <ContextPane>{undefined}</ContextPane>
+          <ContextPane section={onPeople ? "people" : "classes"}>{undefined}</ContextPane>
         ) : context ?? (
           <section>
             <h2>Your Dojang workspace</h2>
@@ -155,7 +159,7 @@ export default function AdaptiveShell({
           <Link href="/follow-ups">Internal follow-ups →</Link>
           <Link href="/hub?view=ai">AI drafting settings →</Link>
         </nav>}
-      </div>
+      </div>}
 
       <div className={styles.workspaceSlot}>
         <header className={styles.connectedHeader}>
@@ -163,7 +167,7 @@ export default function AdaptiveShell({
             <strong>{demoMode ? "Dojang Downtown" : "Dojang Companion"}</strong>
             <span>{connectedTest ? "Test workspace" : "Staff workspace"}</span>
           </div>
-          <button
+          {!fullWidth && <button
             ref={contextTrigger}
             className={styles.contextTrigger}
             aria-controls="workspace-context"
@@ -174,7 +178,7 @@ export default function AdaptiveShell({
             }}
           >
             Workspace guide
-          </button>
+          </button>}
         </header>
         {demoMode && (
           <div className={styles.demoBanner}>Preview · Sample data</div>

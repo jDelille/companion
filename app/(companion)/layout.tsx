@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { DM_Mono, Inter } from "next/font/google";
 import Link from "@/components/primitives/AppLink";
 import AdaptiveShell from "@/components/shell/AdaptiveShell";
 import { WorkspaceActions } from "@/components/workspace/WorkspaceActions";
@@ -8,6 +8,8 @@ import "./globals.scss";
 import { ChevronRightIcon } from "@/icons";
 
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
+// Small uppercase labels, as in the VNext design
+const dmMono = DM_Mono({ variable: "--font-dm-mono", subsets: ["latin"], weight: ["400", "500"] });
 export const metadata: Metadata = {
   title: "Dojang Companion",
   description: "Front desk and member management",
@@ -43,7 +45,7 @@ export default function RootLayout({
     </section>
   ) : undefined;
   return (
-    <html lang="en" className={`${inter.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} ${dmMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <WorkspaceActions><AdaptiveShell connectedTest={connected} demoMode={process.env.NEXT_PUBLIC_DEMO_MODE === "true"} context={context}>
           {children}

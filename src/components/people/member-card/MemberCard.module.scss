@@ -12,6 +12,7 @@
   .label {
     color: var(--text-secondary);
     text-transform: uppercase;
+    font-family: var(--font-label);
     font-size: 10px;
     font-weight: 300;
     letter-spacing: 1px;
@@ -77,6 +78,7 @@
       .status {
         border: 1px solid var(--text-secondary);
         text-transform: uppercase;
+        font-family: var(--font-label);
         color: var(--success);
         border-radius: 22px;
         font-size: 12px;

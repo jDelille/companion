@@ -24,7 +24,7 @@ const items: {
     href: "/people",
     label: "Members",
     icon: "members",
-    matches: (p, view) => p.startsWith("/people") || p === "/integration/members" || (p === "/hub" && ["manage", "book"].includes(view)),
+    matches: (p, view) => p.startsWith("/people") || p === "/integration/members" || (p === "/hub" && ["manage", "book", "intake", "archived", "courses"].includes(view)),
   },
   { href: "/hub?view=crm", label: "Sales", icon: "sales", matches: (p, view) => p === "/hub" && view === "crm" },
   { href: "/hub", label: "Inbox", icon: "followups", matches: (p, view) => p === "/hub" && ["", "messages"].includes(view) },

@@ -100,6 +100,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  font-family: var(--font-label);
   color: var(--muted);
 }
 
@@ -244,6 +245,7 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  font-family: var(--font-label);
 }
 
 /* "Instructor summary" starts a new section */
