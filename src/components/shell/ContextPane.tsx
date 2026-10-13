@@ -9,7 +9,7 @@ import type { SessionOption } from "@/contracts/kiosk-attendance";
 
 type Props = {
   children: ReactNode;
-  section?: "people" | "classes"; // which section's column to show; the shell decides
+  section?: "people" | "classes" | "operations"; // which section's column to show; the shell decides
 };
 
 const arrivals = [
@@ -86,6 +86,35 @@ const ContextPane = ({ children, section }: Props) => {
   const matches = search && members
     ? members.filter((member) => member.name.toLowerCase().includes(search)).slice(0, 8)
     : [];
+
+  // Operations: the section's pages, like the Members pane does for People
+  if (section === "operations") {
+    const links = [
+      { href: "/ops", label: "Schedule", active: pathname === "/ops" },
+      { href: "/hub?view=instructor", label: "Instructor & timesheets", active: hubView === "instructor" },
+      { href: "/hub?view=operations", label: "Reports & rosters", active: hubView === "operations" },
+      { href: "/hub?view=courses", label: "Course rosters", active: hubView === "courses" },
+    ];
+    return (
+      <div className={styles.contextPane}>
+        <div className={styles.contextPane__header}>
+          <h2>Operations</h2>
+        </div>
+        <p className={styles.label}>Pages</p>
+        {links.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={`${styles.item} ${link.active ? styles.active : ""}`}
+          >
+            <div className={styles.info}>
+              <p>{link.label}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
+  }
 
   if (onPeople) {
     return (

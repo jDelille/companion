@@ -12,6 +12,11 @@ import { ChevronRightIcon } from "@/icons";
 const formatDetail = (detail: string) =>
   /^\d{4}-/.test(detail) ? new Date(detail).toLocaleString() : detail;
 
+// Roster status text from Odoo ("present", "late", "Not yet checked in"…) → pill colour
+const isCheckedIn = (detail: string) => /^(present|late)/i.test(detail);
+const pillTone = (detail: string) =>
+  isCheckedIn(detail) ? "checkedIn" : /absent|excused/i.test(detail) ? "away" : "pending";
+
 export default function ConnectedWorkflowView({
   historyOnly = false,
 }: {
@@ -48,6 +53,9 @@ export default function ConnectedWorkflowView({
     <section className={styles.workspace}>
       <header className={styles.pageHeader}>
         <div className={styles.pageTitles}>
+          <span className={styles.kicker}>
+            {historyOnly ? "Engagement · Follow-ups" : "Operations · Class roster"}
+          </span>
           <Heading className={styles.pageTitle}>
             {historyOnly ? "Follow-ups" : data?.heading || "Staff workspace"}
           </Heading>
@@ -95,7 +103,15 @@ export default function ConnectedWorkflowView({
         <div className={styles.sections}>
           {!historyOnly && (
             <section className={styles.section}>
-              <h3 className={styles.sectionLabel}>Today&apos;s classes</h3>
+              <header className={styles.sectionHeader}>
+                <h3 className={styles.sectionLabel}>Roster</h3>
+                {!!data.records?.length && (
+                  <span className={styles.sectionCount}>
+                    {data.records.filter((r) => isCheckedIn(r.detail)).length} of{" "}
+                    {data.records.length} checked in
+                  </span>
+                )}
+              </header>
               {!data.records?.length ? (
                 <p className={styles.empty}>
                   No records in this authorized scope.
@@ -107,7 +123,7 @@ export default function ConnectedWorkflowView({
                       {/* The whole card opens the class roster */}
                       <Link href={r.href} className={styles.classItem}>
                         <span className={styles.itemTitle}>{r.label}</span>
-                        <span className={styles.meta}>
+                        <span className={`${styles.pill} ${styles[pillTone(r.detail)]}`}>
                           {formatDetail(r.detail)}
                         </span>
                       </Link>
@@ -119,7 +135,9 @@ export default function ConnectedWorkflowView({
           )}
 
           <section className={styles.section}>
-            <h3 className={styles.sectionLabel}>Reviewed follow-ups</h3>
+            <header className={styles.sectionHeader}>
+              <h3 className={styles.sectionLabel}>Reviewed follow-ups</h3>
+            </header>
             {!data.followUps?.length ? (
               <p className={styles.empty}>
                 <strong>No approved follow-ups yet.</strong>

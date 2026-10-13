@@ -16,8 +16,6 @@
 
   min-height: 100%;
   width: 100%;
-  max-width: 1240px;
-  margin-inline: auto;
   box-sizing: border-box;
   background: transparent;
   color: var(--text);
@@ -25,7 +23,7 @@
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  padding: 32px 40px;
+  padding: 32px 24px 56px; /* same as Today: sides match the top bar */
 }
 
 .root * {
@@ -48,18 +46,19 @@
 
 .header h1 {
   margin: 2px 0;
-  font-family: var(--font-display, Georgia, serif);
-  font-size: 1.75rem;
+  font-size: 28px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 /* "ROSTER" above the title: a small uppercase label like elsewhere in the app */
 .header small {
-  margin: 0 0 4px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
+  margin: 0 0 6px;
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
@@ -82,9 +81,9 @@
 /* Each message, Recent actions */
 .card {
   margin: 16px 0;
-  padding: 20px 24px;
+  padding: 20px 22px;
   border: 1px solid var(--line);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-card, 16px);
   background: var(--panel);
 }
 
@@ -460,3 +459,31 @@
 .score small { font-size:14px; color:var(--text-secondary); }
 .score p { max-width:540px; font-size:12px; color:var(--text-secondary); }
 @media(max-width:700px){ .crmPulse{grid-template-columns:repeat(2,minmax(0,1fr));} .pipelineBoard,.pipelineList{grid-template-columns:minmax(0,1fr);} .score{align-items:flex-start;gap:16px;} .crmPulse > div,.crmPulse > button{padding:16px;} }
+
+/* Sign in is the main action on its card: red, like every primary action */
+.card:has(input[type="password"]) button {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.card:has(input[type="password"]) button:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* Who's signed in + Refresh / Sign out: one quiet line under the title, not a second header */
+.accountRow {
+  margin-bottom: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.accountRow p {
+  margin: 0;
+}
+
+.accountRow button {
+  min-height: 32px;
+  padding: 0 12px;
+  font-size: 12px;
+}
