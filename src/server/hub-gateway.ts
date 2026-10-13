@@ -6,8 +6,8 @@ type Config = {origin:string; backend:string; database:string; siteId:string; se
 const cookieName = 'dojang_hub_session';
 const responseHeaders = {'cache-control':'private, no-store', vary:'Cookie'};
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const reads = new Set(['context','member_details','crm_context','lead_details','ai_settings']);
-const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai']);
+const reads = new Set(['context','member_details','member_workspace','crm_context','lead_details','ai_settings','instructor_context','operations_report','session_roster']);
+const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai','add_lead_note','prepare_lead_action','assign_lead','instructor_clock','correct_timesheet']);
 const reject = (code:string,status=400) => Response.json({error:{code,status}},{status,headers:responseHeaders});
 
 export function hubConfig(env: NodeJS.ProcessEnv): Config {
@@ -52,13 +52,36 @@ async function body(request:Request) {
   return JSON.parse(Buffer.concat(chunks).toString()) as unknown;
 }
 
-async function rpc(c:Config, path:string, params:Record<string,unknown>, session:string|null, fetcher:Fetcher) {
-  const response=await fetcher(c.backend+path,{method:'POST',redirect:'error',cache:'no-store',signal:AbortSignal.timeout(45000),
+async function rpc(c:Config, path:string, params:Record<string,unknown>, session:string|null, fetcher:Fetcher, timeout=45000) {
+  const response=await fetcher(c.backend+path,{method:'POST',redirect:'error',cache:'no-store',signal:AbortSignal.timeout(timeout),
     headers:{'content-type':'application/json',...(session?{cookie:'session_id='+session}:{})},body:JSON.stringify({jsonrpc:'2.0',method:'call',params})});
   if(!response.ok) throw Error('Backend unavailable');
   const value:unknown=await response.json();
   if(!object(value) || value.error) throw Error('Backend rejected request');
   return {response,result:value.result};
+}
+
+/** Public-mode entry removes BOTH staff authorities, retaining only kiosk pairing.
+ * This remains possible with an expired cookie or an unavailable Odoo backend.
+ * A failed backend revocation is reported honestly; no raw session leaves here.
+ */
+export async function enterPublicMode(request:Request, env:NodeJS.ProcessEnv, fetcher:Fetcher=fetch) {
+  let origin:URL;
+  try {
+    origin=new URL(env.DOJANG_PUBLIC_ORIGIN || '');
+    if (origin.username || origin.password || origin.pathname!=='/' || origin.search || origin.hash ||
+      (origin.protocol!=='https:' && !(origin.protocol==='http:' && ['localhost','127.0.0.1','[::1]'].includes(origin.hostname)))) throw Error();
+  } catch {return reject('PUBLIC_MODE_NOT_CONFIGURED',503);}
+  if(request.method!=='POST' || request.headers.get('origin')!==origin.origin)return reject('FORBIDDEN',403);
+  let backendRevoked:boolean|null=null;
+  try {
+    const c=hubConfig(env), session=sessionFrom(c,request);
+    if(session){backendRevoked=false;await rpc(c,'/web/session/destroy',{},session,fetcher,5000);backendRevoked=true;}
+  } catch { /* Clearing this browser must not depend on backend availability. */ }
+  const response=Response.json({staffContextCleared:true,backendRevoked},{headers:responseHeaders});
+  for(const name of [cookieName,'dojang_staff_test'])response.headers.append('set-cookie',
+    `${name}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0${origin.protocol==='https:'?'; Secure':''}`);
+  return response;
 }
 
 export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:Fetcher=fetch) {
@@ -96,6 +119,15 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
     if(object(result.error)){
       const status=[400,401,403,404,409,422,503].includes(Number(result.error.status))?Number(result.error.status):503;
       return reject(typeof result.error.code==='string' && /^[A-Z_]{1,80}$/.test(result.error.code)?result.error.code:'BACKEND_UNAVAILABLE',status);
+    }
+    if(operation==='instructor_clock'||operation==='correct_timesheet'){
+      const shift=result.shift;
+      const expected=operation==='correct_timesheet'?'timesheet_corrected':data.payload.direction==='in'?'clocked_in':'clocked_out';
+      if(result.state!==expected||!object(shift)||typeof shift.id!=='string'||!/^[1-9][0-9]*$/.test(shift.id)||
+        typeof shift.checkIn!=='string'||!Number.isFinite(Date.parse(shift.checkIn))||
+        (expected==='clocked_in'?shift.checkOut!==null:typeof shift.checkOut!=='string'||!Number.isFinite(Date.parse(shift.checkOut)))||
+        (operation==='correct_timesheet'&&shift.id!==data.payload.shiftId)||
+        (operation==='instructor_clock'&&data.payload.direction==='out'&&shift.id!==data.payload.currentShiftId))return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);
     }
     if(operation==='payment_link'){
       // Never let backend data navigate the browser to a different origin or

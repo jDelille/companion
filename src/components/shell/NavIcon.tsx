@@ -1,11 +1,12 @@
 import type { SVGProps } from "react";
 export type NavIconName =
-  "today" | "classes" | "members" | "followups" | "companion";
+  "today" | "classes" | "members" | "followups" | "companion" | "sales";
 export default function NavIcon({
   name,
   ...props
 }: SVGProps<SVGSVGElement> & { name: NavIconName }) {
   const paths: Record<NavIconName, React.ReactNode> = {
+    sales: <><rect x="3" y="4" width="5" height="16" rx="1" /><rect x="10" y="4" width="5" height="10" rx="1" /><rect x="17" y="4" width="4" height="13" rx="1" /></>,
     today: (
       <>
         <path d="m3 10 9-7 9 7v10H3Z" />

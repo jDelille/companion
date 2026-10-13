@@ -5,6 +5,7 @@ import Tabs from "./tabs/Tabs";
 import MemberGrid from "./member-grid/MemberGrid";
 import CheckInHistory from "./check-in-history/CheckInHistory";
 import { SelectMember } from "@/components/shell/selected-member/selectedMember";
+import ConnectedMemberDetails from "./ConnectedMemberDetails";
 
 type Props = {
   member: Member;
@@ -41,7 +42,17 @@ const Member360View = ({ member, attendance, liveTest = false }: Props) => {
               liveTest={liveTest}
             />
           ),
-          Attendance: <CheckInHistory attendance={attendance} />,
+          Attendance: <><CheckInHistory attendance={attendance} />{liveTest&&<ConnectedMemberDetails memberId={member.id} section="attendance"/>}</>,
+          ...(liveTest ? {
+            Timeline: <ConnectedMemberDetails memberId={member.id} section="timeline" />,
+            Progress: <ConnectedMemberDetails memberId={member.id} section="progress" />,
+            Membership: <ConnectedMemberDetails memberId={member.id} section="membership" />,
+            Billing: <ConnectedMemberDetails memberId={member.id} section="billing" />,
+            Messages: <ConnectedMemberDetails memberId={member.id} section="messages" />,
+            Family: <ConnectedMemberDetails memberId={member.id} section="family" />,
+            Documents: <ConnectedMemberDetails memberId={member.id} section="documents" />,
+            Safety: <ConnectedMemberDetails memberId={member.id} section="safety" />,
+          } : {}),
         }}
       />
     </article>

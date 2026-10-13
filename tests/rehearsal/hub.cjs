@@ -17,7 +17,7 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
 (async()=>{
  const browser=await chromium.launch({headless:true});
  try{
-  const context=await browser.newContext({viewport:{width:1280,height:900}}),page=await context.newPage();
+  const context=await browser.newContext({viewport:{width:1280,height:900},recordVideo:{dir:path.join(process.env.DOJANG_EVIDENCE_DIR,'video-hub'),size:{width:1280,height:900}}}),page=await context.newPage();
   page.setDefaultTimeout(20000);
   const event={type:'message.received',workspaceRef:'11',eventRef:'browser-parent-message-100',channel:'sms',contactRef:'42',text:'My child cannot attend this class. Could you help with a makeup?'};
   const body=JSON.stringify(event),stamp=String(Math.floor(Date.now()/1000));
@@ -48,6 +48,7 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
   await page.getByLabel('Review reply',{exact:true}).waitFor();
   assert.equal(await page.getByRole('button',{name:'Approve and queue reply'}).isDisabled(),true);
   passed('verified child/class resolution and a durable template draft; unconfigured sends stay disabled');
+  await page.screenshot({path:path.join(process.env.DOJANG_EVIDENCE_DIR,'walkthrough-hub-draft.png'),fullPage:true});
   stage='class booking';
   await page.getByText('Book or change a class',{exact:true}).click();
   assert.equal(await optionDisabled(page,'Booking action','change_class'),true);
@@ -68,6 +69,7 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
   await page.reload();
   await page.getByRole('group',{name:`Saved booking receipt ${booking.booking.enrollmentId}`,exact:true}).waitFor();
   passed('booking receipt and class details survive a full reload from the real database');
+  await page.screenshot({path:path.join(process.env.DOJANG_EVIDENCE_DIR,'walkthrough-booking-receipt.png'),fullPage:true});
   assert.equal(data.messages.length,1);assert.equal(data.messages[0].state,'resolved');assert.equal(data.messages[0].memberId,fixture.followupMemberId);
   assert.equal(data.principal.role,'manager');assert.equal(data.capabilities.outbound,'not_configured');
   const second=await browser.newContext();
@@ -135,5 +137,6 @@ const passed=name=>{evidence.push({name,result:'passed'});console.log('PASS '+na
   passed('sign-out removes access to the hub');
   fs.writeFileSync(path.join(process.env.DOJANG_EVIDENCE_DIR,'hub-browser-results.json'),JSON.stringify({mode:'real Odoo synthetic database; signed synthetic source event; template drafting; no external provider',checks:evidence},null,2));
   await context.close();await second.close();
+  await page.video().saveAs(path.join(process.env.DOJANG_EVIDENCE_DIR,'walkthrough-hub.webm'));
  }finally{await browser.close();}
 })().catch(error=>{const values=['number','boolean'].includes(typeof error.actual)&&['number','boolean'].includes(typeof error.expected)?` actual=${error.actual} expected=${error.expected}`:'';console.error('Hub rehearsal failed at check '+(evidence.length+1)+' ('+stage+'). '+(error.code||error.name||'Error')+values+'. Inspect sanitized browser evidence.');process.exitCode=1;});

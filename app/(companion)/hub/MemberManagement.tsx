@@ -6,7 +6,7 @@ import { explainHubError, type ActionFeedback } from "@/domain/hub-actions";
 import styles from "./page.module.css";
 
 type Session = { id: string; title: string; startsAt: string; future: boolean; version: number };
-type Details = {
+export type MemberDetails = {
   member: { id: string; name: string; version: number; partnerVersion: number; phone: string | null; email: string | null; state: string; rank: string; stripes: number };
   canEdit: boolean;
   canEditContact: boolean;
@@ -19,9 +19,10 @@ type Details = {
     invoices: { id: string; number: string; kind: string; date: string | null; paymentState: string; total: number; remaining: number; currency: string; scope: string; version: number; paymentUnavailable: string | null }[];
   };
 };
+type Details = MemberDetails;
 type Review = { operation: string; payload: Record<string, unknown>; description: string };
 type Props = {
-  memberId: string; sessions: Session[]; now: number; busy: boolean; locked: boolean;
+  memberId: string; section?: string; sessions: Session[]; now: number; busy: boolean; locked: boolean;
   feedback?: ActionFeedback; clearFeedback: () => void; retry?: () => Promise<ActionFeedback | undefined>;
   act: (operation: string, payload: Record<string, unknown>) => Promise<ActionFeedback | undefined>;
 };
@@ -71,7 +72,7 @@ function RankForm({ data, disabled, review }: { data: Details; disabled: boolean
   </form>;
 }
 
-export default function MemberManagement({ memberId, sessions, now, busy, locked, feedback, clearFeedback, retry, act }: Props) {
+export default function MemberManagement({ memberId, section, sessions, now, busy, locked, feedback, clearFeedback, retry, act }: Props) {
   const [data, setData] = useState<Details | null>(null);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
@@ -132,11 +133,11 @@ export default function MemberManagement({ memberId, sessions, now, busy, locked
         <div className={styles.row}><button disabled={disabled} onClick={() => void confirm()}>{review.operation === "payment_link" ? "Prepare secure checkout" : "Confirm member action in Odoo"}</button>
           <button disabled={disabled} onClick={() => setReview(null)}>Cancel review</button></div>
       </div>}
-      <details className={styles.booking} open><summary>Contact details</summary>
+      <details className={styles.booking} open={!section || section === 'profile'}><summary>Contact details</summary>
         {data.canEditContact ? <ContactForm key={`${data.member.version}:${data.member.partnerVersion}`} data={data} disabled={disabled || !!review} review={prepare} />
           : <p>{data.canEdit ? "This contact is shared or outside the site's company. An administrator must review it in Odoo before editing." : "Only a manager or owner can edit contact details."}</p>}
       </details>
-      <details className={styles.booking}><summary>Membership and billing</summary>
+      <details className={styles.booking} open={section === 'billing' || section === 'membership'}><summary>Membership and billing</summary>
         {data.billing ? <>
           <p>Invoices linked to this member’s subscriptions. Review an unpaid invoice to continue to secure checkout. Refresh after payment for the current balance.</p>
           {data.billing.subscriptions.length ? data.billing.subscriptions.map(s => <div className={styles.auditEntry} key={s.id}>
@@ -155,7 +156,7 @@ export default function MemberManagement({ memberId, sessions, now, busy, locked
           <small>Up to 50 subscriptions and 50 linked posted invoices. Next invoice date is not a confirmed payment date.</small>
         </> : <p>Billing is visible only to managers and owners.</p>}
       </details>
-      <details className={styles.booking}><summary>Registrations and class changes</summary>
+      <details className={styles.booking} open={section === 'bookings'}><summary>Registrations and class changes</summary>
         <p>Active registrations for upcoming or ongoing classes (up to 100).</p>
         <label className={styles.fields}>Replacement class<Select ariaLabel="Replacement class for member" value={replacement} disabled={disabled || !!review} onChange={setReplacement}
           placeholder="Choose future replacement" options={sessions.filter(s => s.future && Date.parse(s.startsAt) > now).map(s => ({ value: s.id, label: `${s.title} · ${when(s.startsAt)}` }))} /></label>
@@ -167,7 +168,7 @@ export default function MemberManagement({ memberId, sessions, now, busy, locked
           }}>Review replacement of {b.title}</button> : <small>This registration cannot be replaced here after the class starts or attendance is recorded.</small>}
         </div>) : <p>No active registrations found.</p>}
       </details>
-      <details className={styles.booking}><summary>Attendance and checkout</summary>
+      <details className={styles.booking} open={section === 'attendance'}><summary>Attendance and checkout</summary>
         {data.attendance.length ? data.attendance.map(a => <div key={a.id} className={styles.auditEntry}>
           <strong>{a.title}</strong><p>Checked in: {when(a.checkedInAt)}</p>
           {a.checkedOutAt ? <p>Checked out: {when(a.checkedOutAt)}</p> : <button disabled={disabled || !!review} onClick={() => prepare({ operation: "checkout", payload: { memberId, sessionId: a.sessionId },
@@ -175,7 +176,7 @@ export default function MemberManagement({ memberId, sessions, now, busy, locked
         </div>) : <p>No present or late attendance records found.</p>}
         <small>Most recent 30 attendance records within your access.</small>
       </details>
-      <details className={styles.booking}><summary>Rank and progress</summary>
+      <details className={styles.booking} open={section === 'progress'}><summary>Rank and progress</summary>
         {data.rankHistory.map(r => <p key={r.id}>{r.date} · {r.rank} · {r.stripes} stripes</p>)}
         {!data.rankHistory.length && <p>No rank history recorded.</p>}
         <small>Most recent 20 awards.</small>

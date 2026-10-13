@@ -1,12 +1,52 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
-const {hubRoute,hubConfig}=require(process.env.DOJANG_HUB_MODULE);
+const {hubRoute,hubConfig,enterPublicMode}=require(process.env.DOJANG_HUB_MODULE);
 const env={DOJANG_HUB_ENABLED:'true',NEXT_PUBLIC_DEMO_MODE:'false',DOJANG_PUBLIC_ORIGIN:'https://companion.example.test',DOJANG_ODOO_URL:'https://odoo.example.test',DOJANG_ODOO_DATABASE:'dojang_test',DOJANG_HUB_SITE_ID:'5',DOJANG_COOKIE_SECRET:'s'.repeat(48)};
 const req=(body,cookie='',origin=env.DOJANG_PUBLIC_ORIGIN)=>new Request(env.DOJANG_PUBLIC_ORIGIN+'/api/hub',{method:'POST',headers:{origin,cookie,'content-type':'application/json'},body:JSON.stringify(body)});
 const sid='a'.repeat(64);
 const context={principal:{userId:'15',name:'Synthetic Staff',role:'manager',siteId:'5'},members:[]};
 const fixture=async(url)=>url.endsWith('/authenticate')?Response.json({result:{uid:15}},{headers:{'set-cookie':`session_id=${sid}; Path=/; HttpOnly; Secure`}}):Response.json({result:context});
 const login=async()=>{const response=await hubRoute(req({operation:'login',login:'synthetic@example.invalid',password:'synthetic-password'}),env,fixture);assert.equal(response.status,200);return response.headers.get('set-cookie').split(';')[0];};
+test('public mode removes both staff cookies, preserves kiosk pairing and revokes the native session',async()=>{
+ const cookie=await login();let calls=0;
+ const r=await enterPublicMode(req({},cookie+'; dojang_staff_test=paired; dojang_kiosk_test=public'),env,async(url)=>{calls++;assert.ok(url.endsWith('/web/session/destroy'));return Response.json({result:null});});
+ assert.equal(r.status,200);assert.deepEqual(await r.json(),{staffContextCleared:true,backendRevoked:true});assert.equal(calls,1);
+ assert.equal(r.headers.getSetCookie().length,2);
+ assert.match(r.headers.get('set-cookie'),/dojang_hub_session=;.*Max-Age=0/);
+ assert.match(r.headers.get('set-cookie'),/dojang_staff_test=;.*Max-Age=0/);
+ assert.doesNotMatch(r.headers.get('set-cookie'),/dojang_kiosk_test/);
+});
+test('public privacy reset stays honest and locally clears expired or unreachable sessions',async()=>{
+ const cookie=await login();
+ for(const [value,settings,revoked] of [[cookie,env,false],['dojang_hub_session=expired',env,null],[cookie,{...env,DOJANG_HUB_ENABLED:'false'},null]]){
+  const r=await enterPublicMode(req({},value),settings,async()=>{throw Error('secret');});
+  assert.equal(r.status,200);assert.equal((await r.json()).backendRevoked,revoked);assert.equal(r.headers.getSetCookie().length,2);
+ }
+});
+test('cross-origin public reset cannot sign staff out or reach Odoo',async()=>{
+ let calls=0;const r=await enterPublicMode(req({},await login(),'https://attacker.test'),env,async()=>{calls++;});
+ assert.equal(r.status,403);assert.equal(calls,0);assert.equal(r.headers.get('set-cookie'),null);
+});
+test('instructor clock requires an individual staff session, never device pairing',async()=>{
+ const body={operation:'instructor_clock',payload:{direction:'in',currentShiftId:null,pin:'123456'},requestKey:'instructor-clock-0001'};
+ let calls=0;
+ const r=await hubRoute(req(body,'dojang_staff_test=fake.pair'),env,async()=>{calls++;});
+ assert.equal(r.status,401);assert.equal(calls,0);
+});
+test('malformed or mismatched shift receipt remains uncertain instead of displaying success',async()=>{
+ const cookie=await login();
+ for(const shift of [null,{id:'24',checkIn:'2026-10-12T10:00:00Z',checkOut:'2026-10-12T11:00:00Z'},{id:'25',checkIn:'not-a-date',checkOut:null}]){
+  const body={operation:'instructor_clock',payload:{direction:'out',currentShiftId:'25',pin:'123456'},requestKey:'instructor-clock-0001'};
+  const r=await hubRoute(req(body,cookie),env,async()=>Response.json({result:{state:'clocked_out',shift}}));
+  assert.equal(r.status,503);assert.equal((await r.json()).error.code,'BACKEND_UNAVAILABLE_RETRY_SAME_ACTION');
+ }
+});
+test('clock forwards the original key and accepts only the matching confirmed native shift',async()=>{
+ const cookie=await login(),body={operation:'instructor_clock',payload:{direction:'out',currentShiftId:'25',pin:'123456'},requestKey:'instructor-clock-0001'};
+ let sent;
+ const r=await hubRoute(req(body,cookie),env,async(_url,init)=>{sent=JSON.parse(init.body).params;return Response.json({result:{state:'clocked_out',shift:{id:'25',checkIn:'2026-10-12T10:00:00Z',checkOut:'2026-10-12T11:00:00Z'}}});});
+ assert.equal(r.status,200);assert.equal(sent.requestKey,body.requestKey);assert.deepEqual(sent.payload,body.payload);
+});
 test('hub refuses disabled mode, demo and unsafe origins',async()=>{for(const settings of [{...env,DOJANG_HUB_ENABLED:'false'},{...env,NEXT_PUBLIC_DEMO_MODE:'true'},{...env,DOJANG_ODOO_URL:'http://external.test'}])assert.throws(()=>hubConfig(settings));});
 test('cross-origin login never reaches the backend',async()=>{let calls=0;const r=await hubRoute(req({operation:'login',login:'a',password:'b'},'','https://attacker.test'),env,async()=>{calls++});assert.equal(r.status,403);assert.equal(calls,0)});
 test('browser cannot supply a role, tenant or backend host during login',async()=>{const r=await hubRoute(req({operation:'login',login:'a',password:'b',role:'owner'}),env,fixture);assert.equal(r.status,400)});
@@ -27,12 +67,12 @@ test('member details are an authenticated fixed read, never a paired-device upgr
 test('provider/backend errors are sanitized and preserve retry uncertainty',async()=>{const cookie=await login();const r=await hubRoute(req({operation:'checkout',payload:{},requestKey:'request-test-00001'},cookie),env,async()=>{throw Error('secret-token')});assert.equal(r.status,503);assert.doesNotMatch(await r.text(),/secret-token/)});
 test('CRM reads require a real user session and mutations require a stable receipt key',async()=>{
  const cookie=await login();
- for(const operation of ['crm_context','lead_details']){
-  const body={operation,payload:operation==='crm_context'?{query:''}:{leadId:'21'},requestKey:null};
+ for(const operation of ['crm_context','lead_details','member_workspace','operations_report','session_roster']){
+  const body={operation,payload:operation==='crm_context'?{query:''}:operation==='member_workspace'?{memberId:'25'}:{leadId:'21'},requestKey:null};
   assert.equal((await hubRoute(req(body),env,fixture)).status,401);
   assert.equal((await hubRoute(req(body,cookie),env,fixture)).status,200);
  }
- for(const operation of ['create_lead','update_lead','create_task','complete_task','propose_stage']){
+ for(const operation of ['create_lead','update_lead','create_task','complete_task','propose_stage','add_lead_note','prepare_lead_action','assign_lead']){
   assert.equal((await hubRoute(req({operation,payload:{},requestKey:null},cookie),env,fixture)).status,400);
   assert.equal((await hubRoute(req({operation,payload:{},requestKey:'crm-action-test-0001'},cookie),env,fixture)).status,200);
  }

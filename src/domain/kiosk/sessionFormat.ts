@@ -11,10 +11,11 @@ export function sessionsInTimeOrder(
 
 // "2026-10-06T00:00:00Z" -> { time: "5:00", period: "PM" } in the kiosk's own locale.
 // period is empty for 24-hour locales.
-export function formatStartTime(startsAt: string) {
+export function formatStartTime(startsAt: string, timeZone?: string) {
   const parts = new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
     minute: "2-digit",
+    timeZone,
   }).formatToParts(new Date(startsAt));
 
   const period = parts.find((part) => part.type === "dayPeriod")?.value ?? "";

@@ -62,23 +62,12 @@ and editorial serif headings. Glass belongs on the main class card, member
 detail cards, review surfaces, and sheets; keep lists and ordinary text open.
 The background uses a neutral charcoal-to-black gradient, with neutral gray
 glass surfaces and no purple or burgundy tint. Preserve red action accents.
-The original UFT
-kiosk crest sits centered behind workspace and kiosk content, with a circular
-feathered edge and low opacity. Keep it at 70% width (capped at 30rem/62svh),
-with its original colors intact at 12% opacity. Do not make the main crest
-monochrome, invert it, or recolor it. Surround it with 44 small, stationary,
-monochrome copies at 4.5% opacity, scattered with varied size and rotation.
-Keep their irregular positions stable across hydration/navigation. Only these
-miniatures use grayscale/inversion and screen blending for a transparent look.
-Keep the main outline clear: fade only the outer rim (84–100% radius),
-not the middle or lettering. Blend using low opacity and light edge feathering, keeping the
-schedule legible. Keep the background gradient achromatic, not red or purple.
-Reuse `addons/dojo_kiosk/static/src/img/uft-logo.png`
-unchanged (it contains JPEG bytes, served as `public/brand/uft-crest.jpg`). Its
-Afterhours-style metallic shine glides briefly every nine seconds, pausing in
-hidden tabs, off-screen, and behind dialogs/panels. Reduced motion keeps a still
-crest; increased contrast hides the decoration. Never animate blur or the page
-background. Content may arrive over 420ms; controls get
+Dojang is the product identity across workspaces, kiosks, and assistant surfaces.
+Use a clean background without a client crest, logo watermark, repeating logo
+pattern, or animated logo shine. Dojang serves independent instructors, studios,
+and training businesses; its shared shell must not be branded as one client.
+Keep customer identity in explicitly configured workspace details.
+Content may arrive over 420ms; controls get
 short press feedback. Never transform the shell or dock ancestor. Respect
 reduced motion and transparency; the glass mixin provides a solid fallback.
 Keep existing live-data labels accurate rather than copying invented reference

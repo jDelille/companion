@@ -68,6 +68,10 @@ export interface SessionOption {
   version: number;
   capacity: number;
   seatsTaken: number;
+  /** Optional for older clients; authoritative metadata from the paired site. */
+  instructor?: string | null;
+  location?: string;
+  timeZone?: string;
 }
 
 /** Only returned AFTER the server has resolved a permitted member scope. */

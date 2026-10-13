@@ -1,0 +1,16 @@
+.panel {
+  padding: 24px 32px;
+  display: grid;
+  gap: 16px;
+  line-height: 1.6;
+  h2 { font-size: 24px; font-weight: 500; }
+  h3 { font-size: 15px; margin-top: 12px; }
+  p { color: var(--text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
+  strong, a { color: var(--text); }
+  article { padding-block: 14px; border-bottom: 1px solid var(--line); }
+  small { color: var(--text-secondary); }
+  button { justify-self: start; padding: 10px 14px; border: 1px solid var(--line); border-radius: 20px; color: var(--text); background: var(--raised); cursor: pointer; }
+  a { padding-block: 6px; }
+}
+.heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+@media(max-width:767px){.panel{padding:20px 16px;}}

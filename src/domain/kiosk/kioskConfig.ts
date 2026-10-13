@@ -1,7 +1,7 @@
 // Kiosk settings in one place, so they're easy to swap once the real values exist
 
-// PROVISIONAL: synthetic placeholder. Nothing in the contract or mock data has a school name yet.
-export const SCHOOL_NAME = "Dojang Downtown";
+// Neutral platform identity. Session cards carry the backend's actual location.
+export const SCHOOL_NAME = "Dojang";
 
 export type SecondaryActionId =
   | "classes"
@@ -19,14 +19,15 @@ export type SecondaryAction = {
 };
 
 // Secondary buttons on the Welcome screen (K01). WelcomeScreen renders straight from this list.
-// None of these are built yet, so they're all unavailable and shouldn't look tappable.
+// Classes uses the same authoritative session-first journey as Check In.
+// Unsupported destinations stay explicitly unavailable.
 export const SECONDARY_ACTIONS: SecondaryAction[] = [
   {
     id: "classes",
     label: "Classes",
     prominence: "card",
     shown: true,
-    available: false,
+    available: true,
   },
   {
     id: "events",

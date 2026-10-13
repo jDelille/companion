@@ -36,6 +36,15 @@ const messages: Record<string, string> = {
   AUTOMATED_TASK_REVIEW_REQUIRED: 'This activity belongs to an automated workflow. Review it in Odoo before completing it.',
   CRM_DETAILS_UNAVAILABLE: 'CRM records could not be verified. Refresh before continuing.',
   NOT_CHECKED_IN: 'No eligible check-in was found for this member and class.',
+  INSTRUCTOR_PROFILE_REQUIRED: 'Your account needs an active instructor profile linked to its employee record at this school.',
+  INSTRUCTOR_DETAILS_UNAVAILABLE: 'Instructor records could not be verified. Refresh before continuing.',
+  PIN_INCORRECT: 'The instructor PIN is incorrect. No shift was changed.',
+  PIN_LOCKED: 'Too many incorrect PIN attempts. Wait for the configured lockout to expire or contact your administrator.',
+  ALREADY_CLOCKED_IN: 'You are already clocked in. Refresh to see the existing shift.',
+  SHIFT_CHANGED: 'The active shift changed. Refresh and review it before clocking out.',
+  SHIFT_UNAVAILABLE: 'This shift is unavailable with your current school access.',
+  TIMESHEET_REVIEW_REQUIRED: 'Only closed draft shifts can be corrected here. Use the native HR workflow for validated or open shifts.',
+  INVALID_SHIFT_TIMES: 'Use a closed shift of up to 24 hours, with clock-out after clock-in and neither time in the future.',
   PENDING_ACTION: 'Resolve the unconfirmed action before starting another change.',
   BACKEND_UNAVAILABLE_RETRY_SAME_ACTION: 'Odoo has not confirmed the result. Do not submit a new action. Retry this same action to check its original receipt.',
 };
@@ -67,13 +76,16 @@ export async function runHubAction(
     const code = error instanceof Error ? error.message : '';
     const uncertain = error instanceof TypeError || error instanceof SyntaxError ||
       ['AbortError', 'TimeoutError'].includes(error instanceof Error ? error.name : '') ||
-      ['BACKEND_UNAVAILABLE_RETRY_SAME_ACTION', 'BACKEND_UNAVAILABLE', 'CONNECTION_UNAVAILABLE'].includes(code) || !code;
+      ['BACKEND_UNAVAILABLE_RETRY_SAME_ACTION', 'BACKEND_UNAVAILABLE', 'CONNECTION_UNAVAILABLE', 'CONCURRENT_RETRY'].includes(code) || !code;
     return {kind: uncertain ? 'uncertain' : 'error', text: explainHubError(uncertain ? 'BACKEND_UNAVAILABLE_RETRY_SAME_ACTION' : code)};
   }
   const feedback: ActionFeedback = {
     kind: 'success',
     text: result.checkoutUrl ? 'Secure invoice checkout is ready. Payment has not been submitted.' :
       result.state==='ai_enabled' ? 'Live AI drafting passed the connection check and is enabled for this school.' :
+      result.state==='clocked_in' ? 'Clock-in confirmed in Odoo.' :
+      result.state==='clocked_out' ? 'Clock-out confirmed in Odoo.' :
+      result.state==='timesheet_corrected' ? 'Timesheet correction confirmed in Odoo. Payroll has not been approved.' :
       result.enrollmentId ? `Registration saved in Odoo. Receipt: ${result.enrollmentId}.` : 'Saved in Odoo.',
     ...(result.checkoutUrl && result.invoiceId && result.invoiceNumber && typeof result.amount==='number' && result.currency ?
       {checkout:{url:result.checkoutUrl,invoiceId:result.invoiceId,invoiceNumber:result.invoiceNumber,amount:result.amount,currency:result.currency}} : {}),

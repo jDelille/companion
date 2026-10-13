@@ -43,9 +43,9 @@ export default async function MemberPage({
         <p role="status" className={styles.notice}>
           <InfoIcon color="currentColor" size={16} />
           <span>
-            Odoo test data. Identity and attendance are connected. Class booking
-            and member management require individual Hub access. Billing reads
-            require manager access; payment collection is not connected.
+            Connected Odoo records. Private tabs and reviewed actions use your
+            individual staff account. Billing and private member information
+            require manager access; invoice checkout depends on school payment setup.
           </span>
         </p>
         <Member360View

@@ -347,7 +347,7 @@ const ScheduleList = ({
   return (
     <dl className={styles.schedule}>
       {sessionsInTimeOrder(sessions.list).map((session) => {
-        const { time, period } = formatStartTime(session.startsAt);
+        const { time, period } = formatStartTime(session.startsAt, session.timeZone);
         return (
           <div key={session.sessionId} className={styles.scheduleRow}>
             <dt>
@@ -487,7 +487,7 @@ const SessionPicker = ({
   return (
     <div className={styles.picker}>
       {sessionsInTimeOrder(sessions.list).map((session) => {
-        const { time, period } = formatStartTime(session.startsAt);
+        const { time, period } = formatStartTime(session.startsAt, session.timeZone);
         const isPicked = session.sessionId === pickedSessionId;
         return (
           <button

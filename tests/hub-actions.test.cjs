@@ -33,7 +33,7 @@ test('definite eligibility rejection is shown without refreshing or acknowledgin
   assert.equal(result.kind,'error');assert.match(result.text,/subscription, credits/);
 });
 test('transport and unconfirmed gateway errors preserve uncertainty',async()=>{
-  for(const error of [new TypeError('Failed to fetch'),new SyntaxError('bad JSON'),new Error('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION')]){
+  for(const error of [new TypeError('Failed to fetch'),new SyntaxError('bad JSON'),new Error('CONCURRENT_RETRY'),new Error('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION')]){
     const result=await runHubAction(async()=>{throw error;},async()=>assert.fail('not confirmed'),()=>assert.fail('not acknowledged'));
     assert.equal(result.kind,'uncertain');assert.match(result.text,/Retry this same action/);
   }

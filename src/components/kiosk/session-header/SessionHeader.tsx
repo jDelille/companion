@@ -16,7 +16,7 @@ const SessionHeader = ({
   onChangeSession,
   changeDisabled = false,
 }: Props) => {
-  const { time, period } = formatStartTime(session.startsAt);
+  const { time, period } = formatStartTime(session.startsAt, session.timeZone);
   const duration = formatDuration(session.startsAt, session.endsAt);
 
   return (

@@ -9,9 +9,9 @@ type Props = {
 };
 
 const SessionCard = ({ session, onSelect }: Props) => {
-  const { time, period } = formatStartTime(session.startsAt);
+  const { time, period } = formatStartTime(session.startsAt, session.timeZone);
   const duration = formatDuration(session.startsAt, session.endsAt);
-  const spokenLabel = `${session.title}, ${time} ${period}, ${duration}, ${session.seatsTaken} of ${session.capacity} spots taken`;
+  const spokenLabel = `${session.title}, ${time} ${period}, ${duration}, ${session.instructor || 'Instructor to be confirmed'}, ${session.seatsTaken} of ${session.capacity} spots taken`;
 
   return (
     // Same as SessionHeader on K03: tapping this card morphs it into the header
@@ -33,6 +33,7 @@ const SessionCard = ({ session, onSelect }: Props) => {
 
         <span className={styles.details}>
           <span className={styles.title}>{session.title}</span>
+          <span className={styles.duration}>{session.instructor || 'Instructor to be confirmed'}{session.location ? ` · ${session.location}` : ''}</span>
           <span className={styles.duration}>
             {duration}
             <span aria-hidden="true"> · </span>

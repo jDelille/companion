@@ -146,7 +146,11 @@ function publicPayload(operation: Operation, value: Record<string, unknown>, id?
     if (!Array.isArray(value.sessions)) return invalid();
     return value.sessions.map((s: unknown) => {
       if (!object(s) || !recordId(s.sessionId) || !text(s.title) || !time(s.startsAt) || !time(s.endsAt) || !integer(s.version) || !integer(s.capacity) || !integer(s.seatsTaken)) return invalid();
-      return {sessionId:s.sessionId,title:s.title,startsAt:s.startsAt,endsAt:s.endsAt,version:s.version,capacity:s.capacity,seatsTaken:s.seatsTaken};
+      if ((s.instructor !== undefined && s.instructor !== null && !text(s.instructor)) ||
+          (s.location !== undefined && !text(s.location)) || (s.timeZone !== undefined && !text(s.timeZone))) return invalid();
+      if (s.timeZone !== undefined) { try { new Intl.DateTimeFormat('en', {timeZone: String(s.timeZone)}); } catch { return invalid(); } }
+      return {sessionId:s.sessionId,title:s.title,startsAt:s.startsAt,endsAt:s.endsAt,version:s.version,capacity:s.capacity,seatsTaken:s.seatsTaken,
+        ...(s.instructor !== undefined ? {instructor:s.instructor} : {}), ...(s.location !== undefined ? {location:s.location} : {}), ...(s.timeZone !== undefined ? {timeZone:s.timeZone} : {})};
     });
   }
   if (operation === "roster") {

@@ -76,8 +76,7 @@ const WelcomeScreen = ({
 
       {/* Secondary Classes / Events; Testing / Schedule / Staff where enabled  */}
 
-      {/* No tap handlers yet since none are built. When one becomes available,
-          add a callback for it like onCheckIn. */}
+      {/* Classes reuses the same live session selection, without requiring AI. */}
       {cardActions.length > 0 && (
         <div className={styles.secondaryActions}>
           {cardActions.map((action) => (
@@ -85,8 +84,9 @@ const WelcomeScreen = ({
               key={action.id}
               label={action.label}
               appearance="row"
-              description="Coming soon"
-              disabled={!action.available}
+              description={action.id === 'classes' ? 'View today’s sessions and check in' : 'Not connected'}
+              disabled={!action.available || action.id !== 'classes'}
+              onClick={action.id === 'classes' ? onCheckIn : undefined}
               className={styles.secondaryCard}
             />
           ))}

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import Link from "@/components/primitives/AppLink";
 import AdaptiveShell from "@/components/shell/AdaptiveShell";
+import { WorkspaceActions } from "@/components/workspace/WorkspaceActions";
 import { odooTestMode } from "@/server/odoo-runtime";
 import "./globals.scss";
 import { ChevronRightIcon } from "@/icons";
@@ -35,17 +36,18 @@ export default function RootLayout({
         its instructor roster.
       </p>
       <p className="testWorkspaceWrapper">
-        Test workspace: reports are entered by staff. Follow-ups are saved
-        internally; messages and bookings require further integration.
+        Internal follow-ups, individual-account bookings, member management
+        and Sales share this workspace. Customer replies require a configured
+        channel and explicit approval.
       </p>
     </section>
   ) : undefined;
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <AdaptiveShell connectedTest={connected} demoMode={process.env.NEXT_PUBLIC_DEMO_MODE === "true"} context={context}>
+        <WorkspaceActions><AdaptiveShell connectedTest={connected} demoMode={process.env.NEXT_PUBLIC_DEMO_MODE === "true"} context={context}>
           {children}
-        </AdaptiveShell>
+        </AdaptiveShell></WorkspaceActions>
       </body>
     </html>
   );

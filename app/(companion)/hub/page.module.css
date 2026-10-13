@@ -1,6 +1,4 @@
-/* Hub: dark, to match the staff screens. Style only; class names unchanged.
-   The hub layout doesn't load the app's global tokens, so the ones used here
-   are copied from styles/_variables.scss. Keep them in sync with that file. */
+/* Hub sections inside the shared staff layout. */
 .root {
   --canvas: #08080a;
   --panel: #101014;
@@ -16,15 +14,18 @@
   --agent: #8a7cf6; /* focus ring on the shared Select */
   --text-sm: 0.875rem;
 
-  min-height: 100vh;
+  min-height: 100%;
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
   box-sizing: border-box;
-  background: var(--canvas);
+  background: transparent;
   color: var(--text);
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  padding: 32px max(20px, calc((100vw - 920px) / 2));
+  padding: 32px 40px;
 }
 
 .root * {
@@ -47,8 +48,9 @@
 
 .header h1 {
   margin: 2px 0;
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-family: var(--font-display, Georgia, serif);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
   letter-spacing: -0.01em;
 }
 
@@ -425,3 +427,34 @@
     grid-template-columns: 1fr;
   }
 }
+
+.crmPulse { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin:24px 0 12px; }
+.crmPulse > div, .crmPulse > button { border:1px solid var(--line); border-radius:16px; padding:20px; text-align:left; background:var(--panel); display:grid; gap:6px; }
+.crmPulse strong { font-size:32px; font-weight:500; line-height:1.2; }
+.crmPulse span { color:var(--text-secondary); font-size:12px; }
+.viewToggle { display:flex; gap:6px; margin-bottom:18px; }
+.viewToggle button[aria-pressed="true"] { border-color:var(--text-secondary); background:var(--interactive); }
+.pipelineBoard { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; align-items:start; }
+.pipelineLane { min-width:0; border:1px solid var(--line); border-radius:16px; padding:12px; background:rgba(14,14,18,.72); }
+.pipelineLane > header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:2px 6px 12px; }
+.pipelineLane > header h3 { margin:0; font-size:14px; }
+.pipelineLane > header span { font-size:12px; color:var(--text-secondary); }
+.pipelineList { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+.leadCard { padding:16px; background:var(--panel); border:1px solid var(--line); border-radius:12px; margin-bottom:12px; overflow-wrap:anywhere; }
+.leadCard h3 { font-size:16px; line-height:1.4; margin:16px 0 8px; }
+.leadCard .row { gap:8px; font-size:11px; }
+.leadCard p { margin:8px 0; font-size:12px; }
+.leadCard button { width:100%; margin-top:8px; text-align:left; }
+.priority { display:inline-block; padding:3px 8px; border:1px solid var(--line); border-radius:20px; font-size:11px; white-space:nowrap; }
+.priority[data-priority="Now"],.priority[data-priority="High"] { border-color:var(--warning); color:var(--warning); }
+.evidenceDetail { border:1px solid var(--line); border-radius:12px; padding:20px; margin:20px 0; background:var(--raised); }
+.evidenceDetail h3 { color:var(--text); font-size:14px; letter-spacing:0; text-transform:none; }
+.evidenceDetail ul { list-style:none; padding:0; }
+.evidenceDetail li { display:flex; justify-content:space-between; gap:16px; padding:8px 0; border-bottom:1px solid var(--line); font-size:12px; }
+.evidenceDetail summary { cursor:pointer; padding:10px 0; }
+.evidenceDetail .fields { margin-top:18px; }
+.score { display:flex; align-items:center; gap:24px; }
+.score > strong { font-size:40px; font-weight:500; }
+.score small { font-size:14px; color:var(--text-secondary); }
+.score p { max-width:540px; font-size:12px; color:var(--text-secondary); }
+@media(max-width:700px){ .crmPulse{grid-template-columns:repeat(2,minmax(0,1fr));} .pipelineBoard,.pipelineList{grid-template-columns:minmax(0,1fr);} .score{align-items:flex-start;gap:16px;} .crmPulse > div,.crmPulse > button{padding:16px;} }

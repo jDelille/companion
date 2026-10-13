@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useEffect, useReducer, useState } from "react";
+import PublicModeGate from "@/components/kiosk/PublicModeGate";
 import RecoveryStatus from "@/components/kiosk/recovery/RecoveryStatus";
 import IdleWarning from "@/components/kiosk/idle-warning/IdleWarning";
 import Concierge from "@/components/kiosk/screens/concierge-screen/Concierge";
@@ -29,6 +30,10 @@ import type { SessionOption } from "@/contracts/kiosk-attendance";
 import { checkIn, getRoster, getSessions } from "@/integrations/kiosk";
 
 export default function KioskPage() {
+  return <PublicModeGate><KioskJourney /></PublicModeGate>;
+}
+
+function KioskJourney() {
   const [flow, dispatch] = useReducer(checkInFlowReducer, initialCheckInFlow);
 
   // The last class list we loaded. Going Back from identify shows it straight
