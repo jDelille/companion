@@ -249,7 +249,7 @@ function KioskJourney() {
           onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
           onBack={() => startTransition(() => dispatch({ type: "back" }))}
         />
-        {GUARDIAN_CHECK_IN && <GuardianCheckIn key={flow.session.sessionId} session={flow.session} />}
+        {GUARDIAN_CHECK_IN && <GuardianCheckIn key={flow.session.sessionId} session={flow.session} onFinished={() => dispatch({ type: "reset" })} />}
         </>
       );
     }

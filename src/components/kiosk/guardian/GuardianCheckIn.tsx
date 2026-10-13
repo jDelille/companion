@@ -8,7 +8,8 @@ import Avatar from "@/components/primitives/avatar/Avatar";
 
 type Outcome = { text: string; retry?: GuardianCommand };
 
-export default function GuardianCheckIn({ session }: { session: SessionOption }) {
+// onFinished: the kiosk's privacy reset (clear everything, back to Welcome), same as Done after a normal check-in
+export default function GuardianCheckIn({ session, onFinished }: { session: SessionOption; onFinished?: () => void }) {
   const [open, setOpen] = useState(false), [phone, setPhone] = useState(""), [pin, setPin] = useState("");
   const [verified, setVerified] = useState<GuardianVerified | null>(null), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
   const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({});
@@ -18,7 +19,13 @@ export default function GuardianCheckIn({ session }: { session: SessionOption })
       verified.expiresInSeconds * 1000);
     return () => window.clearTimeout(timer);
   }, [verified]);
-  const close = () => { setOpen(false); setVerified(null); setPin(""); setPhone(""); setOutcomes({}); setMessage(""); };
+  const close = () => {
+    const finished = verified !== null; // the parent got past the PIN step
+    setOpen(false); setVerified(null); setPin(""); setPhone(""); setOutcomes({}); setMessage("");
+    // After a verified visit, Done ends it like a normal check-in: privacy reset, back to Welcome.
+    // Before that, it's just Cancel and the visitor stays on Find your name.
+    if (finished) onFinished?.();
+  };
   async function verify() {
     setBusy(true); setMessage("");
     const answer = await verifyGuardian(phone, pin, session.sessionId);
@@ -59,6 +66,6 @@ export default function GuardianCheckIn({ session }: { session: SessionOption })
       {!verified.students.length && <p>No children are linked to this parent. Please see the front desk.</p>}
     </>}
     {message && <p role="alert">{message}</p>}
-    <button disabled={busy} onClick={close}>Done</button>
+    <button disabled={busy} onClick={close}>{verified ? "Done" : "Cancel"}</button>
   </section>;
 }
