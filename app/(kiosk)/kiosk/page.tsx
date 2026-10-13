@@ -9,6 +9,7 @@ import { useIdleTimer } from "@/components/kiosk/idle-warning/useIdleTimer";
 import ConfirmScreen from "@/components/kiosk/screens/confirm-screen/ConfirmScreen";
 import ResultScreen from "@/components/kiosk/screens/result-screen/ResultScreen";
 import IdentifyScreen from "@/components/kiosk/screens/identify-screen/IdentifyScreen";
+import GuardianCheckIn from "@/components/kiosk/guardian/GuardianCheckIn";
 import SessionSelectScreen from "@/components/kiosk/screens/session-select-screen/SessionSelectScreen";
 import WelcomeScreen from "@/components/kiosk/screens/welcome-screen/WelcomeScreen";
 import {
@@ -28,6 +29,8 @@ import {
 import { searchRoster } from "@/domain/kiosk/rosterSearch";
 import type { SessionOption } from "@/contracts/kiosk-attendance";
 import { checkIn, getRoster, getSessions } from "@/integrations/kiosk";
+
+const GUARDIAN_CHECK_IN = process.env.NEXT_PUBLIC_DOJANG_GUARDIAN_CHECKIN === "true";
 
 export default function KioskPage() {
   return <PublicModeGate><KioskJourney /></PublicModeGate>;
@@ -228,6 +231,7 @@ function KioskJourney() {
           : ({ status: "tooShort" } as const);
 
       return (
+        <>
         <IdentifyScreen
           session={flow.session}
           rosterStatus={flow.roster.status}
@@ -245,6 +249,8 @@ function KioskJourney() {
           onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
           onBack={() => startTransition(() => dispatch({ type: "back" }))}
         />
+        {GUARDIAN_CHECK_IN && <GuardianCheckIn key={flow.session.sessionId} session={flow.session} />}
+        </>
       );
     }
 

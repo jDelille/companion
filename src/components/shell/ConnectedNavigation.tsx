@@ -30,7 +30,10 @@ const items: {
   { href: "/hub", label: "Inbox", icon: "followups", matches: (p, view) => p === "/hub" && ["", "messages"].includes(view) },
   { href: "/hub?view=instructor", label: "Instructor", icon: "classes", matches: (p, view) => p === "/hub" && view === "instructor", desktopOnly: true },
   { href: "/hub?view=attendance", label: "Attendance", icon: "classes", matches: (p, view) => p === "/hub" && view === "attendance", desktopOnly: true },
+  { href: "/hub?view=testing", label: "Testing", icon: "classes", matches: (p, view) => p === "/hub" && view === "testing", desktopOnly: true },
+  { href: "/hub?view=communications", label: "Messaging", icon: "followups", matches: (p, view) => p === "/hub" && view === "communications", desktopOnly: true },
   { href: "/hub?view=operations", label: "Reports", icon: "classes", matches: (p, view) => p === "/hub" && view === "operations", desktopOnly: true },
+  { href: "/hub?view=setup", label: "Setup", icon: "today", matches: (p, view) => p === "/hub" && view === "setup", desktopOnly: true },
   {
     href: "/follow-ups",
     label: "Follow-ups",

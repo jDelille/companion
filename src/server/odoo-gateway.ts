@@ -22,16 +22,20 @@ const key = (value: unknown): value is string => typeof value === "string" && /^
 const hash = (value: string) => createHash("sha256").update(value).digest();
 const equal = (a: string, b: string) => timingSafeEqual(hash(a), hash(b));
 const object = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
-const codes: ProblemCode[] = ["INVALID_COMMAND", "FORBIDDEN", "SESSION_UNAVAILABLE", "SESSION_NOT_OPEN", "MEMBER_UNAVAILABLE", "NOT_ON_ROSTER", "ELIGIBILITY_REVIEW_REQUIRED", "ATTENDANCE_REVIEW_REQUIRED", "VERSION_CONFLICT", "IDEMPOTENCY_CONFLICT", "CONCURRENT_RETRY", "CAPABILITY_DISABLED"];
-const messages: Record<ProblemCode, string> = {
+type GatewayCode = ProblemCode | "GUARDIAN_NOT_VERIFIED" | "GUARDIAN_LOCKED" | "GUARDIAN_SESSION_EXPIRED" | "NOT_YOUR_STUDENT";
+const codes: GatewayCode[] = ["INVALID_COMMAND", "FORBIDDEN", "SESSION_UNAVAILABLE", "SESSION_NOT_OPEN", "MEMBER_UNAVAILABLE", "NOT_ON_ROSTER", "ELIGIBILITY_REVIEW_REQUIRED", "ATTENDANCE_REVIEW_REQUIRED", "VERSION_CONFLICT", "IDEMPOTENCY_CONFLICT", "CONCURRENT_RETRY", "CAPABILITY_DISABLED", "GUARDIAN_NOT_VERIFIED", "GUARDIAN_LOCKED", "GUARDIAN_SESSION_EXPIRED", "NOT_YOUR_STUDENT"];
+const messages: Record<GatewayCode, string> = {
   INVALID_COMMAND: "Invalid request", FORBIDDEN: "This device is not authorized",
   SESSION_UNAVAILABLE: "Session unavailable", SESSION_NOT_OPEN: "Session not open for check-in",
   MEMBER_UNAVAILABLE: "Member unavailable", NOT_ON_ROSTER: "Please see the front desk",
   ELIGIBILITY_REVIEW_REQUIRED: "Please see the front desk", ATTENDANCE_REVIEW_REQUIRED: "Please see the front desk",
   VERSION_CONFLICT: "The session changed. Please select it again", IDEMPOTENCY_CONFLICT: "The request does not match its original attempt",
-  CONCURRENT_RETRY: "Please retry the same check-in", CAPABILITY_DISABLED: "The connection is unavailable"
+  CONCURRENT_RETRY: "Please retry the same check-in", CAPABILITY_DISABLED: "The connection is unavailable",
+  GUARDIAN_NOT_VERIFIED: "We could not verify that phone number and PIN. Please see the front desk",
+  GUARDIAN_LOCKED: "Too many attempts. Please see the front desk", GUARDIAN_SESSION_EXPIRED: "Please verify again",
+  NOT_YOUR_STUDENT: "Please see the front desk"
 };
-const uncertain = (operation: string, correlation: string) => operation === "checkin"
+const uncertain = (operation: string, correlation: string) => operation === "checkin" || operation === "guardianCheckin"
   ? new Response(null, {status: 503, headers: {...headers, "retry-after": "1"}})
   : fail("CAPABILITY_DISABLED", correlation);
 const cookieName = (role: Role) => `dojang_${role}_test`;
@@ -112,7 +116,7 @@ export async function pair(request: Request, c: GatewayConfig): Promise<Response
     "set-cookie": `${cookieName(role)}=${mintCookie(c, role)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=7200${c.origin.startsWith("https:") ? "; Secure" : ""}` } });
 }
 
-const paths = { sessions: "/kiosk/v2/sessions", roster: "/kiosk/v2/session/roster", checkin: "/kiosk/v2/attendance/check-ins", member: "/kiosk/v2/staff/member", members: "/kiosk/v2/staff/members" } as const;
+const paths = { sessions: "/kiosk/v2/sessions", roster: "/kiosk/v2/session/roster", checkin: "/kiosk/v2/attendance/check-ins", member: "/kiosk/v2/staff/member", members: "/kiosk/v2/staff/members", guardianVerify: "/kiosk/v2/guardian/verify", guardianCheckin: "/kiosk/v2/guardian/check-ins" } as const;
 export type Operation = keyof typeof paths;
 
 function validCommand(value: unknown): value is Record<string, unknown> {
@@ -136,7 +140,15 @@ function publicPayload(operation: Operation, value: Record<string, unknown>, id?
   const integer = (v: unknown) => Number.isSafeInteger(v) && Number(v) >= 0;
   const time = (v: unknown): v is string => text(v) && /^\d{4}-\d\d-\d\dT.*Z$/.test(v) && Number.isFinite(Date.parse(v));
   const invalid = (): never => { throw new Error("Invalid backend contract"); };
-  if (operation === "checkin") {
+  if (operation === "guardianVerify") {
+    if (!text(value.guardianToken) || !/^[A-Za-z0-9_-]{20,128}$/.test(value.guardianToken) || !integer(value.expiresInSeconds) || !text(value.guardian) || !Array.isArray(value.students)) return invalid();
+    return {guardianToken:value.guardianToken, expiresInSeconds:value.expiresInSeconds, guardian:value.guardian,
+      students:value.students.map((m: unknown) => {
+        if (!object(m) || !recordId(m.memberId) || !text(m.displayName) || typeof m.onRoster !== "boolean" || (m.attendanceState !== null && !["pending","present","absent","excused"].includes(String(m.attendanceState)))) return invalid();
+        return {memberId:m.memberId, displayName:m.displayName, onRoster:m.onRoster, attendanceState:m.attendanceState};
+      })};
+  }
+  if (operation === "checkin" || operation === "guardianCheckin") {
     const r = value.receipt as Record<string, unknown>;
     return { receipt: {attendanceId:r.attendanceId, memberId:r.memberId, sessionId:r.sessionId,
       checkedInAt:r.checkedInAt, status:r.status, alreadyRecorded:r.alreadyRecorded, correlationId:r.correlationId},
@@ -185,6 +197,22 @@ export async function handle(request: Request, c: GatewayConfig, operation: Oper
     if (!recordId(id)) return fail("INVALID_COMMAND", correlation, 400);
     params[operation === "roster" ? "sessionId" : "memberId"] = id;
   }
+  if (operation === "guardianVerify" || operation === "guardianCheckin") {
+    if (request.headers.get("origin") !== c.origin || !request.headers.get("content-type")?.includes("application/json")) return fail("FORBIDDEN", correlation, 403);
+    let body;
+    try { body = await readBody(request); } catch { return fail("INVALID_COMMAND", correlation, 400); }
+    if (!object(body)) return fail("INVALID_COMMAND", correlation, 400);
+    if (operation === "guardianVerify") {
+      if (Object.keys(body).sort().join() !== "phone,pin,sessionId" || typeof body.phone !== "string" || body.phone.length > 32 ||
+        typeof body.pin !== "string" || !/^[0-9]{6}$/.test(body.pin) || !recordId(body.sessionId)) return fail("INVALID_COMMAND", correlation, 400);
+      Object.assign(params, {phone: body.phone, pin: body.pin, sessionId: body.sessionId});
+    } else {
+      if (Object.keys(body).sort().join() !== "command,guardianToken" || typeof body.guardianToken !== "string" ||
+        !/^[A-Za-z0-9_-]{20,128}$/.test(body.guardianToken) || !validCommand(body.command)) return fail("INVALID_COMMAND", correlation, 400);
+      correlation = body.command.correlationId as string;
+      Object.assign(params, {guardianToken: body.guardianToken, command: body.command});
+    }
+  }
   if (operation === "checkin") {
     if (request.headers.get("origin") !== c.origin || !request.headers.get("content-type")?.includes("application/json")) return fail("FORBIDDEN", correlation, 403);
     let command;
@@ -203,14 +231,15 @@ export async function handle(request: Request, c: GatewayConfig, operation: Oper
     const result = envelope.result;
     if (object(result.problem)) {
       const p = result.problem;
-      if (!codes.includes(p.code as ProblemCode) || typeof p.status !== "number" || p.status < 400 || p.status > 599) return fail("CAPABILITY_DISABLED", correlation);
+      if (!codes.includes(p.code as GatewayCode) || typeof p.status !== "number" || p.status < 400 || p.status > 599) return fail("CAPABILITY_DISABLED", correlation);
       const safe = { type: `urn:dojang:problem:${p.code}`, code: p.code, status: p.status,
-        title: messages[p.code as ProblemCode], detail: messages[p.code as ProblemCode], correlationId: correlation };
+        title: messages[p.code as GatewayCode], detail: messages[p.code as GatewayCode], correlationId: correlation };
       return Response.json(safe, { status: p.status, headers: { ...headers, "content-type": "application/problem+json" } });
     }
     if (operation === "checkin" && !validResult(result, params.command as Record<string, unknown>)) return uncertain(operation, correlation);
+    if (operation === "guardianCheckin" && (result.guardianVerified !== true || !validResult(result, params.command as Record<string, unknown>))) return uncertain(operation, correlation);
     const body = publicPayload(operation, result, id);
     if (["sessions", "roster", "members"].includes(operation) && !Array.isArray(body)) return fail("CAPABILITY_DISABLED", correlation);
-    return Response.json(body, { status: operation === "checkin" && !result.replayed && !(result.receipt as { alreadyRecorded?: boolean })?.alreadyRecorded ? 201 : 200, headers });
+    return Response.json(operation === "guardianCheckin" ? {...(body as Record<string, unknown>), guardianVerified: true} : body, { status: (operation === "checkin" || operation === "guardianCheckin") && !result.replayed && !(result.receipt as { alreadyRecorded?: boolean })?.alreadyRecorded ? 201 : 200, headers });
   } catch { return uncertain(operation, correlation); }
 }

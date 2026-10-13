@@ -6,9 +6,12 @@ type Config = {origin:string; backend:string; database:string; siteId:string; se
 const cookieName = 'dojang_hub_session';
 const responseHeaders = {'cache-control':'private, no-store', vary:'Cookie'};
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const reads = new Set(['context','member_details','member_workspace','crm_context','lead_details','ai_settings','instructor_context','operations_report','session_roster','intake_context','intake_preview','archive_review','archived_members','course_roster','course_assignment_preview','attendance_sessions','attendance_sheet']);
-const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai','add_lead_note','prepare_lead_action','assign_lead','instructor_clock','correct_timesheet','create_student','archive_member','restore_member','update_member_photo','assign_course_members','mark_attendance']);
-const writeStates:Record<string,string[]>={archive_member:['archived'],restore_member:['restored'],update_member_photo:['photo_updated','photo_removed'],assign_course_members:['course_roster_updated'],mark_attendance:['attendance_recorded']};
+const reads = new Set(['context','member_details','member_workspace','crm_context','lead_details','ai_settings','instructor_context','operations_report','session_roster','intake_context','intake_preview','archive_review','archived_members','course_roster','course_assignment_preview','attendance_sessions','attendance_sheet','trial_context','conversion_preview','testing_eligibility','testing_roster','promotion_preview','promotion_history','guardian_kiosk_access','consent_overview','broadcast_context','broadcast_preview','automation_overview','billing_ledger','refund_preview','waiver_context','setup_checklist','member_onboarding']);
+const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai','add_lead_note','prepare_lead_action','assign_lead','instructor_clock','correct_timesheet','create_student','archive_member','restore_member','update_member_photo','assign_course_members','mark_attendance','reserve_trial','cancel_trial','record_trial_outcome','convert_trial','save_testing_roster','record_test_results','promote_test_results','reverse_promotion','set_guardian_kiosk_pin','revoke_guardian_kiosk_pin','record_consent','create_broadcast','approve_broadcast','cancel_broadcast','set_automation_active','request_refund','approve_refund','record_refund_payment','cancel_refund','sign_waiver']);
+const writeStates:Record<string,string[]>={archive_member:['archived'],restore_member:['restored'],update_member_photo:['photo_updated','photo_removed'],assign_course_members:['course_roster_updated'],mark_attendance:['attendance_recorded'],reserve_trial:['trial_reserved'],cancel_trial:['trial_cancelled'],record_trial_outcome:['trial_attended','trial_no_show'],convert_trial:['trial_converted'],save_testing_roster:['testing_roster_saved'],record_test_results:['test_results_saved'],promote_test_results:['promotions_awarded'],reverse_promotion:['promotion_reversed'],set_guardian_kiosk_pin:['guardian_pin_set'],revoke_guardian_kiosk_pin:['guardian_pin_revoked'],record_consent:['consent_recorded'],create_broadcast:['broadcast_awaiting_approval'],approve_broadcast:['broadcast_approved'],cancel_broadcast:['broadcast_cancelled'],set_automation_active:['automation_paused','automation_resumed'],request_refund:['refund_requested'],approve_refund:['refund_approved'],record_refund_payment:['refund_payment_recorded'],cancel_refund:['refund_cancelled'],sign_waiver:['waiver_signed']};
+const testingWrites=new Set(['save_testing_roster','record_test_results','promote_test_results']);
+const largeOperations=new Set(['update_member_photo','sign_waiver']);
+const trialWrites=new Set(['reserve_trial','cancel_trial','record_trial_outcome','convert_trial']);
 const reject = (code:string,status=400) => Response.json({error:{code,status}},{status,headers:responseHeaders});
 
 export function hubConfig(env: NodeJS.ProcessEnv): Config {
@@ -91,7 +94,7 @@ export async function hubPhotoRoute(request:Request, env:NodeJS.ProcessEnv, fetc
   if(request.method!=='POST' || request.headers.get('origin')!==c.origin) return reject('FORBIDDEN',403);
   let data:unknown;
   try {data=await body(request,450000);}catch{return reject('PHOTO_TOO_LARGE',413);}
-  if(!object(data) || data.operation!=='update_member_photo')return reject('INVALID_COMMAND');
+  if(!object(data) || !largeOperations.has(String(data.operation)))return reject('INVALID_COMMAND');
   return hubRoute(request,env,fetcher,data);
 }
 
@@ -102,7 +105,7 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
   let data:unknown=parsed;
   if(!parsed){try {data=await body(request);}catch{return reject('INVALID_COMMAND');}}
   if(!object(data) || typeof data.operation!=='string')return reject('INVALID_COMMAND');
-  if(!parsed && data.operation==='update_member_photo')return reject('INVALID_COMMAND');
+  if(!parsed && largeOperations.has(data.operation))return reject('INVALID_COMMAND');
   const operation=data.operation;
   const cookie=(value:string,maxAge=7200)=>`${cookieName}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${c.origin.startsWith('https:')?'; Secure':''}`;
   if(operation==='login'){
@@ -126,7 +129,7 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
   }
   if(!operations.has(operation) || Object.keys(data).sort().join()!=='operation,payload,requestKey' || !object(data.payload) || (!reads.has(operation) && (typeof data.requestKey!=='string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{15,127}$/.test(data.requestKey))))return reject('INVALID_COMMAND');
   try {
-    const {result}=await rpc(c,operation==='update_member_photo'?'/companion/hub/photo':'/companion/hub/action',{siteId:c.siteId,operation,payload:data.payload,requestKey:data.requestKey},session,fetcher);
+    const {result}=await rpc(c,largeOperations.has(operation)?'/companion/hub/photo':'/companion/hub/action',{siteId:c.siteId,operation,payload:data.payload,requestKey:data.requestKey},session,fetcher);
     if(!object(result))throw Error('Invalid result');
     if(object(result.error)){
       const status=[400,401,403,404,409,422,503].includes(Number(result.error.status))?Number(result.error.status):503;
@@ -148,7 +151,7 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
         return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);
     }
     if(writeStates[operation]){
-      const subject=operation==='assign_course_members'?result.templateId===data.payload.templateId:result.memberId===data.payload.memberId&&(operation!=='mark_attendance'||(result.sessionId===data.payload.sessionId&&result.after===data.payload.status));
+      const subject=testingWrites.has(operation)?(typeof result.testId==='string'&&(data.payload.testId===null||result.testId===data.payload.testId)&&(operation!=='promote_test_results'||(result.messageSent===false&&result.invoiceCreated===false))):operation==='reverse_promotion'?result.rankHistoryId===data.payload.rankHistoryId:operation==='sign_waiver'?result.memberId===data.payload.memberId&&result.messageSent===false&&!JSON.stringify(result).includes('base64'):['request_refund','approve_refund','record_refund_payment','cancel_refund'].includes(operation)?typeof result.refundId==='string'&&(operation==='request_refund'?result.memberId===data.payload.memberId:result.refundId===data.payload.refundId)&&result.moneyReturned===(operation==='record_refund_payment'):operation==='record_consent'?result.memberId===data.payload.memberId&&result.partnerId===data.payload.partnerId&&result.consent===data.payload.state&&result.messageSent===false:['create_broadcast','approve_broadcast','cancel_broadcast'].includes(operation)?typeof result.broadcastId==='string'&&(operation==='create_broadcast'||result.broadcastId===data.payload.broadcastId)&&result.messageSent===false:operation==='set_automation_active'?result.automationId===data.payload.automationId&&result.state===(data.payload.active?'automation_resumed':'automation_paused'):operation==='set_guardian_kiosk_pin'||operation==='revoke_guardian_kiosk_pin'?result.memberId===data.payload.memberId&&result.guardianId===data.payload.guardianId&&result.messageSent===false&&!JSON.stringify(result).includes(String(data.payload.pin??'\u0000')):trialWrites.has(operation)?(operation==='reserve_trial'?result.leadId===data.payload.leadId&&result.memberId===data.payload.memberId&&result.sessionId===data.payload.sessionId:result.trialId===data.payload.trialId)&&result.messageSent===false&&result.stageChanged!==true&&result.paymentCollected!==true&&result.portalAccessGranted!==true:operation==='assign_course_members'?result.templateId===data.payload.templateId:result.memberId===data.payload.memberId&&(operation!=='mark_attendance'||(result.sessionId===data.payload.sessionId&&result.after===data.payload.status));
       if(!writeStates[operation].includes(String(result.state))||!subject||typeof result.replayed!=='boolean')
         return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);
     }

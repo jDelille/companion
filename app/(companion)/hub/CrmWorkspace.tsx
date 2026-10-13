@@ -1,4 +1,5 @@
 'use client';
+import TrialPanel,{type TrialBinding} from './TrialPanel';
 import {useEffect,useRef,useState,type FormEvent} from 'react';
 import Link from '@/components/primitives/AppLink';
 import Select from '@/components/primitives/select/Select';
@@ -43,7 +44,7 @@ function TaskRows({tasks,disabled,review,openLead}:{tasks:Task[];disabled:boolea
   </article>):<p>No tasks in this view.</p>}</>;
 }
 
-export default function CrmWorkspace({busy,locked,feedback,clearFeedback,retry,act}:Props){
+export default function CrmWorkspace({busy,locked,feedback,clearFeedback,retry,act,trial}:Props&{trial?:TrialBinding}){
   const params=useSearchParams(),router=useRouter();
   const [board,setBoard]=useState(true),[priority,setPriority]=useState('');
   const [actionKind,setActionKind]=useState('follow_up'),[assignee,setAssignee]=useState('');
@@ -104,6 +105,7 @@ export default function CrmWorkspace({busy,locked,feedback,clearFeedback,retry,a
         <LeadForm key={`${selectedDetail.lead.id}:${selectedDetail.lead.version}:${revision}`} lead={selectedDetail.lead} disabled={disabled} review={prepare}/>
         {selectedDetail.memberId&&<Link href={`/hub?memberId=${encodeURIComponent(selectedDetail.memberId)}&view=manage`}>Open linked member →</Link>}
         {selectedDetail.trial?<p>Linked trial: {selectedDetail.trial.title} · {new Date(selectedDetail.trial.startsAt).toLocaleString()}. Attendance must be checked on the class roster.</p>:<p>No trial session linked in Odoo. A task is not a booking.</p>}
+        {trial&&<TrialPanel key={selected} leadId={selected} busy={busy} locked={locked} binding={trial}/>}
         <details className={styles.booking}><summary>Propose a stage change</summary><form className={styles.fields} onSubmit={e=>{const f=formFields(e);const next=selectedDetail.stages.find(s=>s.id===proposedStage);if(!next)return;const reason=String(f.get('reason')||'');prepare({operation:'propose_stage',payload:{leadId:selected,expectedVersion:selectedDetail.lead.version,stageId:next.id,reason,due:String(f.get('due')||'')},description:`Create a review task for ${selectedDetail.lead.name}: ${selectedDetail.lead.stage} → ${next.name}. ${reason}. The lead stays in its current stage until reviewed in Odoo.`});}}>
           <Select ariaLabel="Proposed stage" value={proposedStage} onChange={setProposedStage} disabled={disabled} placeholder="Choose configured stage" options={selectedDetail.stages.filter(s=>s.id!==selectedDetail.lead.stageId).map(s=>({value:s.id,label:s.name}))}/>
           <label>Reason<input name="reason" required maxLength={120} disabled={disabled}/></label><label>Review due<input name="due" type="date" required defaultValue={today()} disabled={disabled}/></label><button disabled={disabled||!proposedStage}>Review stage proposal</button>
