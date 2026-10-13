@@ -6,8 +6,9 @@ type Config = {origin:string; backend:string; database:string; siteId:string; se
 const cookieName = 'dojang_hub_session';
 const responseHeaders = {'cache-control':'private, no-store', vary:'Cookie'};
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
-const reads = new Set(['context','member_details','member_workspace','crm_context','lead_details','ai_settings','instructor_context','operations_report','session_roster','intake_context','intake_preview']);
-const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai','add_lead_note','prepare_lead_action','assign_lead','instructor_clock','correct_timesheet','create_student']);
+const reads = new Set(['context','member_details','member_workspace','crm_context','lead_details','ai_settings','instructor_context','operations_report','session_roster','intake_context','intake_preview','archive_review','archived_members','course_roster','course_assignment_preview']);
+const operations = new Set([...reads,'resolve','draft','approve_reply','checkout','book','change_class','update_member','rank','link_guardian','provision','create_lead','update_lead','create_task','complete_task','propose_stage','payment_link','enable_ai','add_lead_note','prepare_lead_action','assign_lead','instructor_clock','correct_timesheet','create_student','archive_member','restore_member','update_member_photo','assign_course_members']);
+const writeStates:Record<string,string[]>={archive_member:['archived'],restore_member:['restored'],update_member_photo:['photo_updated','photo_removed'],assign_course_members:['course_roster_updated']};
 const reject = (code:string,status=400) => Response.json({error:{code,status}},{status,headers:responseHeaders});
 
 export function hubConfig(env: NodeJS.ProcessEnv): Config {
@@ -43,12 +44,12 @@ function sessionFrom(c:Config, request:Request): string | null {
   } catch {return null;}
 }
 
-async function body(request:Request) {
+async function body(request:Request, limit=16384) {
   if(!request.headers.get('content-type')?.startsWith('application/json')) throw Error('Invalid content type');
   const reader=request.body?.getReader();
   if(!reader) throw Error('Body missing');
   let size=0; const chunks:Uint8Array[]=[];
-  while(true){const {done,value}=await reader.read(); if(done)break; size+=value.length; if(size>16384){await reader.cancel();throw Error('Body too large');}chunks.push(value);}
+  while(true){const {done,value}=await reader.read(); if(done)break; size+=value.length; if(size>limit){await reader.cancel();throw Error('Body too large');}chunks.push(value);}
   return JSON.parse(Buffer.concat(chunks).toString()) as unknown;
 }
 
@@ -84,13 +85,24 @@ export async function enterPublicMode(request:Request, env:NodeJS.ProcessEnv, fe
   return response;
 }
 
-export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:Fetcher=fetch) {
+export async function hubPhotoRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:Fetcher=fetch) {
   let c:Config;
   try {c=hubConfig(env);}catch{return reject('HUB_NOT_CONFIGURED',503);}
   if(request.method!=='POST' || request.headers.get('origin')!==c.origin) return reject('FORBIDDEN',403);
   let data:unknown;
-  try {data=await body(request);}catch{return reject('INVALID_COMMAND');}
+  try {data=await body(request,450000);}catch{return reject('PHOTO_TOO_LARGE',413);}
+  if(!object(data) || data.operation!=='update_member_photo')return reject('INVALID_COMMAND');
+  return hubRoute(request,env,fetcher,data);
+}
+
+export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:Fetcher=fetch, parsed?:Record<string,unknown>) {
+  let c:Config;
+  try {c=hubConfig(env);}catch{return reject('HUB_NOT_CONFIGURED',503);}
+  if(request.method!=='POST' || request.headers.get('origin')!==c.origin) return reject('FORBIDDEN',403);
+  let data:unknown=parsed;
+  if(!parsed){try {data=await body(request);}catch{return reject('INVALID_COMMAND');}}
   if(!object(data) || typeof data.operation!=='string')return reject('INVALID_COMMAND');
+  if(!parsed && data.operation==='update_member_photo')return reject('INVALID_COMMAND');
   const operation=data.operation;
   const cookie=(value:string,maxAge=7200)=>`${cookieName}=${value}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${c.origin.startsWith('https:')?'; Secure':''}`;
   if(operation==='login'){
@@ -114,7 +126,7 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
   }
   if(!operations.has(operation) || Object.keys(data).sort().join()!=='operation,payload,requestKey' || !object(data.payload) || (!reads.has(operation) && (typeof data.requestKey!=='string' || !/^[A-Za-z0-9][A-Za-z0-9_.:-]{15,127}$/.test(data.requestKey))))return reject('INVALID_COMMAND');
   try {
-    const {result}=await rpc(c,'/companion/hub/action',{siteId:c.siteId,operation,payload:data.payload,requestKey:data.requestKey},session,fetcher);
+    const {result}=await rpc(c,operation==='update_member_photo'?'/companion/hub/photo':'/companion/hub/action',{siteId:c.siteId,operation,payload:data.payload,requestKey:data.requestKey},session,fetcher);
     if(!object(result))throw Error('Invalid result');
     if(object(result.error)){
       const status=[400,401,403,404,409,422,503].includes(Number(result.error.status))?Number(result.error.status):503;
@@ -133,6 +145,11 @@ export async function hubRoute(request:Request, env:NodeJS.ProcessEnv, fetcher:F
       if(result.state!=='student_created'||typeof result.memberId!=='string'||!(/^[1-9][0-9]{0,9}$/).test(result.memberId)||
         typeof result.memberNumber!=='string'||!result.memberNumber||typeof result.replayed!=='boolean'||
         result.subscriptionCreated!==false||result.enrollmentCreated!==false||result.portalAccessGranted!==false||result.messageSent!==false)
+        return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);
+    }
+    if(writeStates[operation]){
+      const subject=operation==='assign_course_members'?result.templateId===data.payload.templateId:result.memberId===data.payload.memberId;
+      if(!writeStates[operation].includes(String(result.state))||!subject||typeof result.replayed!=='boolean')
         return reject('BACKEND_UNAVAILABLE_RETRY_SAME_ACTION',503);
     }
     if(operation==='payment_link'){

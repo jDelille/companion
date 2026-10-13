@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Select from "@/components/primitives/select/Select";
 import { explainHubError, type ActionFeedback } from "@/domain/hub-actions";
 import ConnectedMemberDetails from "@/components/people/member-360/ConnectedMemberDetails";
@@ -8,9 +10,10 @@ import styles from "./page.module.css";
 
 type Session = { id: string; title: string; startsAt: string; future: boolean; version: number };
 export type MemberDetails = {
-  member: { id: string; name: string; version: number; partnerVersion: number; phone: string | null; email: string | null; dateOfBirth?: string | null; state: string; rank: string; stripes: number };
+  member: { id: string; name: string; version: number; partnerVersion: number; phone: string | null; email: string | null; dateOfBirth?: string | null; photo?: string | null; state: string; rank: string; stripes: number };
   canEdit: boolean;
   canEditContact: boolean;
+  courses?: { id: string; name: string }[];
   ranks: { id: string; name: string; maxStripes: number }[];
   rankHistory: { id: string; rank: string; stripes: number; date: string }[];
   bookings: { id: string; sessionId: string; title: string; startsAt: string; attendanceState: string; replaceable: boolean }[];
@@ -21,11 +24,15 @@ export type MemberDetails = {
   };
 };
 type Details = MemberDetails;
-type Review = { operation: string; payload: Record<string, unknown>; description: string };
+type Review = { operation: string; payload: Record<string, unknown>; description: string; archive?: boolean };
+type ArchiveImpacts = { version: number; futureBookingCount: number; futureBookings: { enrollmentId: string; title: string; startsAt: string }[];
+  openMemberships: number; portalAccounts: number; household: string | null; courses: { id: string; name: string }[]; blockers: string[] };
+type Bound = { act: (operation: string, payload: Record<string, unknown>) => Promise<ActionFeedback | undefined>; feedback?: ActionFeedback; retry?: () => Promise<ActionFeedback | undefined> };
 type Props = {
   memberId: string; section?: string; sessions: Session[]; now: number; busy: boolean; locked: boolean;
   feedback?: ActionFeedback; clearFeedback: () => void; retry?: () => Promise<ActionFeedback | undefined>;
   act: (operation: string, payload: Record<string, unknown>) => Promise<ActionFeedback | undefined>;
+  archive?: Bound;
 };
 const when = (value: string) => new Date(value).toLocaleString();
 const money = (value: number, currency: string) => new Intl.NumberFormat(undefined, { style: "currency", currency }).format(value);
@@ -52,6 +59,71 @@ function ContactForm({ data, disabled, review }: { data: Details; disabled: bool
   </form>;
 }
 
+async function resizedPhoto(file: File) {
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) throw Error("PHOTO_TYPE_UNSUPPORTED");
+  if (file.size > 15 * 1024 * 1024) throw Error("PHOTO_TOO_LARGE");
+  const bitmap = await createImageBitmap(file).catch(() => { throw Error("PHOTO_INVALID"); });
+  if (Math.min(bitmap.width, bitmap.height) < 64) throw Error("PHOTO_DIMENSIONS");
+  const scale = Math.min(1, 512 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  const encoded = canvas.toDataURL("image/jpeg", 0.85).split(",")[1] || "";
+  if (!encoded || encoded.length > 400000) throw Error("PHOTO_TOO_LARGE");
+  return { encoded, width: canvas.width, height: canvas.height };
+}
+
+function PhotoForm({ data, disabled, review }: { data: Details; disabled: boolean; review: (v: Review) => void }) {
+  const [error, setError] = useState("");
+  async function choose(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    setError("");
+    try {
+      const photo = await resizedPhoto(file);
+      review({ operation: "update_member_photo", payload: { memberId: data.member.id, expectedVersion: data.member.version, image: photo.encoded },
+        description: `Save a new photo for ${data.member.name} (${photo.width}×${photo.height} JPEG). It replaces the current Odoo contact photo.` });
+    } catch (problem) { setError(explainHubError(problem instanceof Error ? problem.message : "PHOTO_INVALID")); }
+  }
+  return <div className={styles.fields}>
+    {data.member.photo ? <Image src={data.member.photo} alt={`Current photo of ${data.member.name}`} width={96} height={96} unoptimized style={{ objectFit: "cover", borderRadius: 12 }} /> : <p>No photo on file.</p>}
+    <label>Choose a new photo<input type="file" aria-label="Choose a new photo" accept="image/jpeg,image/png,image/webp" disabled={disabled} onChange={event => void choose(event)} /></label>
+    {data.member.photo && <button disabled={disabled} onClick={() => review({ operation: "update_member_photo", payload: { memberId: data.member.id, expectedVersion: data.member.version, image: null },
+      description: `Remove ${data.member.name}’s photo from the Odoo contact.` })}>Review photo removal</button>}
+    {error && <p role="alert">{error}</p>}
+  </div>;
+}
+
+function ArchiveForm({ data, disabled, review }: { data: Details; disabled: boolean; review: (v: Review) => void }) {
+  const [impacts, setImpacts] = useState<ArchiveImpacts | null>(null);
+  const [error, setError] = useState("");
+  const [reason, setReason] = useState("");
+  useEffect(() => {
+    let cancelled = false;
+    void fetch("/api/hub", { method: "POST", cache: "no-store", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ operation: "archive_review", payload: { memberId: data.member.id }, requestKey: null }) })
+      .then(async response => { const value = await response.json(); if (!response.ok) throw Error(value.error?.code || "CONNECTION_UNAVAILABLE");
+        if (!cancelled) { setImpacts(value); setError(""); } })
+      .catch(problem => { if (!cancelled) setError(explainHubError(problem.message)); });
+    return () => { cancelled = true; };
+  }, [data.member.id, data.member.version]);
+  if (error) return <p role="alert">{error}</p>;
+  if (!impacts) return <p role="status">Checking what archiving would change…</p>;
+  return <div className={styles.fields}>
+    <p>{impacts.futureBookingCount} upcoming bookings would be cancelled. Attendance, rank and billing history stay in Odoo.</p>
+    {impacts.courses.length > 0 && <p>Course rosters kept for restore: {impacts.courses.map(c => c.name).join(", ")}</p>}
+    {impacts.household && <p>Household: {impacts.household}</p>}
+    {impacts.blockers.length ? <div role="alert">{impacts.blockers.map(code => <p key={code}>{explainHubError(code)}</p>)}</div> : <>
+      <label>Reason for archiving<input aria-label="Reason for archiving" value={reason} maxLength={500} disabled={disabled} onChange={event => setReason(event.target.value)} /></label>
+      <button disabled={disabled || !reason.trim()} onClick={() => review({ operation: "archive_member", archive: true,
+        payload: { memberId: data.member.id, expectedVersion: impacts.version, reason: reason.trim() },
+        description: `Archive ${data.member.name}. ${impacts.futureBookingCount} upcoming bookings will be cancelled and the student is hidden from rosters and the kiosk. Reason: ${reason.trim()}. You can restore the student later.` })}>Review archiving</button>
+    </>}
+  </div>;
+}
+
 function RankForm({ data, disabled, review }: { data: Details; disabled: boolean; review: (v: Review) => void }) {
   const [rankId, setRank] = useState("");
   const rank = data.ranks.find(item => item.id === rankId);
@@ -73,7 +145,8 @@ function RankForm({ data, disabled, review }: { data: Details; disabled: boolean
   </form>;
 }
 
-export default function MemberManagement({ memberId, section, sessions, now, busy, locked, feedback, clearFeedback, retry, act }: Props) {
+export default function MemberManagement({ memberId, section, sessions, now, busy, locked, feedback, clearFeedback, retry, act, archive }: Props) {
+  const router = useRouter();
   const [data, setData] = useState<Details | null>(null);
   const [error, setError] = useState("");
   const [reload, setReload] = useState(0);
@@ -81,6 +154,7 @@ export default function MemberManagement({ memberId, section, sessions, now, bus
   const [review, setReview] = useState<Review | null>(null);
   const [replacement, setReplacement] = useState("");
   const [familyOpen, setFamilyOpen] = useState(section === "family");
+  const [archiveOpen, setArchiveOpen] = useState(section === "archive");
   const reviewRef = useRef<HTMLDivElement>(null);
   const submitRef = useRef(false);
   const disabled = busy || locked || loading;
@@ -107,6 +181,12 @@ export default function MemberManagement({ memberId, section, sessions, now, bus
     if (!review || disabled || submitRef.current) return;
     submitRef.current = true;
     try {
+      if (review.archive && archive) {
+        const result = await archive.act(review.operation, review.payload);
+        if (result?.kind === "success") router.push("/hub?view=archived");
+        else if (result?.kind === "error") setReview(null);
+        return;
+      }
       const result = await act(review.operation, review.payload);
       if (result?.kind === "success") refresh();
       else if (result?.kind === "error") setReview(null);
@@ -128,17 +208,28 @@ export default function MemberManagement({ memberId, section, sessions, now, bus
       {feedback.checkout && !loading && !currentCheckout && <p>Refresh and review the current invoice before continuing to checkout.</p>}
       {feedback.kind === "uncertain" && retry && <button disabled={busy} onClick={() => void retry().then(result => { if (result?.kind === "success") refresh(); })}>Check original member action</button>}
     </div>}
+    {archive?.feedback && <div className={styles.bookingResult} role={archive.feedback.kind === "error" ? "alert" : "status"} aria-label="Archive action result">
+      <p>{archive.feedback.text}</p>
+      {archive.feedback.kind === "uncertain" && archive.retry && <button disabled={busy} onClick={() => void archive.retry?.().then(result => { if (result?.kind === "success") router.push("/hub?view=archived"); })}>Check archive result</button>}
+    </div>}
     {data && !loading && <>
       <p>{data.member.state} · {data.member.rank} · {data.member.stripes} stripes{data.member.dateOfBirth && <> · Born {data.member.dateOfBirth}</>}</p>
       {review && <div ref={reviewRef} tabIndex={-1} className={styles.savedReceipt} role="group" aria-label="Review member action">
         <h3>Review before saving</h3><p>{review.description}</p><p>No message will be sent and no payment will be collected.</p>
-        <div className={styles.row}><button disabled={disabled} onClick={() => void confirm()}>{review.operation === "payment_link" ? "Prepare secure checkout" : "Confirm member action in Odoo"}</button>
+        <div className={styles.row}><button disabled={disabled} onClick={() => void confirm()}>{review.operation === "payment_link" ? "Prepare secure checkout" : review.archive ? "Confirm archive in Odoo" : "Confirm member action in Odoo"}</button>
           <button disabled={disabled} onClick={() => setReview(null)}>Cancel review</button></div>
       </div>}
       <details className={styles.booking} open={!section || section === 'profile'}><summary>Contact details</summary>
         {data.canEditContact ? <ContactForm key={`${data.member.version}:${data.member.partnerVersion}`} data={data} disabled={disabled || !!review} review={prepare} />
           : <p>{data.canEdit ? "This contact is shared or outside the site's company. An administrator must review it in Odoo before editing." : "Only a manager or owner can edit contact details."}</p>}
       </details>
+      <details className={styles.booking} open={section === "photo"}><summary>Photo</summary>
+        <PhotoForm data={data} disabled={disabled || !!review} review={prepare} />
+      </details>
+      {data.canEdit && data.courses && <details className={styles.booking} open={section === "courses"}><summary>Courses</summary>
+        {data.courses.length ? data.courses.map(c => <p key={c.id}>{c.name}</p>) : <p>Not on any course roster.</p>}
+        <a href="/hub?view=courses">Manage course rosters →</a>
+      </details>}
       <details className={styles.booking} open={familyOpen} onToggle={event => setFamilyOpen(event.currentTarget.open)}><summary>Household and guardians</summary>
         {!data.canEdit ? <p>Family and guardian details require manager or owner access.</p> : familyOpen && <ConnectedMemberDetails memberId={memberId} section="family" />}
       </details>
@@ -181,6 +272,9 @@ export default function MemberManagement({ memberId, section, sessions, now, bus
         </div>) : <p>No present or late attendance records found.</p>}
         <small>Most recent 30 attendance records within your access.</small>
       </details>
+      {data.canEdit && archive && <details className={styles.booking} open={archiveOpen} onToggle={event => setArchiveOpen(event.currentTarget.open)}><summary>Archive student</summary>
+        {archiveOpen && <ArchiveForm data={data} disabled={disabled || !!review} review={prepare} />}
+      </details>}
       <details className={styles.booking} open={section === 'progress'}><summary>Rank and progress</summary>
         {data.rankHistory.map(r => <p key={r.id}>{r.date} · {r.rank} · {r.stripes} stripes</p>)}
         {!data.rankHistory.length && <p>No rank history recorded.</p>}

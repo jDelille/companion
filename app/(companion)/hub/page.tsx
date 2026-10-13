@@ -12,6 +12,8 @@ import AiSettings from './AiSettings';
 import InstructorWorkspace from './InstructorWorkspace';
 import OperationsWorkspace from './OperationsWorkspace';
 import StudentIntake from './StudentIntake';
+import CourseAssignments from './CourseAssignments';
+import ArchivedMembers from './ArchivedMembers';
 import {useWorkspaceActions} from '@/components/workspace/WorkspaceActions';
 import {SelectMember} from '@/components/shell/selected-member/selectedMember';
 
@@ -23,7 +25,7 @@ type Context={principal:{name:string;role:string};members:{id:string;name:string
 type Action=(operation:string,payload:Record<string,unknown>,messageId?:string)=>Promise<ActionFeedback|undefined>;
 
 async function call(body:Record<string,unknown>){
-  const response=await fetch('/api/hub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
+  const response=await fetch(body.operation==='update_member_photo'?'/api/hub/photo':'/api/hub',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),cache:'no-store'});
   const value=await response.json();
   if(!response.ok)throw Error(value.error?.code || 'CONNECTION_UNAVAILABLE');
   return value;
@@ -93,6 +95,8 @@ function HubContent(){
   const instructor=view==='instructor';
   const operations=view==='operations';
   const intake=view==='intake';
+  const courses=view==='courses';
+  const archived=view==='archived';
   const [memberChoice,setMemberChoice]=useState('');
   const [loading,setLoading]=useState(true);
   const [data,setData]=useState<Context|null>(null),[notice,setNotice]=useState(''),[busy,setBusy]=useState(false);
@@ -130,16 +134,16 @@ function HubContent(){
   const selectedMember=data?.members.find(member=>member.id===selectedMemberId);
   const memberFeedbackKey=selectedMember?`member:${selectedMember.id}`:'';
   const canBook=!!data&&['owner','manager','instructor'].includes(data.principal.role);
-  const pageTitle=intake?'New student':crm?'Sales':ai?'AI settings':instructor?'Instructor & timesheets':operations?'Operations':selectedMember&&!messages?selectedMember.name:'Inbox';
+  const pageTitle=courses?'Course rosters':archived?'Archived students':intake?'New student':crm?'Sales':ai?'AI settings':instructor?'Instructor & timesheets':operations?'Operations':selectedMember&&!messages?selectedMember.name:'Inbox';
   const visibleMessages=selectedMemberId?data?.messages.filter(m=>m.memberId===selectedMemberId):data?.messages;
   const visibleTimeline=selectedMemberId?data?.timeline.filter(t=>t.memberId===selectedMemberId):data?.timeline;
-  return <div className={styles.root}><header className={styles.header}><div><small>DOJANG COMPANION</small><h1>{pageTitle}</h1><p className={styles.muted}>{intake?'Review a student profile and household before creating native records.':crm?'Prioritize leads, review evidence and complete the next action.':ai?'Review provider readiness and drafting controls.':instructor?'Verify your identity, review shift actions and manage native timesheets.':operations?'Read attendance, instructor workload, member summaries and authorized class rosters.':managing?'Profile, bookings, attendance, progress and billing.':'Review customer messages, prepare replies and arrange classes.'}</p></div><Link href="/ops">Class workspace</Link></header>
+  return <div className={styles.root}><header className={styles.header}><div><small>DOJANG COMPANION</small><h1>{pageTitle}</h1><p className={styles.muted}>{courses?'Review bulk course assignments before Odoo creates or cancels bookings.':archived?'Review archived students and restore them with a recorded reason.':intake?'Review a student profile and household before creating native records.':crm?'Prioritize leads, review evidence and complete the next action.':ai?'Review provider readiness and drafting controls.':instructor?'Verify your identity, review shift actions and manage native timesheets.':operations?'Read attendance, instructor workload, member summaries and authorized class rosters.':managing?'Profile, bookings, attendance, progress and billing.':'Review customer messages, prepare replies and arrange classes.'}</p></div><Link href="/ops">Class workspace</Link></header>
     {selectedMember&&<SelectMember id={selectedMember.id} name={selectedMember.name} detail="Authorized member workspace"/>}
     {notice&&<p className={styles.notice} role="status">{notice}</p>}
     {loading?<p role="status">Loading your authorized workspace…</p>:!data?<section className={styles.card}><h2>Sign in to your school</h2><p>Use your individual Odoo account with Companion site access. Device pairing does not grant booking access.</p>{selectedMemberId&&<p>Your member selection will be checked after sign-in.</p>}<form onSubmit={login} className={styles.fields}><label>Login<input name="login" autoComplete="username" required/></label><label>Password<input name="password" type="password" autoComplete="current-password" required/></label><button disabled={busy}>{busy?'Signing in…':'Sign in'}</button></form></section>:<>
       <div className={styles.row}><p>{data.principal.name} · {data.principal.role}</p><div className={styles.row}><button disabled={busy} onClick={()=>void refresh().catch(e=>setNotice(explain(e.message)))}>Refresh</button><button disabled={busy||hasPending} onClick={()=>void call({operation:'logout'}).then(()=>{setData(null);setPending(null);setBookingFeedback({});}).catch(e=>setNotice(explain(e.message)))}>Sign out</button></div></div>
-      {!instructor&&!operations&&!intake&&<p className={styles.muted}>{data.capabilities.outbound==='not_configured'?'Outbound messaging is not configured. Drafts can still be reviewed.':'Replies require your review and approval before entering the delivery queue.'}</p>}
-      {!busy&&!hasPending&&<nav className={styles.row} aria-label="Hub sections"><Link href="/hub" aria-current={messages?'page':undefined}>Inbox</Link><Link href="/people">Members</Link><Link href="/follow-ups">Internal follow-ups</Link>{canBook&&<><Link href="/hub?view=instructor" aria-current={instructor?'page':undefined}>Instructor & timesheets</Link><Link href="/hub?view=operations" aria-current={operations?'page':undefined}>Reports & rosters</Link></>}{['owner','manager'].includes(data.principal.role)&&<><Link href="/hub?view=intake" aria-current={intake?'page':undefined}>New student</Link><Link href="/hub?view=crm">Sales & tasks →</Link><Link href="/hub?view=ai">AI drafting →</Link></>}</nav>}
+      {!instructor&&!operations&&!intake&&!courses&&!archived&&<p className={styles.muted}>{data.capabilities.outbound==='not_configured'?'Outbound messaging is not configured. Drafts can still be reviewed.':'Replies require your review and approval before entering the delivery queue.'}</p>}
+      {!busy&&!hasPending&&<nav className={styles.row} aria-label="Hub sections"><Link href="/hub" aria-current={messages?'page':undefined}>Inbox</Link><Link href="/people">Members</Link><Link href="/follow-ups">Internal follow-ups</Link>{canBook&&<><Link href="/hub?view=instructor" aria-current={instructor?'page':undefined}>Instructor & timesheets</Link><Link href="/hub?view=operations" aria-current={operations?'page':undefined}>Reports & rosters</Link></>}{['owner','manager'].includes(data.principal.role)&&<><Link href="/hub?view=intake" aria-current={intake?'page':undefined}>New student</Link><Link href="/hub?view=courses" aria-current={courses?'page':undefined}>Course rosters</Link><Link href="/hub?view=archived" aria-current={archived?'page':undefined}>Archived students</Link><Link href="/hub?view=crm">Sales & tasks →</Link><Link href="/hub?view=ai">AI drafting →</Link></>}</nav>}
       {hasPending&&(!pendingMessageId||!bookingFeedback[pendingMessageId])&&<button disabled={busy} onClick={retryPending}>Retry unconfirmed action</button>}
       {crm&&(['owner','manager'].includes(data.principal.role)?<CrmWorkspace busy={busy} locked={hasPending} feedback={bookingFeedback.crm} clearFeedback={()=>clearBookingFeedback('crm')} retry={hasPending&&pendingMessageId==='crm'?retryPending:undefined} act={(operation,payload)=>act(operation,payload,'crm')}/>:<p role="alert">Sales and tasks require manager or owner access.</p>)}
       {ai&&(['owner','manager'].includes(data.principal.role)?<AiSettings busy={busy} locked={hasPending} feedback={bookingFeedback.ai}
@@ -149,14 +153,19 @@ function HubContent(){
       {operations&&(canBook?<OperationsWorkspace manager={['owner','manager'].includes(data.principal.role)} sessions={data.sessions}/>:<p role="alert">Operations requires staff access.</p>)}
       {intake&&(['owner','manager'].includes(data.principal.role)?<StudentIntake busy={busy} locked={hasPending} feedback={bookingFeedback.intake} clearFeedback={()=>clearBookingFeedback('intake')}
         act={(operation,payload)=>act(operation,payload,'intake')} retry={hasPending&&pendingMessageId==='intake'?retryPending:undefined}/>:<p role="alert">Creating students requires manager or owner access.</p>)}
-      {!crm&&!ai&&!instructor&&!operations&&!intake&&<>
+      {courses&&(['owner','manager'].includes(data.principal.role)?<CourseAssignments busy={busy} locked={hasPending} feedback={bookingFeedback.courses} clearFeedback={()=>clearBookingFeedback('courses')}
+        act={(operation,payload)=>act(operation,payload,'courses')} retry={hasPending&&pendingMessageId==='courses'?retryPending:undefined}/>:<p role="alert">Course rosters require manager or owner access.</p>)}
+      {archived&&(['owner','manager'].includes(data.principal.role)?<ArchivedMembers busy={busy} locked={hasPending} feedback={bookingFeedback.archived} clearFeedback={()=>clearBookingFeedback('archived')}
+        act={(operation,payload)=>act(operation,payload,'archived')} retry={hasPending&&pendingMessageId==='archived'?retryPending:undefined}/>:<p role="alert">Archived students require manager or owner access.</p>)}
+      {!crm&&!ai&&!instructor&&!operations&&!intake&&!courses&&!archived&&<>
       {canBook&&<section className={styles.card} aria-label="Find a member"><label className={styles.fields}>Member<Select ariaLabel="Manage member" value={memberChoice} disabled={busy||hasPending} onChange={setMemberChoice} placeholder="Choose a member" options={data.members.map(m=>({value:m.id,label:m.name}))}/></label>
         {memberChoice&&!busy&&!hasPending&&<Link href={`/hub?memberId=${encodeURIComponent(memberChoice)}&view=manage`}>Open member management →</Link>}</section>}
       {selectedMember&&canBook&&!busy&&!hasPending&&<nav className={styles.row} aria-label="Member workspace"><Link href={`/hub?memberId=${encodeURIComponent(selectedMember.id)}`}>Book a class</Link><Link href={`/hub?memberId=${encodeURIComponent(selectedMember.id)}&view=manage`}>Profile, billing and attendance</Link></nav>}
       {selectedMemberId&&managing&&selectedMember&&canBook&&<MemberManagement key={selectedMember.id} memberId={selectedMember.id} section={searchParams.get('section')||undefined} sessions={data.sessions} now={now} busy={busy} locked={hasPending}
         feedback={bookingFeedback[`manage:${selectedMember.id}`]} clearFeedback={()=>clearBookingFeedback(`manage:${selectedMember.id}`)}
         retry={hasPending&&pendingMessageId===`manage:${selectedMember.id}`?retryPending:undefined}
-        act={(operation,payload)=>act(operation,payload,`manage:${selectedMember.id}`)}/>}
+        act={(operation,payload)=>act(operation,payload,`manage:${selectedMember.id}`)}
+        archive={['owner','manager'].includes(data.principal.role)?{act:(operation,payload)=>act(operation,payload,'archived'),feedback:bookingFeedback.archived,retry:hasPending&&pendingMessageId==='archived'?retryPending:undefined}:undefined}/>}
       {selectedMemberId&&!managing&&!messages&&(selectedMember&&canBook?<MemberBooking key={selectedMember.id} member={selectedMember} sessions={data.sessions} now={now} busy={busy} locked={hasPending}
         feedback={bookingFeedback[memberFeedbackKey]} clearFeedback={()=>clearBookingFeedback(memberFeedbackKey)}
         retry={hasPending&&pendingMessageId===memberFeedbackKey?retryPending:undefined}

@@ -1,0 +1,135 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path');
+const fixture=JSON.parse(fs.readFileSync(process.env.DOJANG_FIXTURE_OUTPUT,'utf8'));
+const origin='http://localhost:3000',checks=[];
+const pass=name=>{checks.push({name,result:'passed'});console.log('PASS '+name);};
+const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAIAAABt+uBvAAABTElEQVR42u3bwW0CQQwF0GBRRE57Sk0pMmVxooxUQKTA2B4vz1ektXn6M9LAzuU4vj7U4woEgAABAgQIECBAChAgQIAAATpXXXcY4uf4fPTR9+3eO9ul6wezP1C2wmoAeoKmkakU6EWaFqaYqLP8ac0JSv0y2VGK0ToFz4/R0xd0iek62b3iBDqpHR01OoDq45PXN06jk9TdEqsF6o1PxgwSVAi0Q3yWTyJBgADNANpnA1o7jwQBAgQIECBAgAC9WO1vGSTNI0GAAI0B2mcbWjiJBNUC7RCitTNIUDlQb4iWd48RUzb2tcSagOpDlNQxxk1c3CuGzl3WJUZPX/D8uhfJl/9xVhPPGLpNlG1w7mrsB/Q007vc9vkX1vveF5tS1+JlMu4Q6ywGCBAgQIAAAQKkAAECBAgQIECAFCBAgAABAgQIkAIECBCg1voFsvJee9ILeksAAAAASUVORK5CYII=','base64');
+let stage='login';
+(async()=>{
+ const browser=await chromium.launch({headless:true});
+ try{
+  const context=await browser.newContext({viewport:{width:1280,height:900}}),page=await context.newPage();
+  page.setDefaultTimeout(20000);
+  const call=async(op,payload,key=null)=>{const r=await context.request.post(origin+'/api/hub',{headers:{origin},data:{operation:op,payload,requestKey:key}});return {status:r.status(),value:await r.json()};};
+  const [studentA,studentB]=fixture.courseMemberIds;
+  let commands=[],dropNext=false;
+  await page.route(/\/api\/hub(\/photo)?$/,async route=>{
+   const data=route.request().postDataJSON();
+   if(!['assign_course_members','update_member_photo','archive_member','restore_member'].includes(data.operation))return route.continue();
+   commands.push(data);const response=await route.fetch();
+   if(dropNext){dropNext=false;assert.equal(response.status(),200);return route.abort('failed');}
+   return route.fulfill({response});
+  });
+  await page.goto(origin+'/hub?view=courses');
+  await page.getByLabel('Login',{exact:true}).fill(fixture.hubLogin);
+  await page.getByLabel('Password',{exact:true}).fill(fixture.hubPassword);
+  await page.getByRole('button',{name:'Sign in',exact:true}).click();
+  await page.getByRole('heading',{name:'Assign students to a course.'}).waitFor();
+
+  stage='course review';
+  await page.getByLabel('Course',{exact:true}).selectOption(fixture.courseTemplateId);
+  await page.getByText('No students are on this course roster.').waitFor();
+  await page.getByLabel('Find students to add',{exact:true}).fill('Course Student');
+  await page.getByLabel('Add Course Student A',{exact:true}).check();
+  await page.getByLabel('Add Course Student B',{exact:true}).check();
+  await page.getByRole('button',{name:'Review course assignment',exact:true}).click();
+  const review=page.getByLabel('Review course assignment',{exact:true});
+  await review.getByText('Add Course Student A: 2 upcoming class bookings will be created',{exact:true}).waitFor();
+  await review.getByText('Add Course Student B: 2 upcoming class bookings will be created',{exact:true}).waitFor();
+  assert.equal(commands.length,0);
+  await review.getByLabel('Reason for this roster change',{exact:true}).fill('Synthetic spring cohort');
+  assert.equal(await review.getByRole('button',{name:'Confirm roster change in Odoo'}).isDisabled(),true);
+  await review.getByRole('checkbox').check();
+  dropNext=true;
+  await review.getByRole('button',{name:'Confirm roster change in Odoo'}).click();
+  await page.getByRole('button',{name:'Check roster change result'}).click();
+  const result=page.getByRole('status',{name:'Course assignment result'});
+  await result.getByText('Course roster updated in Odoo: 4 bookings created, 0 cancelled.').waitFor();
+  assert.equal(commands.length,2);assert.equal(commands[0].requestKey,commands[1].requestKey);
+  assert.deepEqual(commands[0].payload,commands[1].payload);
+  await page.getByLabel('Remove Course Student A',{exact:true}).waitFor();
+  let details=(await call('member_details',{memberId:studentA})).value;
+  assert.deepEqual(details.courses.map(c=>c.id),[fixture.courseTemplateId]);
+  assert.equal(details.bookings.filter(b=>b.title==='Rehearsal course').length,2);
+  pass('bulk course assignment is reviewed first; a lost response replays one receipt and creates exactly 4 native bookings');
+
+  stage='course removal';
+  await page.getByLabel('Remove Course Student B',{exact:true}).check();
+  await page.getByRole('button',{name:'Review course assignment',exact:true}).click();
+  await review.getByText('Remove Course Student B: 2 upcoming registered bookings will be cancelled',{exact:true}).waitFor();
+  await review.getByLabel('Reason for this roster change',{exact:true}).fill('Synthetic schedule change');
+  await review.getByRole('checkbox').check();
+  await review.getByRole('button',{name:'Confirm roster change in Odoo'}).click();
+  await result.getByText('Course roster updated in Odoo: 0 bookings created, 2 cancelled.').waitFor();
+  details=(await call('member_details',{memberId:studentB})).value;
+  assert.deepEqual(details.courses,[]);assert.equal(details.bookings.filter(b=>b.title==='Rehearsal course').length,0);
+  await page.screenshot({path:path.join(process.env.DOJANG_EVIDENCE_DIR,'member-admin-courses.png'),fullPage:true});
+  pass('removing a student cancels only their upcoming course bookings and reads back from Odoo');
+
+  stage='photo';
+  await page.goto(origin+`/hub?view=manage&memberId=${studentA}&section=photo`);
+  const manage=page.getByRole('region',{name:'Member management'});
+  await manage.getByText('No photo on file.').waitFor();
+  await manage.getByLabel('Choose a new photo',{exact:true}).setInputFiles({name:'notes.txt',mimeType:'text/plain',buffer:Buffer.from('not an image')});
+  await manage.getByText('Use a JPEG, PNG or WebP photo.').waitFor();
+  await manage.getByLabel('Choose a new photo',{exact:true}).setInputFiles({name:'student.png',mimeType:'image/png',buffer:PNG});
+  const memberReview=page.getByRole('group',{name:'Review member action'});
+  await memberReview.getByText(/Save a new photo for Course Student A \(96×96 JPEG\)/).waitFor();
+  await memberReview.getByRole('button',{name:'Confirm member action in Odoo'}).click();
+  await page.getByRole('status',{name:'Member action result'}).getByText('Photo saved in Odoo.').waitFor();
+  await manage.getByRole('img',{name:'Current photo of Course Student A'}).waitFor();
+  const photoCommand=commands.at(-1);
+  assert.equal(photoCommand.operation,'update_member_photo');assert.ok(photoCommand.payload.image.length<400000);
+  assert.match((await call('member_details',{memberId:studentA})).value.member.photo,/^data:image\/jpeg;base64,/);
+  pass('photo is type-checked and resized in the browser, validated by Odoo and read back as the saved image');
+
+  stage='archive blocked';
+  await page.goto(origin+`/hub?view=manage&memberId=${fixture.memberId}&section=archive`);
+  await manage.getByText(/active, paused or pending membership/).waitFor();
+  assert.equal(await manage.getByRole('button',{name:'Review archiving'}).count(),0);
+  pass('a student with an open membership cannot be archived from the Companion');
+
+  stage='archive';
+  await page.goto(origin+`/hub?view=manage&memberId=${fixture.archiveMemberId}&section=archive`);
+  await manage.getByText('1 upcoming bookings would be cancelled. Attendance, rank and billing history stay in Odoo.').waitFor();
+  await manage.getByLabel('Reason for archiving',{exact:true}).fill('Synthetic family moved away');
+  await manage.getByRole('button',{name:'Review archiving'}).click();
+  await memberReview.getByRole('button',{name:'Confirm archive in Odoo'}).click();
+  await page.waitForURL(/view=archived/);
+  const archived=page.getByRole('region',{name:'Archived students'});
+  await page.getByRole('status',{name:'Archive action result'}).getByText(/Student archived in Odoo\. 1 future bookings were cancelled/).waitFor();
+  await archived.getByText(/Synthetic family moved away/).waitFor();
+  const gone=await call('member_details',{memberId:fixture.archiveMemberId});
+  assert.equal(gone.status,404);assert.equal(gone.value.error.code,'MEMBER_UNAVAILABLE');
+  assert.ok(!(await call('context',{})).value.members.some(m=>m.id===fixture.archiveMemberId));
+  await page.screenshot({path:path.join(process.env.DOJANG_EVIDENCE_DIR,'member-admin-archived.png'),fullPage:true});
+  pass('archive shows its impact, cancels the upcoming booking and hides the student from active staff lists');
+
+  stage='restore';
+  await archived.getByRole('button',{name:'Review restoring Archive Student'}).click();
+  const restore=page.getByLabel('Review restoring student',{exact:true});
+  await restore.getByLabel('Reason for restoring',{exact:true}).fill('Synthetic return');
+  await restore.getByRole('checkbox').check();
+  dropNext=true;
+  await restore.getByRole('button',{name:'Confirm restore in Odoo'}).click();
+  await page.getByRole('button',{name:'Check restore result'}).click();
+  await page.getByRole('status',{name:'Archive action result'}).getByText('Student restored in Odoo. Previously cancelled bookings were not re-created.').waitFor();
+  const restoreCommands=commands.filter(c=>c.operation==='restore_member');
+  assert.equal(restoreCommands.length,2);assert.equal(restoreCommands[0].requestKey,restoreCommands[1].requestKey);
+  await archived.getByText('No archived students match.').waitFor();
+  const back=(await call('member_details',{memberId:fixture.archiveMemberId})).value;
+  assert.equal(back.member.id,fixture.archiveMemberId);assert.equal(back.bookings.length,0);
+  pass('restore is reviewed, recovers a lost response with the same key and does not silently re-book');
+
+  stage='mobile';
+  await page.setViewportSize({width:390,height:844});
+  await page.goto(origin+'/hub?view=courses');
+  await page.getByRole('heading',{name:'Assign students to a course.'}).waitFor();
+  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1));
+  await page.screenshot({path:path.join(process.env.DOJANG_EVIDENCE_DIR,'member-admin-mobile.png'),fullPage:true});
+  pass('course roster workspace fits a phone viewport');
+  fs.writeFileSync(path.join(process.env.DOJANG_EVIDENCE_DIR,'member-admin-browser-results.json'),JSON.stringify({mode:'real Odoo synthetic records',checks},null,2));
+  await context.close();
+ }finally{await browser.close();}
+})().catch(e=>{console.error('Member administration rehearsal failed at '+stage+': '+e.message);process.exitCode=1;});

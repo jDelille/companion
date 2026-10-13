@@ -8,6 +8,17 @@ export type ActionFeedback = {
 };
 
 const messages: Record<string, string> = {
+  MEMBERSHIP_REVIEW_REQUIRED: 'This student has an active, paused or pending membership. End or transfer it in the membership workflow before archiving.',
+  PRIMARY_GUARDIAN_REVIEW_REQUIRED: 'This student is the primary guardian of a household with other members. Assign another primary guardian in Odoo before archiving.',
+  PORTAL_ACCESS_REVIEW_REQUIRED: 'This student has an active portal login. An administrator must review that account in Odoo before archiving.',
+  PHOTO_TOO_LARGE: 'That photo is too large. Choose an image under 300 KB after resizing.',
+  PHOTO_TYPE_UNSUPPORTED: 'Use a JPEG, PNG or WebP photo.',
+  PHOTO_DIMENSIONS: 'Use a photo between 64 and 4096 pixels on each side.',
+  PHOTO_INVALID: 'That file could not be read as an image. Nothing was saved.',
+  COURSE_UNAVAILABLE: 'That course is no longer available in this school. Refresh and choose again.',
+  COURSE_ROSTER_CHANGED: 'The course roster changed since you chose these students. Refresh the roster and review again.',
+  CAPACITY_REVIEW_REQUIRED: 'One or more upcoming classes would exceed capacity. Nothing was changed; adjust the selection or class capacity first.',
+  ASSIGNMENT_REVIEW_CHANGED: 'Bookings or preferences changed after review. Review the assignment again before confirming.',
   INTAKE_FIELDS_REQUIRED: 'Required intake fields are missing or invalid. Choose Review new student to see exactly what needs attention.',
   INTAKE_REVIEW_CHANGED: 'The intake changed after review. Review the current fields again before creating a student.',
   INTAKE_DETAILS_UNAVAILABLE: 'The intake review could not be verified. Nothing is confirmed; reload the options and review again.',
@@ -73,7 +84,7 @@ export function replacementBlockReason(original: {startsAt: string; future: bool
 
 /** Do not turn an acknowledged write into a failure when its follow-up read fails. */
 export async function runHubAction(
-  send: () => Promise<{enrollmentId?: unknown; memberId?: string; memberNumber?: string; checkoutUrl?: string; invoiceId?: string; invoiceNumber?: string; amount?: number; currency?: string; state?: string}>,
+  send: () => Promise<{enrollmentId?: unknown; memberId?: string; memberNumber?: string; cancelledBookingIds?: unknown[]; bookingsCreated?: number; bookingsCancelled?: number; checkoutUrl?: string; invoiceId?: string; invoiceNumber?: string; amount?: number; currency?: string; state?: string}>,
   refresh: () => Promise<void>,
   onAcknowledged: (feedback: ActionFeedback) => void,
 ): Promise<ActionFeedback> {
@@ -92,6 +103,11 @@ export async function runHubAction(
     text: result.checkoutUrl ? 'Secure invoice checkout is ready. Payment has not been submitted.' :
       result.state==='ai_enabled' ? 'Live AI drafting passed the connection check and is enabled for this school.' :
       result.state==='student_created' ? `Student profile created in Odoo. Member number: ${result.memberNumber}. No membership, trial booking, portal access or message was created.` :
+      result.state==='archived' ? `Student archived in Odoo. ${Array.isArray(result.cancelledBookingIds)?result.cancelledBookingIds.length:0} future bookings were cancelled; attendance history is kept. Restore from Archived students.` :
+      result.state==='restored' ? 'Student restored in Odoo. Previously cancelled bookings were not re-created.' :
+      result.state==='photo_updated' ? 'Photo saved in Odoo.' :
+      result.state==='photo_removed' ? 'Photo removed in Odoo.' :
+      result.state==='course_roster_updated' ? `Course roster updated in Odoo: ${result.bookingsCreated ?? 0} bookings created, ${result.bookingsCancelled ?? 0} cancelled.` :
       result.state==='clocked_in' ? 'Clock-in confirmed in Odoo.' :
       result.state==='clocked_out' ? 'Clock-out confirmed in Odoo.' :
       result.state==='timesheet_corrected' ? 'Timesheet correction confirmed in Odoo. Payroll has not been approved.' :
