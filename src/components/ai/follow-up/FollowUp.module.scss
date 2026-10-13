@@ -471,7 +471,7 @@ a.itemTitle:hover {
     background: var(--raised); // same as every input in the app
     color: var(--text);
     font: inherit;
-    font-size: var(--text-sm);
+    font-size: var(--input-text);
   }
 
   textarea {
@@ -592,13 +592,13 @@ a.itemTitle:hover {
 }
 
 .answer {
-  color: var(--text, #eee);
+  color: var(--text);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   line-height: 1.6;
   margin: 14px 0;
   padding: 12px;
-  border-left: 2px solid #ba9fff;
+  border-left: 2px solid var(--agent); // AI answer: violet is AI-only
 }
 
 /* ---------- Choose a member (member2 mockup) ---------- */

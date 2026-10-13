@@ -2,6 +2,7 @@
 
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {explainHubError,type ActionFeedback} from '@/domain/hub-actions';
+import Avatar from '@/components/primitives/avatar/Avatar';
 import styles from './page.module.css';
 import intakeStyles from './intake.module.css';
 
@@ -71,11 +72,11 @@ export default function CourseAssignments({busy,locked,feedback,clearFeedback,re
       {course&&<>
         <p>{course.upcomingSessions} upcoming classes · {course.autoEnroll?'Course members are enrolled automatically':'Automatic enrollment is off; roster changes do not create bookings'}</p>
         <fieldset disabled={blocked} className={intakeStyles.fieldset}><legend>Current roster ({course.members.length})</legend>
-          {course.members.length?course.members.map(m=><label key={m.id} className={intakeStyles.confirm}><input type="checkbox" aria-label={`Remove ${m.name}`} checked={removing.includes(m.id)} onChange={()=>toggle(removing,setRemoving,m.id)}/>{m.name}</label>):<p>No students are on this course roster.</p>}
+          {course.members.length?course.members.map(m=><label key={m.id} className={intakeStyles.confirm}><input type="checkbox" aria-label={`Remove ${m.name}`} checked={removing.includes(m.id)} onChange={()=>toggle(removing,setRemoving,m.id)}/><Avatar name={m.name} size="small"/>{m.name}</label>):<p>No students are on this course roster.</p>}
         </fieldset>
         <fieldset disabled={blocked} className={intakeStyles.fieldset}><legend>Add students</legend>
           <label>Find students to add<input aria-label="Find students to add" value={query} onChange={e=>setQuery(e.target.value)} maxLength={100}/></label>
-          {candidates.slice(0,100).map(m=><label key={m.id} className={intakeStyles.confirm}><input type="checkbox" aria-label={`Add ${m.name}`} checked={adding.includes(m.id)} onChange={()=>toggle(adding,setAdding,m.id)}/>{m.name}</label>)}
+          {candidates.slice(0,100).map(m=><label key={m.id} className={intakeStyles.confirm}><input type="checkbox" aria-label={`Add ${m.name}`} checked={adding.includes(m.id)} onChange={()=>toggle(adding,setAdding,m.id)}/><Avatar name={m.name} size="small"/>{m.name}</label>)}
           {!candidates.length&&<p>No matching active students outside this roster.</p>}
           {candidates.length>100&&<p>Showing the first 100 matches. Narrow your search.</p>}
         </fieldset>

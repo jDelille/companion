@@ -52,38 +52,52 @@
 .topics {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
+// One option per card: question on the left, ↗ on the right. Solid cards so they read as buttons.
 .topic {
   all: unset;
   box-sizing: border-box; // all: unset resets this to content-box
   display: flex;
   align-items: center;
-  min-height: calc(var(--touch-height) * 1.5);
-  padding: 0.75rem 1.25rem;
-  @include glass.flat;
-  border-radius: var(--radius-leaf);
-  font-size: var(--text-base);
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 72px; // well over the 48px kiosk minimum
+  padding: 16px 18px 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
   color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: left;
   cursor: pointer;
   transition: background 150ms ease, border-color 150ms ease;
 
-  &:hover,
-  &:active {
-    @include glass.card-active;
+  &:hover:not(:disabled),
+  &:active:not(:disabled) {
+    border-color: var(--text-secondary);
+    background: var(--raised);
+  }
+
+  // The arrow circle lights up with the card
+  &:hover:not(:disabled) .topicArrow,
+  &:active:not(:disabled) .topicArrow {
+    border-color: var(--text-secondary);
+    background: var(--interactive);
+    color: var(--text);
   }
 
   &:focus-visible {
     outline: 2px solid var(--text-secondary);
-    outline-offset: -2px;
+    outline-offset: 2px;
   }
 
   &:disabled {
     color: var(--muted);
     cursor: default;
-    background: var(--glass-fill);
-    border-color: var(--glass-edge);
   }
 }
 

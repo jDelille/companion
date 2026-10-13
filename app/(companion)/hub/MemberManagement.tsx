@@ -251,7 +251,7 @@ function WaiverForm({ data, disabled, review }: { data: Details; disabled: boole
   const point = (event: ReactPointerEvent<HTMLCanvasElement>) => { const box = event.currentTarget.getBoundingClientRect();
     return [(event.clientX - box.left) * event.currentTarget.width / box.width, (event.clientY - box.top) * event.currentTarget.height / box.height]; };
   const start = (event: ReactPointerEvent<HTMLCanvasElement>) => { const ctx = event.currentTarget.getContext("2d"); if (!ctx || disabled) return;
-    drawing.current = true; const [x, y] = point(event); ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#111"; ctx.beginPath(); ctx.moveTo(x, y); };
+    drawing.current = true; const [x, y] = point(event); ctx.lineWidth = 3; ctx.lineCap = "round"; ctx.strokeStyle = "#08080a"; /* = --canvas: canvas drawing cannot read CSS variables */ ctx.beginPath(); ctx.moveTo(x, y); };
   const move = (event: ReactPointerEvent<HTMLCanvasElement>) => { if (!drawing.current) return; const ctx = event.currentTarget.getContext("2d"); if (!ctx) return;
     const [x, y] = point(event); ctx.lineTo(x, y); ctx.stroke(); setInked(true); };
   const clear = () => { const c = canvas.current; c?.getContext("2d")?.clearRect(0, 0, c.width, c.height); setInked(false); };

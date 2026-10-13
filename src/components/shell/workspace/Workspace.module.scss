@@ -115,7 +115,7 @@
 
   .keyBtn {
     border: 1px solid var(--dark-border);
-    background-color: #17171d;
+    background-color: var(--raised);
     font-size: 10px;
     color: var(--text-secondary);
     padding: 5px 7px;
@@ -124,7 +124,7 @@
 
   .addBtn {
     border: 1px solid var(--dark-border);
-    background-color: #17171d;
+    background-color: var(--raised);
     color: var(--text-secondary);
     height: 40px;
     width: 40px;
@@ -137,7 +137,7 @@
   }
 
   .commandBar {
-    background-color: #17171d;
+    background-color: var(--raised);
     flex: 1;
     height: 100%;
     display: flex;

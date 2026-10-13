@@ -31,7 +31,7 @@ export default function RootLayout({
       </p>
       <Link href="/integration/members" className="chooseMemberBtn">
         Choose a member
-        <ChevronRightIcon color="white" size={20} />
+        <ChevronRightIcon color="currentColor" size={20} />
       </Link>
       <p>
         Open a member to prepare a parent follow-up, or open a class to review
@@ -55,4 +55,4 @@ export default function RootLayout({
   );
 }
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0b0b0c" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#08080a" }; // = --canvas (a meta tag cannot read CSS variables)

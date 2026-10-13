@@ -1,17 +1,7 @@
 /* Hub sections inside the shared staff layout. */
 .root {
-  --canvas: #08080a;
-  --panel: #101014;
-  --raised: #17171d;
-  --interactive: #1e1e26;
-  --line: #2a2a35;
-  --text: #f6f6f8;
-  --text-secondary: #a8a8b8;
-  --muted: #717184;
-  --success: #26c76f;
-  --warning: #f6a63b;
+  /* Colours come from the global doc tokens (styles/_variables.scss); none are redefined here */
   --radius-control: 10px;
-  --agent: #8a7cf6; /* focus ring on the shared Select */
   --text-sm: 0.875rem;
 
   min-height: 100%;
@@ -443,7 +433,7 @@
 .viewToggle { display:flex; gap:6px; margin-bottom:18px; }
 .viewToggle button[aria-pressed="true"] { border-color:var(--text-secondary); background:var(--interactive); }
 .pipelineBoard { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; align-items:start; }
-.pipelineLane { min-width:0; border:1px solid var(--line); border-radius:16px; padding:12px; background:rgba(14,14,18,.72); }
+.pipelineLane { min-width:0; border:1px solid var(--line); border-radius:16px; padding:12px; background:var(--panel); }
 .pipelineLane > header { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:2px 6px 12px; }
 .pipelineLane > header h3 { margin:0; font-size:14px; }
 .pipelineLane > header span { font-size:12px; color:var(--text-secondary); }
@@ -764,7 +754,7 @@
 .root section[aria-label="CRM workspace"] > form.fields > label input {
   min-height: 44px;
   padding-left: 38px;
-  font-size: 14px;
+  font-size: var(--input-text);
 }
 
 .root section[aria-label="CRM workspace"] > form.fields > label::before {
@@ -1248,7 +1238,7 @@
 .root section[aria-label="Attendance review"] .auditEntry > .row > label select,
 .root section[aria-label="Attendance review"] .auditEntry > .row > label input {
   min-height: 42px;
-  font-size: 14px;
+  font-size: var(--input-text);
 }
 
 .root section[aria-label="Attendance review"] .auditEntry > p[role="alert"] {
@@ -2449,6 +2439,618 @@
 }
 
 .root section[aria-label="Member management"] [aria-label="Review member action"] .row > button:first-child:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* ---------- "Review before saving" boxes: one style on every Hub page ----------
+   Sales (CRM + trial), Instructor, Attendance, Testing, Messaging, Member management,
+   AI drafting, New student, Course rosters, Archived. Matched by their aria-label "Review …"
+   (only boxes, not the Inbox "Review reply" text area). */
+.root :is(div, section)[aria-label^="Review "] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--raised);
+}
+
+/* Everything except the buttons takes a full line */
+.root :is(div, section)[aria-label^="Review "] > * {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+/* Title: "Review before saving", "Restore Maya Chen?" */
+.root :is(div, section)[aria-label^="Review "] > :is(h2, h3, h4):first-child {
+  margin-bottom: 2px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* The description in white, follow-up lines in grey, warnings in amber */
+.root :is(div, section)[aria-label^="Review "] > p {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.root :is(div, section)[aria-label^="Review "] > :is(h2, h3, h4):first-child + p {
+  color: var(--text);
+}
+
+.root :is(div, section)[aria-label^="Review "] > p[role="alert"] {
+  color: var(--warning);
+}
+
+/* Buttons on one line on the right: Cancel, then the red Confirm last */
+.root :is(div, section)[aria-label^="Review "] > button {
+  flex-basis: auto;
+}
+
+.root :is(div, section)[aria-label^="Review "] > button:first-of-type {
+  order: 2;
+}
+
+.root :is(div, section)[aria-label^="Review "] > button:not(:first-of-type) {
+  order: 1;
+}
+
+.root :is(div, section)[aria-label^="Review "] > button:nth-of-type(2) {
+  margin-left: auto;
+}
+
+.root :is(div, section)[aria-label^="Review "] > button:only-of-type {
+  margin-left: auto;
+}
+
+.root :is(div, section)[aria-label^="Review "] > .row {
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.root :is(div, section)[aria-label^="Review "] > .row > button:first-child {
+  order: 2;
+}
+
+/* Red = the confirm button in every review box */
+.root :is(div, section)[aria-label^="Review "] > button:first-of-type:not(:disabled),
+.root :is(div, section)[aria-label^="Review "] > .row > button:first-child:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root :is(div, section)[aria-label^="Review "] > button:first-of-type:hover:not(:disabled),
+.root :is(div, section)[aria-label^="Review "] > .row > button:first-child:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+@media (max-width: 599px) {
+  .root :is(div, section)[aria-label^="Review "] {
+    padding: 16px;
+  }
+}
+
+/* Warning blocks inside a review box (e.g. capacity conflicts) in amber */
+.root :is(div, section)[aria-label^="Review "] > div[role="alert"] p {
+  color: var(--warning);
+}
+
+/* ---------- Course rosters, Archived students, New student ---------- */
+
+/* Intro cards: title, then the notes as bullets (first one brighter) */
+.root :is(section[aria-label="Course rosters"], section[aria-label="Archived students"], section[aria-label="New student intake"]) > .card:first-child h2 {
+  margin-bottom: 14px;
+  font-size: 18px;
+}
+
+.root :is(section[aria-label="Course rosters"], section[aria-label="Archived students"], section[aria-label="New student intake"]) > .card:first-child > p {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.root :is(section[aria-label="Course rosters"], section[aria-label="Archived students"], section[aria-label="New student intake"]) > .card:first-child > p + p {
+  margin-top: 8px;
+  color: var(--text-secondary);
+}
+
+.root :is(section[aria-label="Course rosters"], section[aria-label="Archived students"], section[aria-label="New student intake"]) > .card:first-child > p::before {
+  content: "";
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transform: translateY(-2px);
+}
+
+.root :is(section[aria-label="Course rosters"], section[aria-label="Archived students"], section[aria-label="New student intake"]) > .card:first-child > p + p::before {
+  background: var(--muted);
+}
+
+/* Search rows (Find an archived student, Find an existing guardian): box capped, button beside it */
+.root :is(section[aria-label="Archived students"], section[aria-label="New student intake"]) label:has(+ button) {
+  max-width: 420px;
+}
+
+/* Form sections ("1. Student details", "Current roster"): a heading, and a line across the card between sections */
+.root :is(section[aria-label="Course rosters"], section[aria-label="New student intake"]) .card > fieldset {
+  margin: 0;
+}
+
+.root :is(section[aria-label="Course rosters"], section[aria-label="New student intake"]) .card > fieldset + fieldset {
+  margin: 24px -22px 0;
+  padding: 20px 22px 0;
+  /* a line, not a border: a fieldset's border would run through its legend */
+  background: linear-gradient(var(--line), var(--line)) top / 100% 1px no-repeat;
+}
+
+/* The heading sits inside the section like normal content */
+.root :is(section[aria-label="Course rosters"], section[aria-label="New student intake"]) .card > fieldset > legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.root :is(section[aria-label="Course rosters"], section[aria-label="New student intake"]) .card > fieldset > legend + * {
+  clear: both;
+}
+
+.root section[aria-label="New student intake"] .card > fieldset > p {
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.root section[aria-label="New student intake"] form.card > button {
+  margin-top: 24px;
+}
+
+/* Course roster checkboxes: one bordered list, a row per student with checkbox · avatar · name */
+.root section[aria-label="Course rosters"] fieldset > label:has(> input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  font-size: 14px;
+}
+
+.root section[aria-label="Course rosters"] fieldset > :not(label:has(> input[type="checkbox"])) + label:has(> input[type="checkbox"]) {
+  margin-top: 12px;
+  border-top: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+}
+
+.root section[aria-label="Course rosters"] fieldset > label:has(> input[type="checkbox"]):not(:has(+ label > input[type="checkbox"])) {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.root section[aria-label="Course rosters"] fieldset > :not(label:has(> input[type="checkbox"])) + label:has(> input[type="checkbox"]):not(:has(+ label > input[type="checkbox"])) {
+  border-radius: 12px;
+}
+
+.root section[aria-label="Course rosters"] fieldset > label > input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.root section[aria-label="Course rosters"] .card > fieldset + p {
+  margin-top: 20px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Archived students: one bordered list, text on the left, Review restoring on the right */
+.root section[aria-label="Archived students"] .card > .auditEntry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 16px;
+  align-items: center;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-top: 0;
+}
+
+.root section[aria-label="Archived students"] .card > .auditEntry:first-child {
+  border-top: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+}
+
+.root section[aria-label="Archived students"] .card > .auditEntry:not(:has(+ .auditEntry)) {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.root section[aria-label="Archived students"] .card > .auditEntry:first-child:not(:has(+ .auditEntry)) {
+  border-radius: 12px;
+}
+
+.root section[aria-label="Archived students"] .card > .auditEntry > p {
+  grid-column: 1;
+  margin: 4px 0 0;
+  padding-left: 38px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.root section[aria-label="Archived students"] .card > .auditEntry > button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  white-space: nowrap;
+}
+
+@media (max-width: 599px) {
+  .root section[aria-label="Archived students"] .card > .auditEntry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .root section[aria-label="Archived students"] .card > .auditEntry > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 10px;
+    white-space: normal;
+  }
+}
+
+/* Red = the main action: Review course assignment, Review new student */
+.root section[aria-label="Course rosters"] .card > button:not(:disabled),
+.root section[aria-label="New student intake"] form.card > button:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label="Course rosters"] .card > button:hover:not(:disabled),
+.root section[aria-label="New student intake"] form.card > button:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* ---------- Inputs: one text size everywhere (token --input-text), placeholders muted ---------- */
+.root input,
+.root select,
+.root textarea {
+  font-size: var(--input-text);
+}
+
+.root ::placeholder {
+  color: var(--muted);
+  font-size: var(--input-text);
+  opacity: 1;
+}
+
+/* ---------- Sales: lead detail (Open lead) ---------- */
+
+/* Header: lead name, then "Stage · owner · Source" under it, a line across the card */
+.root section[aria-label="Lead detail"] > h2:first-child {
+  margin: -20px -22px 0;
+  padding: 18px 22px 4px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.root section[aria-label="Lead detail"] > h2:first-child + p {
+  margin: 0 -22px;
+  padding: 0 22px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.root section[aria-label="Lead detail"] > * + * {
+  margin-top: 16px;
+}
+
+/* Evidence and Next best action boxes: card corners, same spacing */
+.root section[aria-label="Lead detail"] .evidenceDetail {
+  margin: 16px 0 0;
+  padding: 18px 20px;
+  border-radius: var(--radius-card);
+}
+
+.root section[aria-label="Lead detail"] .evidenceDetail > h3 {
+  margin: 0;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.root section[aria-label="Lead detail"] .evidenceDetail > .row:first-child h3 {
+  margin: 0;
+}
+
+.root section[aria-label="Lead detail"] .evidenceDetail > * + * {
+  margin-top: 12px;
+}
+
+.root section[aria-label="Lead detail"] .evidenceDetail .fields {
+  max-width: 620px;
+}
+
+/* Collapsible parts (Assign staff owner, Internal notes, Propose a stage change): accordion rows */
+.root section[aria-label="Lead detail"] > details.booking {
+  margin: 16px -22px 0;
+  padding: 0 22px;
+  border-top: 1px solid var(--line);
+}
+
+.root section[aria-label="Lead detail"] > details.booking + details.booking {
+  margin-top: 0;
+}
+
+.root section[aria-label="Lead detail"] > details.booking > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  list-style: none;
+  cursor: pointer;
+}
+
+.root section[aria-label="Lead detail"] > details.booking > summary::-webkit-details-marker {
+  display: none;
+}
+
+.root section[aria-label="Lead detail"] > details.booking > summary::after {
+  content: "\203A";
+  color: var(--text-secondary);
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 150ms ease;
+}
+
+.root section[aria-label="Lead detail"] > details.booking[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+.root section[aria-label="Lead detail"] > details.booking[open] {
+  padding-bottom: 20px;
+}
+
+/* The line under the last accordion row */
+.root section[aria-label="Lead detail"] > details.booking:not(:has(+ details.booking)) {
+  border-bottom: 1px solid var(--line);
+}
+
+/* "Lead tasks and outcomes", "Companion action history": small uppercase labels */
+.root section[aria-label="Lead detail"] > h3 {
+  margin-top: 24px;
+}
+
+.root section[aria-label="Lead detail"] > h3 + * {
+  margin-top: 8px;
+}
+
+/* Tasks: one bordered list; text on the left, its button on the right, the outcome form under */
+.root section[aria-label="Lead detail"] > .auditEntry,
+.root section[aria-label="Open CRM tasks"] > .auditEntry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 16px;
+  align-items: center;
+  margin: 0;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-top: 0;
+}
+
+.root section[aria-label="Lead detail"] > :not(.auditEntry) + .auditEntry,
+.root section[aria-label="Open CRM tasks"] > :not(.auditEntry) + .auditEntry {
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+  border-radius: 12px 12px 0 0;
+}
+
+.root section[aria-label="Lead detail"] > .auditEntry:not(:has(+ .auditEntry)),
+.root section[aria-label="Open CRM tasks"] > .auditEntry:not(:has(+ .auditEntry)) {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.root section[aria-label="Lead detail"] > :not(.auditEntry) + .auditEntry:not(:has(+ .auditEntry)),
+.root section[aria-label="Open CRM tasks"] > :not(.auditEntry) + .auditEntry:not(:has(+ .auditEntry)) {
+  border-radius: 12px;
+}
+
+.root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) > .auditEntry > * {
+  grid-column: 1;
+  margin: 0;
+}
+
+.root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) > .auditEntry > p {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) > .auditEntry > :is(button, a) {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  white-space: nowrap;
+}
+
+.root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) > .auditEntry > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* The outcome form: full width under the task, box and button side by side */
+.root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) > .auditEntry > form.fields {
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  max-width: none;
+  margin-top: 12px;
+}
+
+/* History lines and notes */
+.root section[aria-label="Lead detail"] > p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.root section[aria-label="Lead detail"] > h3 + p + p,
+.root section[aria-label="Lead detail"] > p + p {
+  margin-top: 4px;
+}
+
+/* Links on their own ("Open linked member →"): quiet secondary buttons */
+.root section[aria-label="Lead detail"] > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Trial panel: same box as Evidence; its list of trials as plain lines */
+.root section[aria-label="Lead detail"] section[aria-label="Trial"] > p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+@media (max-width: 599px) {
+  .root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) > .auditEntry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) > .auditEntry > :is(button, a) {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    margin-top: 10px;
+  }
+}
+
+/* Red = each form's review button (lead action, lead changes, notes, owner, stage, task outcome, trial) */
+.root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) form > button:not([type]):not(:disabled),
+.root section[aria-label="Lead detail"] section[aria-label="Trial"] .fields > button:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root :is(section[aria-label="Lead detail"], section[aria-label="Open CRM tasks"]) form > button:not([type]):hover:not(:disabled),
+.root section[aria-label="Lead detail"] section[aria-label="Trial"] .fields > button:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* ---------- Book a class for a member ---------- */
+
+/* Header: title + "Back to member" on the right, a line across the card */
+.root section[aria-label^="Book a class for"] > .row:first-child {
+  justify-content: space-between;
+  margin: -20px -22px 0;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.root section[aria-label^="Book a class for"] > .row:first-child h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.root section[aria-label^="Book a class for"] > .row:first-child a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.root section[aria-label^="Book a class for"] > .row:first-child + p {
+  margin-top: 16px;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+/* Class picker with the review/confirm button beside it */
+.root section[aria-label^="Book a class for"] > .fields {
+  grid-template-columns: minmax(0, 560px) auto;
+  align-items: end;
+  max-width: none;
+  margin-top: 16px;
+}
+
+.root section[aria-label^="Book a class for"] > .fields > :not(label, button) {
+  grid-column: 1 / -1;
+}
+
+.root section[aria-label^="Book a class for"] > .fields > button {
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 40px;
+}
+
+.root section[aria-label^="Book a class for"] > .fields > p {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+@media (max-width: 599px) {
+  .root section[aria-label^="Book a class for"] > .fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .root section[aria-label^="Book a class for"] > .fields > button {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+  }
+}
+
+.root section[aria-label^="Book a class for"] > .fields > button:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label^="Book a class for"] > .fields > button:hover:not(:disabled) {
   background: var(--brand-bright);
   border-color: var(--brand-bright);
 }

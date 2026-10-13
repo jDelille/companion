@@ -94,7 +94,7 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   background: var(--panel);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--canvas) 50%, transparent);
 
   button {
     all: unset;

@@ -10,7 +10,7 @@
   margin: auto; // the global `* { margin: 0 }` reset removes the dialog's built-in centering
 
   &::backdrop {
-    background: rgb(0 0 0 / 0.4);
+    background: color-mix(in srgb, var(--canvas) 60%, transparent);
     backdrop-filter: blur(6px);
   }
 
@@ -144,13 +144,18 @@
     background: var(--raised); // same as every input in the app
     color: var(--text);
     font: inherit;
-    font-size: 14px;
+    font-size: var(--input-text);
     font-weight: 400;
   }
 
   textarea {
     min-height: 117px;
     resize: vertical;
+  }
+
+  ::placeholder {
+    color: var(--muted);
+    opacity: 1;
   }
 
   // A link on its own in a modal ("Manage this member in Hub →"): a quiet secondary button

@@ -421,7 +421,7 @@ a.metric:hover {
     background: var(--raised);
     color: var(--text);
     font: inherit;
-    font-size: 14px;
+    font-size: var(--input-text);
 
     &::placeholder {
       color: var(--muted);

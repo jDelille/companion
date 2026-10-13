@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import styles from "./ContextPane.module.scss";
+import Avatar from "@/components/primitives/avatar/Avatar";
 import Link from "@/components/primitives/AppLink";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useSelectedMember } from "./selected-member/selectedMember";
@@ -35,15 +36,6 @@ const savedViews = [
   { name: "At risk", count: 11 },
 ];
 
-// "Maya Chen" -> "MC"
-const initials = (name: string) => {
-  return name
-    .split(" ")
-    .filter((part) => part.length > 0)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join("");
-};
 
 const ContextPane = ({ children, section }: Props) => {
   const pathname = usePathname();
@@ -110,19 +102,22 @@ const ContextPane = ({ children, section }: Props) => {
             <p className={styles.label}>
               {matches.length ? "Results" : "No members match"}
             </p>
-            {matches.map((member) => (
-              <Link
-                key={member.id}
-                href={`/people/${member.id}`}
-                className={styles.item}
-                onClick={() => setQuery("")}
-              >
-                <div className={styles.avatar}>{initials(member.name)}</div>
-                <div className={styles.info}>
-                  <p>{member.name}</p>
-                </div>
-              </Link>
-            ))}
+            {/* One bordered list: avatar + name per member */}
+            {matches.length > 0 && (
+              <div className={styles.results}>
+                {matches.map((member) => (
+                  <Link
+                    key={member.id}
+                    href={`/people/${member.id}`}
+                    className={styles.result}
+                    onClick={() => setQuery("")}
+                  >
+                    <Avatar name={member.name} size="small" />
+                    <span>{member.name}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
           </>
         )}
 
@@ -192,9 +187,7 @@ const ContextPane = ({ children, section }: Props) => {
               href={`/people/${selectedMember.id}`}
               className={`${styles.item} ${styles.active}`}
             >
-              <div className={styles.avatar}>
-                {initials(selectedMember.name)}
-              </div>
+              <Avatar name={selectedMember.name} />
               <div className={styles.info}>
                 <p>{selectedMember.name}</p>
                 <span>{selectedMember.detail}</span>

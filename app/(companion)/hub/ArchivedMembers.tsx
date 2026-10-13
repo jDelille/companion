@@ -2,6 +2,7 @@
 
 import {useEffect,useRef,useState} from 'react';
 import {explainHubError,type ActionFeedback} from '@/domain/hub-actions';
+import {PersonName} from '@/components/primitives/avatar/Avatar';
 import styles from './page.module.css';
 import intakeStyles from './intake.module.css';
 
@@ -43,7 +44,7 @@ export default function ArchivedMembers({busy,locked,feedback,clearFeedback,retr
       <div className={intakeStyles.search}><label>Find an archived student<input aria-label="Find an archived student" value={query} maxLength={100} onChange={e=>setQuery(e.target.value)}/></label><button disabled={blocked} onClick={()=>setSearch(query.trim())}>Search archive</button></div></div>
     {error&&<p role="alert" className={styles.card}>{error}</p>}
     {!rows?<p role="status">Loading archived students…</p>:<div className={styles.card}>
-      {rows.length?rows.map(r=><div key={r.id} className={styles.auditEntry}><strong>{r.name} · {r.memberNumber}</strong>
+      {rows.length?rows.map(r=><div key={r.id} className={styles.auditEntry}><PersonName name={r.name} label={`${r.name} · ${r.memberNumber}`}/>
         <p>Archived {new Date(r.archivedAt).toLocaleString()}{r.archivedBy?` by ${r.archivedBy}`:''}{r.reason?` · ${r.reason}`:''}</p>
         <button disabled={blocked} onClick={()=>{clearFeedback();setSelected(r);setReason('');setConfirmed(false);}}>Review restoring {r.name}</button></div>):<p>No archived students match.</p>}
       {more&&<p>Showing the 50 most recently changed. Narrow your search.</p>}

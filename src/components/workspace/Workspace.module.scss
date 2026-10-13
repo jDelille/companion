@@ -62,7 +62,7 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--panel);
   transition:
     transform 160ms var(--ease-out),
     background-color 160ms ease,
@@ -80,11 +80,11 @@
 .button {
   background: var(--brand);
   border-color: var(--brand);
-  color: white;
+  color: var(--text);
   @media (hover: hover) {
     &:hover {
-      background: #b9162b;
-      border-color: #b9162b;
+      background: var(--brand-bright);
+      border-color: var(--brand-bright);
     }
   }
 }
@@ -238,7 +238,7 @@
     transition: background-color 160ms ease;
     @media (hover: hover) {
       &:hover {
-        background: rgba(255, 255, 255, 0.025);
+        background: var(--panel);
         .arrow {
           transform: translateX(3px);
           color: var(--text);
@@ -289,7 +289,7 @@
 .search {
   width: 100%;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.035);
+  background: var(--panel);
   min-height: 52px;
   border-radius: var(--radius-pill);
   padding: 12px 22px;
@@ -321,7 +321,7 @@
       border-color 160ms ease;
     &:hover {
       border-bottom-color: var(--text-secondary);
-      background: rgba(255, 255, 255, 0.025);
+      background: var(--panel);
     }
   }
   strong {

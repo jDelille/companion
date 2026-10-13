@@ -35,9 +35,11 @@
     border: 1px solid var(--dark-border);
     background-color: var(--raised); // same as every input in the app
     padding: 0.75rem;
+    color: var(--text);
+    font-size: var(--input-text);
 
     &::placeholder {
-      color: var(--text-secondary);
+      color: var(--muted);
     }
 
     margin-bottom: 2rem;
@@ -58,16 +60,6 @@
       font-size: 13px;
       position: relative;
       top: 0px;
-    }
-
-    .avatar {
-      background-color: black;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 40px;
-      height: 40px;
-      border-radius: 50%;
     }
 
     .info {
@@ -96,6 +88,46 @@
   .active {
     outline: 1px solid var(--dark-border);
     background-color: var(--raised);
+  }
+
+  // The selected member: avatar and name lined up in the middle
+  .item:has(> span:first-child) {
+    align-items: center;
+  }
+
+  // Search results: one bordered list, a compact row per member
+  .results {
+    display: grid;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 6px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 150ms ease;
+
+    & + .result {
+      border-top: 1px solid var(--line);
+    }
+
+    span:last-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &:hover {
+      background: var(--raised);
+    }
   }
 
   .kioskSection {

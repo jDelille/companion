@@ -28,4 +28,4 @@ export default function KioskLayout({ children }: LayoutProps<"/">) {
   );
 }
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#0b0b0c" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#08080a" }; // = --canvas (a meta tag cannot read CSS variables)
