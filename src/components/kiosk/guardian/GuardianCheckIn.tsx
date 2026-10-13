@@ -7,25 +7,43 @@ import styles from "./GuardianCheckIn.module.scss";
 import Avatar from "@/components/primitives/avatar/Avatar";
 
 type Outcome = { text: string; retry?: GuardianCommand };
+type ReceiptLine = { memberId: string; name: string; text: string };
+const RECEIPT_SECONDS = 10; // the receipt returns to Welcome on its own after this
 
 // onFinished: the kiosk's privacy reset (clear everything, back to Welcome), same as Done after a normal check-in
 export default function GuardianCheckIn({ session, onFinished }: { session: SessionOption; onFinished?: () => void }) {
   const [open, setOpen] = useState(false), [phone, setPhone] = useState(""), [pin, setPin] = useState("");
   const [verified, setVerified] = useState<GuardianVerified | null>(null), [message, setMessage] = useState(""), [busy, setBusy] = useState(false);
   const [outcomes, setOutcomes] = useState<Record<string, Outcome>>({});
+  // The receipt shown after Done, before the kiosk returns to Welcome
+  const [receipt, setReceipt] = useState<ReceiptLine[] | null>(null);
   useEffect(() => {
     if (!verified) return;
     const timer = window.setTimeout(() => { setVerified(null); setOutcomes({}); setMessage("For privacy the family list was closed. Verify again to continue."); },
       verified.expiresInSeconds * 1000);
     return () => window.clearTimeout(timer);
   }, [verified]);
-  const close = () => {
-    const finished = verified !== null; // the parent got past the PIN step
-    setOpen(false); setVerified(null); setPin(""); setPhone(""); setOutcomes({}); setMessage("");
-    // After a verified visit, Done ends it like a normal check-in: privacy reset, back to Welcome.
-    // Before that, it's just Cancel and the visitor stays on Find your name.
-    if (finished) onFinished?.();
+  // Ends the visit: clear everything, then the kiosk's privacy reset (back to Welcome)
+  const finish = () => {
+    setReceipt(null); setOpen(false); setVerified(null); setPin(""); setPhone(""); setOutcomes({}); setMessage("");
+    onFinished?.();
   };
+  const close = () => {
+    // Before the PIN step this is Cancel: just close, the visitor stays on Find your name
+    if (!verified) { setOpen(false); setPin(""); setPhone(""); setMessage(""); return; }
+    // After it, Done shows the receipt first: one line per child
+    setReceipt(verified.students.map(s => ({ memberId: s.memberId, name: s.displayName,
+      text: outcomes[s.memberId] && !outcomes[s.memberId].retry ? outcomes[s.memberId].text
+        : !s.onRoster ? `${s.displayName} is not booked in this class.`
+        : s.attendanceState !== "pending" ? `${s.displayName} was already checked in.`
+        : `${s.displayName} was not checked in.` })));
+  };
+  // The receipt returns to Welcome on its own
+  useEffect(() => {
+    if (!receipt) return;
+    const timer = window.setTimeout(finish, RECEIPT_SECONDS * 1000);
+    return () => window.clearTimeout(timer);
+  });
   async function verify() {
     setBusy(true); setMessage("");
     const answer = await verifyGuardian(phone, pin, session.sessionId);
@@ -45,6 +63,12 @@ export default function GuardianCheckIn({ session, onFinished }: { session: Sess
       : answer.kind === "problem" ? { text: answer.title }
       : { text: `We could not confirm ${student}'s check-in.`, retry: command } }));
   }
+  if (receipt) return <section className={styles.panel} aria-label="Check-in receipt" role="status">
+    <h2 className={styles.receiptTitle}>Check-in receipt</h2>
+    <p>{session.title}</p>
+    {receipt.map(line => <div key={line.memberId} className={styles.student}><span className={styles.who}><Avatar name={line.name} /><strong>{line.name}</strong></span><span>{line.text}</span></div>)}
+    <button onClick={finish}>Done</button>
+  </section>;
   if (!open) return <div className={styles.start}><button onClick={() => setOpen(true)}>Parent check-in with phone and PIN</button></div>;
   return <section className={styles.panel} aria-label="Parent check-in">
     {!verified ? <>

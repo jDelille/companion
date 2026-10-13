@@ -223,3 +223,10 @@
     font-weight: 600;
   }
 }
+
+// "Check-in receipt" title on the receipt card
+.receiptTitle {
+  color: var(--text);
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
