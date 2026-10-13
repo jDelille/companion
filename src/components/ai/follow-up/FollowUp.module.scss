@@ -598,7 +598,10 @@ a.itemTitle:hover {
   line-height: 1.6;
   margin: 14px 0;
   padding: 12px;
-  border-left: 2px solid var(--agent); // AI answer: violet is AI-only
+  // Jodi #42: no left accent bar; a soft violet box (violet = AI only)
+  border: 1px solid color-mix(in srgb, var(--agent) 30%, transparent);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--agent) 8%, transparent);
 }
 
 /* ---------- Choose a member (member2 mockup) ---------- */

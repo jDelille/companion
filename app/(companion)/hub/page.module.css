@@ -9,7 +9,7 @@
   box-sizing: border-box;
   background: transparent;
   color: var(--text);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: inherit; /* Jodi #42: the app font */
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -191,8 +191,7 @@
 .quote {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  border-left: 3px solid var(--line);
-  padding-left: 16px;
+  padding-left: 16px; /* Jodi #42: no left accent bar */
   color: var(--text);
 }
 
@@ -339,8 +338,10 @@
 }
 
 .bookingHelp {
-  border-left: 3px solid var(--warning);
+  /* Jodi #42: no left accent bar; a soft amber box instead */
   padding: 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+  border-radius: var(--radius-control);
   background: color-mix(in srgb, var(--warning) 8%, transparent);
   font-size: 0.875rem;
 }
@@ -3053,4 +3054,15 @@
 .root section[aria-label^="Book a class for"] > .fields > button:hover:not(:disabled) {
   background: var(--brand-bright);
   border-color: var(--brand-bright);
+}
+
+/* Jodi #42: a small press on every Hub button; none with reduced motion */
+.root button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root button:active:not(:disabled) {
+    transform: none;
+  }
 }
