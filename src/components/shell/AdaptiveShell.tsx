@@ -47,13 +47,11 @@ export default function AdaptiveShell({
   const onPeople =
     pathname.startsWith("/people") ||
     (pathname === "/hub" && ["intake", "archived", "courses", "manage", "book"].includes(routeView ?? ""));
-  // "Arriving soon" helps switch between class rosters; the Classes list itself is full width
-  const onClasses = pathname.startsWith("/ops/");
-  // Operations pages share a pane listing the section's pages
-  const onOperations =
-    pathname === "/ops" ||
+  // Operations pages show "Arriving soon" (today's classes), as in the VNext mockup's Ops section
+  const onClasses =
+    pathname.startsWith("/ops") ||
     (pathname === "/hub" && ["instructor", "operations", "attendance"].includes(routeView ?? ""));
-  const sectionPane = onPeople || onClasses || onOperations;
+  const sectionPane = onPeople || onClasses;
   // Today uses the full width, like the VNext Owner Today screen
   const fullWidth = pathname === "/";
 
@@ -145,7 +143,7 @@ export default function AdaptiveShell({
           ✕
         </button>
         {sectionPane ? (
-          <ContextPane section={onPeople ? "people" : onOperations ? "operations" : "classes"}>{undefined}</ContextPane>
+          <ContextPane section={onPeople ? "people" : "classes"}>{undefined}</ContextPane>
         ) : context ?? (
           <section>
             <h2>Your Dojang workspace</h2>
