@@ -146,9 +146,9 @@
 .member__avatar {
     color: var(--text);
     background-color: var(--canvas);
-    background-color: var(--brand-soft);
+    background-color: var(--canvas); // avatars: the darkest black, not red
     border: 1px solid var(--line);
-    color: var(--brand-bright);
+    color: var(--text);
     min-width: 56px;
     height: 56px;
     border-radius: 50%;

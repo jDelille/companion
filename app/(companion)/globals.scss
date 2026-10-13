@@ -103,10 +103,10 @@ textarea {
   -webkit-tap-highlight-color: transparent;
 }
 :focus-visible {
-  outline: 2px solid var(--brand-bright);
+  outline: 2px solid var(--text-secondary); // keyboard focus: neutral, not red
   outline-offset: 3px;
 }
 ::selection {
-  background: var(--brand);
-  color: white;
+  background: var(--interactive); // selected text: neutral, not red
+  color: var(--text);
 }

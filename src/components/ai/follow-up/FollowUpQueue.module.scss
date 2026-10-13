@@ -58,8 +58,8 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  color: var(--brand-bright);
-  background: var(--brand-soft);
+  color: var(--text-secondary); // no red highlight
+  background: var(--interactive);
 }
 .taskText {
   flex: 1;

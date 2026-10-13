@@ -70,7 +70,7 @@ export default function InstructorWorkspace({busy,locked,feedback,clearFeedback,
   }
   return <section className={styles.card} aria-label="Instructor workspace">
     <div className={styles.row}><h2>Instructor workspace</h2><button disabled={disabled} onClick={refresh}>Refresh shifts</button></div>
-    <p>Individual staff identity · native Odoo timesheets · review before saving</p>
+    <ul className={styles.chips} aria-label="How this works"><li>Individual staff identity</li><li>Native Odoo timesheets</li><li>Review before saving</li></ul>
     {loading&&<p role="status">Loading authorized shifts…</p>}
     {error&&<p role="alert">{error} No cached employee records are substituted.</p>}
     {feedback&&<div role={feedback.kind==='error'?'alert':'status'} aria-label="Instructor action result" className={styles.bookingResult}>
@@ -87,10 +87,10 @@ export default function InstructorWorkspace({busy,locked,feedback,clearFeedback,
         <form className={styles.fields} onSubmit={clock}><label>Instructor PIN<input name="pin" aria-label="Instructor PIN" type="password" inputMode="numeric" autoComplete="off" pattern="[0-9]{6}" minLength={6} maxLength={6} required disabled={disabled||!!review}/></label>
           <button disabled={disabled||!!review}>Review clock {data.current?'out':'in'}</button></form>
         <p className={styles.muted}>The PIN does not let you choose another instructor. Sign out before handing this device to another person.</p>
-      </div>:<p>No active instructor profile is linked to your account at this school. An administrator must link the existing profile before clocking in.</p>}
+      </div>:<div className={styles.noProfile} role="status"><i aria-hidden="true">!</i><div><strong>No active instructor profile linked</strong><p>No active instructor profile is linked to your account at this school. An administrator must link the existing profile before clocking in.</p></div></div>}
       <h3>{data.canCorrect?'Team timesheets':'Your timesheets'}</h3>
       <p className={styles.muted}>Last {data.windowDays} days{data.truncated?' · showing the latest 100 shifts; review older records in Odoo':''}. Open shifts have no final worked-hours total.</p>
-      {!data.shifts.length&&<p>No shifts in this period.</p>}
+      {!data.shifts.length&&<div className={styles.emptyBox}><i aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></i><strong>No shifts in this period.</strong><p>Shifts will appear here once an instructor clocks in.</p></div>}
       {data.shifts.map(shift=><article className={styles.booking} key={`${shift.id}:${shift.version}`} aria-label={`Shift ${shift.id}`}>
         <div className={styles.row}><strong>{shift.instructor}</strong><span>{shift.checkOut?`${shift.hours.toFixed(2)} hours`:'In progress'}</span></div>
         <p>{when(shift.checkIn)} → {shift.checkOut?when(shift.checkOut):'Not clocked out'}</p>

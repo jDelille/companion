@@ -46,7 +46,7 @@ function TaskRows({tasks,disabled,review,openLead}:{tasks:Task[];disabled:boolea
 
 export default function CrmWorkspace({busy,locked,feedback,clearFeedback,retry,act,trial}:Props&{trial?:TrialBinding}){
   const params=useSearchParams(),router=useRouter();
-  const [board,setBoard]=useState(true),[priority,setPriority]=useState('');
+  const [board,setBoard]=useState(false),[priority,setPriority]=useState('');
   const [actionKind,setActionKind]=useState('follow_up'),[assignee,setAssignee]=useState('');
   const actionForm=useRef<HTMLFormElement>(null);
   const actionLabels:Record<string,string>={follow_up:'Prepare follow-up',trial:'Review trial options',reactivation:'Review reactivation',conversion:'Review member conversion'};
@@ -80,7 +80,7 @@ export default function CrmWorkspace({busy,locked,feedback,clearFeedback,retry,a
     {error?<p role="alert">{error}</p>:!data?<p role="status">Loading CRM records…</p>:<>
       <CrmPulse leads={data.leads} onPriority={()=>setPriority('attention')}/><p className={styles.muted}>Summary of the loaded search results (up to 100 leads). Open a lead for evidence and reviewed next actions.</p>
       <details className={styles.booking}><summary>New lead</summary><LeadForm key={`new-${revision}`} disabled={disabled} review={prepare}/></details>
-      <form className={styles.fields} onSubmit={e=>{e.preventDefault();setData(null);setSearch(query);setRevision(v=>v+1);}}><label>Search leads<input aria-label="Search leads" value={query} onChange={e=>setQuery(e.target.value)} maxLength={100} disabled={disabled}/></label><button disabled={disabled}>Search CRM</button></form>
+      <form className={styles.fields} onSubmit={e=>{e.preventDefault();setData(null);setSearch(query);setRevision(v=>v+1);}}><label>Search leads<input aria-label="Search leads" placeholder="Search leads" value={query} onChange={e=>setQuery(e.target.value)} maxLength={100} disabled={disabled}/></label><button disabled={disabled}>Search CRM</button></form>
       <div className={styles.crmFilters}>
         <Select ariaLabel="Filter stage" value={stage} onChange={setStage} disabled={disabled} options={[{value:'',label:'All stages'},...data.stages.map(s=>({value:s.id,label:s.name}))]}/>
         <Select ariaLabel="Filter owner" value={owner} onChange={setOwner} disabled={disabled} options={[{value:'',label:'All owners'},...owners.map(s=>({value:s,label:s}))]}/>
@@ -88,7 +88,7 @@ export default function CrmWorkspace({busy,locked,feedback,clearFeedback,retry,a
         <Select ariaLabel="Filter lead tag" value={tag} onChange={setTag} disabled={disabled} options={[{value:'',label:'All tags / interests'},...tags.map(s=>({value:s.id,label:s.name}))]}/>
       </div>
       <p>{visible.length} leads shown{data.moreLeads?' · Showing the latest 100 matches; narrow your search.':''}</p>
-      <div className={styles.viewToggle} role="group" aria-label="Pipeline view"><button aria-pressed={board} onClick={()=>setBoard(true)}>Board</button><button aria-pressed={!board} onClick={()=>setBoard(false)}>List</button></div>
+      <div className={styles.viewToggle} role="group" aria-label="Pipeline view"><button aria-pressed={!board} onClick={()=>setBoard(false)}>List</button><button aria-pressed={board} onClick={()=>setBoard(true)}>Board</button></div>
       <LeadPipeline leads={visible} stages={data.stages} board={board} disabled={disabled} openLead={openLead}/>
       {selected&&<section ref={leadRef} tabIndex={-1} className={styles.card} aria-label="Lead detail">{leadError?<p role="alert">{leadError}</p>:!selectedDetail?<p role="status">Loading selected lead…</p>:<>
         <h2>{selectedDetail.lead.name}</h2><p>{selectedDetail.lead.stage} · {selectedDetail.lead.owner} · Source: {selectedDetail.lead.source}</p>

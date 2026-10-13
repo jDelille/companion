@@ -129,7 +129,7 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: var(--brand-bright);
+  color: var(--text); // no red highlight
   font-size: 10px;
   font-weight: 650;
   text-transform: uppercase;
@@ -337,12 +337,12 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  background: var(--brand-soft);
-  border: 0;
+  background: var(--canvas); // avatars: the darkest black, not red
+  border: 1px solid var(--line);
   border-radius: var(--radius-circle);
   font-size: 12px;
   font-weight: 600;
-  color: var(--brand-bright);
+  color: var(--text);
 }
 .empty {
   border: 0;
@@ -428,8 +428,8 @@
   }
 
   &:hover .roundAction {
-    background: var(--brand-bright);
-    color: white;
+    background: var(--interactive); // no red on hover
+    color: var(--text);
   }
 
   &:active .roundAction {
@@ -480,8 +480,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--brand-soft);
-  color: var(--brand-bright);
+  background: var(--interactive); // no red highlight
+  color: var(--text-secondary);
   display: grid;
   place-items: center;
 }

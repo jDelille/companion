@@ -24,8 +24,14 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
   const [sessions, setSessions] = useState<SessionOption[] | null>(null);
   const [sessionsFailed, setSessionsFailed] = useState(false);
   const [members, setMembers] = useState<StaffMemberSummary[] | null>(null);
+  const [membersLoaded, setMembersLoaded] = useState(false);
   const [now, setNow] = useState<Date | null>(null);
   const [revision, setRevision] = useState(0);
+
+  // Greeting and date right away, not after the classes load (no header jump)
+  useEffect(() => {
+    setNow(new Date());
+  }, []);
 
   // Today's classes, refreshed every minute and when the window regains focus
   useEffect(() => {
@@ -59,7 +65,9 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
     if (!connected) return;
     const controller = new AbortController();
     listMembers(controller.signal).then((list) => {
-      if (!controller.signal.aborted) setMembers(list);
+      if (controller.signal.aborted) return;
+      setMembers(list);
+      setMembersLoaded(true);
     });
     return () => controller.abort();
   }, [connected, revision]);
@@ -72,19 +80,38 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
   const booked = sessions?.reduce((total, s) => total + s.seatsTaken, 0) ?? 0;
   const activeMembers = members?.filter((m) => m.membershipState === "active").length;
   const knowsStates = members?.some((m) => m.membershipState !== undefined);
+  const membersLoading = connected && !membersLoaded;
+  const sessionsLoading = sessions === null && !sessionsFailed;
 
   return (
     <section className={styles.page}>
       <header className={styles.intro}>
         <div>
-          <span className={styles.kicker}>Today · Live operations</span>
+          <span className={styles.kicker}>
+            <i className={styles.liveDot} aria-hidden="true" />
+            Today · Live operations
+          </span>
           <h1>
             {now ? greeting(now.getHours()) : "Today."}{" "}
-            {decisions.length
-              ? `${decisions.length} ${decisions.length === 1 ? "thing needs" : "things need"} your attention.`
-              : "Here’s your day."}
+            {/* Only once everything is checked, so the title changes once, not twice */}
+            {!checking && (
+              <span className={styles.arrive}>
+                {decisions.length ? (
+                  <>
+                    {/* The count stands out in amber, like the mockup */}
+                    <em className={styles.attentionCount}>
+                      {decisions.length} {decisions.length === 1 ? "thing" : "things"}
+                    </em>{" "}
+                    {decisions.length === 1 ? "needs" : "need"} your attention.
+                  </>
+                ) : (
+                  "Here’s your day."
+                )}
+              </span>
+            )}
           </h1>
-          <p>{now?.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })}</p>
+          {/* A non-breaking space keeps the line's height until the date is known */}
+          <p>{now ? now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }) : " "}</p>
         </div>
         <div className={styles.actions}>
           <Link className={styles.primary} href="/kiosk">
@@ -115,9 +142,19 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
             </button>
           </p>
         ) : sessions === null ? (
-          <p className={styles.panelNote} role="status">
-            Loading your day…
-          </p>
+          // Placeholder rows the same size as class rows, so nothing jumps when they arrive
+          <div role="status" aria-label="Loading today's classes">
+            {[1, 2, 3].map((placeholder) => (
+              <div key={placeholder} className={styles.row} aria-hidden="true">
+                <i className={`${styles.skeleton} ${styles.skeletonTime}`} />
+                <span>
+                  <i className={`${styles.skeleton} ${styles.skeletonTitle}`} />
+                  <i className={`${styles.skeleton} ${styles.skeletonDetail}`} />
+                </span>
+                <i className={`${styles.skeleton} ${styles.skeletonCount}`} />
+              </div>
+            ))}
+          </div>
         ) : sessions.length ? (
           sessions.map((s) => {
             const running = Date.parse(s.startsAt) <= nowTime && Date.parse(s.endsAt) > nowTime;
@@ -131,11 +168,22 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
                 <b>{time(s.startsAt)}</b>
                 <span>
                   <strong>{s.title}</strong>
-                  <small>{running ? "On the mat now" : finished ? "Finished" : `Until ${time(s.endsAt)}`}</small>
+                  <small className={running ? styles.onMat : ""}>
+                    {running ? "On the mat now" : finished ? "Finished" : `Until ${time(s.endsAt)}`}
+                  </small>
                 </span>
-                <em className={running ? styles.live : ""}>
-                  {s.seatsTaken} / {s.capacity}
-                </em>
+                {/* How full the class is: a bar, then the count */}
+                <span className={styles.fill}>
+                  <i className={styles.fillBar} aria-hidden="true">
+                    <i
+                      style={{ width: `${s.capacity ? Math.min(100, (s.seatsTaken / s.capacity) * 100) : 0}%` }}
+                      className={running ? styles.fillLive : ""}
+                    />
+                  </i>
+                  <em className={running ? styles.live : ""}>
+                    {s.seatsTaken} / {s.capacity}
+                  </em>
+                </span>
               </Link>
             );
           })
@@ -151,9 +199,10 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
             <small>Decisions</small>
             <h2>Needs attention</h2>
           </span>
-          {decisions.length > 0 && <b className={styles.count}>{decisions.length}</b>}
+          {!checking && decisions.length > 0 && <b className={`${styles.count} ${styles.arrive}`}>{decisions.length}</b>}
         </header>
-        {decisions.map((d) => (
+        {/* Rows wait for the whole check, so they arrive together instead of one by one */}
+        {!checking && decisions.map((d) => (
           <Link key={d.key} className={styles.decision} href={d.href}>
             <i className={d.tone === "warning" ? styles.warning : styles.info} aria-hidden="true">
               {d.tone === "warning" ? "!" : "●"}
@@ -165,10 +214,21 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
             <em aria-hidden="true">›</em>
           </Link>
         ))}
-        {decisions.length === 0 && hub?.kind !== "signedOut" && (
-          <p className={styles.panelNote}>
-            {checking ? "Checking what needs attention…" : "Nothing needs a decision right now."}
-          </p>
+        {checking && (
+          <div role="status" aria-label="Checking what needs attention">
+            {[1, 2].map((placeholder) => (
+              <div key={placeholder} className={styles.decision} aria-hidden="true">
+                <i className={`${styles.skeleton} ${styles.skeletonIcon}`} />
+                <span>
+                  <i className={`${styles.skeleton} ${styles.skeletonTitle}`} />
+                  <i className={`${styles.skeleton} ${styles.skeletonDetail}`} />
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        {decisions.length === 0 && !checking && hub?.kind !== "signedOut" && (
+          <p className={styles.panelNote}>Nothing needs a decision right now.</p>
         )}
         {hub?.kind === "signedOut" && (
           <p className={styles.panelNote}>
@@ -185,23 +245,39 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
       <div className={styles.metrics}>
         <Link href="/people" className={styles.metric}>
           <small>{knowsStates ? "Active members" : "Members"}</small>
-          <strong>{members ? (knowsStates ? activeMembers : members.length) : "—"}</strong>
-          <span>{members ? "View members" : connected ? "Couldn’t load members" : "Not connected"}</span>
+          {membersLoading ? (
+            <i className={`${styles.skeleton} ${styles.skeletonNumber}`} aria-label="Loading" />
+          ) : (
+            <strong>{members ? (knowsStates ? activeMembers : members.length) : "—"}</strong>
+          )}
+          <span>{membersLoading ? "Loading…" : members ? "View members" : connected ? "Couldn’t load members" : "Not connected"}</span>
         </Link>
         <Link href="/ops" className={styles.metric}>
           <small>Classes today</small>
-          <strong>{sessions ? sessions.length : "—"}</strong>
-          <span>{sessions?.length ? "Ready for check-in" : "None scheduled"}</span>
+          {sessionsLoading ? (
+            <i className={`${styles.skeleton} ${styles.skeletonNumber}`} aria-label="Loading" />
+          ) : (
+            <strong>{sessions ? sessions.length : "—"}</strong>
+          )}
+          <span>{sessionsLoading ? "Loading…" : sessions?.length ? "Ready for check-in" : "None scheduled"}</span>
         </Link>
         <Link href="/ops" className={styles.metric}>
           <small>Booked today</small>
-          <strong>{sessions ? booked : "—"}</strong>
+          {sessionsLoading ? (
+            <i className={`${styles.skeleton} ${styles.skeletonNumber}`} aria-label="Loading" />
+          ) : (
+            <strong>{sessions ? booked : "—"}</strong>
+          )}
           <span>Across all classes</span>
         </Link>
         <div className={styles.metric}>
           <small>Next class</small>
-          <strong>{upcoming ? time(upcoming.startsAt) : "—"}</strong>
-          <span>{upcoming ? upcoming.title : "No more classes today"}</span>
+          {sessionsLoading ? (
+            <i className={`${styles.skeleton} ${styles.skeletonNumber}`} aria-label="Loading" />
+          ) : (
+            <strong>{upcoming ? time(upcoming.startsAt) : "—"}</strong>
+          )}
+          <span>{sessionsLoading ? "Loading…" : upcoming ? upcoming.title : "No more classes today"}</span>
         </div>
       </div>
     </section>

@@ -34,8 +34,15 @@ const CompanionRail = ({ children }: Props) => {
         <p className={styles.contextNote}>
           Ask a question or prepare an action for review.
         </p>
-        {companion.contextStatus === "loading" && (
-          <p className={styles.contextNote}>Loading…</p>
+        {/* Placeholders the size of the status pill and task rows (Today has its own in TodayBrief) */}
+        {companion.contextStatus === "loading" && !onToday && (
+          <div className={styles.skeletonGroup} role="status" aria-label="Loading suggestions">
+            <i className={`${styles.skeleton} ${styles.skeletonPill}`} aria-hidden="true" />
+            <i className={`${styles.skeleton} ${styles.skeletonHeading}`} aria-hidden="true" />
+            {[1, 2, 3].map((placeholder) => (
+              <i key={placeholder} className={`${styles.skeleton} ${styles.skeletonRow}`} aria-hidden="true" />
+            ))}
+          </div>
         )}
         {companion.contextStatus === "unavailable" && (
           <p className={styles.contextNote}>

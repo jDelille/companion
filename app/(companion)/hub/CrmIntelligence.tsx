@@ -26,6 +26,7 @@ export function LeadPipeline({leads,stages,board,disabled,openLead}:{leads:Summa
   function card(lead:Summary) {
     return <article key={lead.id} className={styles.leadCard}>
       <div className={styles.row}><span className={styles.priority} data-priority={lead.evidence?.priority}>{lead.evidence?.priority||'Priority unavailable'}</span><span>{lead.evidence?`${lead.evidence.score}/100 evidence`:'Evidence unavailable'}</span></div>
+      {lead.evidence&&<i className={styles.evidenceBar} aria-hidden="true"><i style={{width:`${Math.min(100,Math.max(0,lead.evidence.score))}%`}}/></i>}
       <h3>{lead.name}</h3><p>{lead.contact||'Contact not recorded'}</p><p>{lead.owner} · {lead.stage}</p>
       {lead.evidence&&<p className={styles.muted}>{lead.evidence.priorityReason}</p>}
       <button disabled={disabled} onClick={()=>openLead(lead.id)}>Open lead {lead.name}</button>

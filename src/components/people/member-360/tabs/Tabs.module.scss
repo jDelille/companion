@@ -31,7 +31,7 @@
 
   .isActive {
     color: var(--text);
-    border-bottom-color: var(--brand);
+    border-bottom-color: var(--text); // no red highlight
   }
 }
 

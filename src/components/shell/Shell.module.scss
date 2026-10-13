@@ -103,6 +103,14 @@
   /* ---------- Companion ---------- */
 
   .companionSlot {
+    // Wide: a permanent column with a fixed width, so the page content never shifts
+    // while the dock's content loads
+    @include bp.wide {
+      flex: 0 0 var(--companion-width);
+      width: var(--companion-width);
+      background: var(--panel);
+    }
+
     // Below wide: side panel parked off-screen to the right
     @include bp.below-wide {
       position: fixed;
@@ -388,7 +396,7 @@
     text-decoration: none;
 
     &:hover {
-      color: var(--brand-bright);
+      color: var(--text-secondary); // no red on hover
     }
   }
 }

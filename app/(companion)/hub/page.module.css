@@ -631,3 +631,475 @@
   font-size: var(--text-sm);
   color: var(--text-secondary);
 }
+
+/* ---------- Account row and outbound warning (all Hub pages; monk mockup) ---------- */
+
+/* "Signed in as Demo Hub Manager · manager" + Refresh / Sign out, in a small card */
+.accountRow {
+  padding: 10px 12px 10px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.accountRow strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* "Outbound messaging is not configured": an amber warning box */
+.root > p.outboundWarning {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+  color: var(--warning);
+  font-size: 13px;
+}
+
+.root > p.outboundWarning::before {
+  content: "\26A0";
+}
+
+/* ---------- Sales (monk mockup) ---------- */
+
+/* The lead count and the Board | List switch share one line, so the section is a grid */
+.root section[aria-label="CRM workspace"] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 12px;
+}
+
+.root section[aria-label="CRM workspace"] > * {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+/* "Sales & tasks" + Refresh CRM */
+.root section[aria-label="CRM workspace"] > header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.root section[aria-label="CRM workspace"] > header + p {
+  max-width: 460px;
+}
+
+/* Numbers: "Need attention" in amber, as a clickable card */
+.root section[aria-label="CRM workspace"] .crmPulse strong {
+  font-weight: 600;
+}
+
+.root section[aria-label="CRM workspace"] .crmPulse > button {
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.root section[aria-label="CRM workspace"] .crmPulse > button strong,
+.root section[aria-label="CRM workspace"] .crmPulse > button span {
+  color: var(--warning);
+}
+
+.root section[aria-label="CRM workspace"] .crmPulse > button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--warning) 40%, transparent);
+  background: var(--raised);
+}
+
+/* "+ New lead": a card that opens the form */
+.root section[aria-label="CRM workspace"] > details {
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.root section[aria-label="CRM workspace"] > details[open] {
+  padding-bottom: 16px;
+}
+
+.root section[aria-label="CRM workspace"] > details > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  margin: 0;
+  list-style: none;
+}
+
+.root section[aria-label="CRM workspace"] > details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.root section[aria-label="CRM workspace"] > details > summary::before {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: var(--interactive);
+  color: var(--text-secondary);
+}
+
+.root section[aria-label="CRM workspace"] > details[open] > summary::before {
+  content: "\2212";
+}
+
+/* Search: one wide box with a magnifier, Search CRM (red) beside it */
+.root section[aria-label="CRM workspace"] > form.fields {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  max-width: none;
+}
+
+.root section[aria-label="CRM workspace"] > form.fields > label {
+  position: relative;
+  gap: 0;
+  font-size: 0; /* the visible label text is replaced by the placeholder; aria-label stays */
+}
+
+.root section[aria-label="CRM workspace"] > form.fields > label input {
+  min-height: 44px;
+  padding-left: 38px;
+  font-size: 14px;
+}
+
+.root section[aria-label="CRM workspace"] > form.fields > label::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%);
+  background: var(--muted);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.root section[aria-label="CRM workspace"] > form.fields > button {
+  min-height: 44px;
+}
+
+/* "1 lead shown" on the left, Board | List on the right */
+.root section[aria-label="CRM workspace"] > p:has(+ .viewToggle) {
+  grid-column: 1;
+  align-self: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.root section[aria-label="CRM workspace"] > .crmFilters + p + .viewToggle {
+  grid-column: 2;
+  margin-top: 12px;
+}
+
+.root section[aria-label="CRM workspace"] .viewToggle {
+  display: inline-flex;
+  gap: 2px;
+  margin-bottom: 0;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--panel);
+}
+
+.root section[aria-label="CRM workspace"] .viewToggle button {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.root section[aria-label="CRM workspace"] .viewToggle button[aria-pressed="true"] {
+  background: var(--interactive);
+  color: var(--text);
+}
+
+/* Board: lanes side by side, scrolling sideways; empty lanes narrow and dashed */
+.root section[aria-label="CRM workspace"] .pipelineBoard {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+.root section[aria-label="CRM workspace"] .pipelineLane {
+  flex: 0 0 260px;
+  background: var(--panel);
+}
+
+.root section[aria-label="CRM workspace"] .pipelineLane:not(:has(.leadCard)) {
+  flex-basis: 170px;
+  border-style: dashed;
+  background: transparent;
+}
+
+.root section[aria-label="CRM workspace"] .pipelineLane > p {
+  margin: 0;
+  padding: 0 6px 4px;
+  font-size: 13px;
+}
+
+/* Lane count: a small pill, brighter when the lane has leads */
+.root section[aria-label="CRM workspace"] .pipelineLane > header span {
+  min-width: 20px;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 10px;
+  text-align: center;
+}
+
+.root section[aria-label="CRM workspace"] .pipelineLane:has(.leadCard) > header span {
+  color: var(--text);
+  background: var(--raised);
+}
+
+/* Lead card */
+.root section[aria-label="CRM workspace"] .leadCard {
+  margin-bottom: 0;
+  background: var(--raised);
+}
+
+/* Stacked cards inside a board lane (the List view is a grid with its own gap) */
+.root section[aria-label="CRM workspace"] .pipelineLane .leadCard + .leadCard {
+  margin-top: 10px;
+}
+
+.root section[aria-label="CRM workspace"] .leadCard > .row span:last-child {
+  color: var(--text-secondary);
+  font-family: var(--font-label);
+  font-size: 10px;
+}
+
+.root section[aria-label="CRM workspace"] .priority[data-priority="High"],
+.root section[aria-label="CRM workspace"] .priority[data-priority="Now"] {
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+}
+
+/* Evidence score as a thin bar; amber when the lead is High or Now */
+.evidenceBar {
+  display: block;
+  height: 3px;
+  margin-top: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+  overflow: hidden;
+}
+
+.evidenceBar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--text-secondary);
+}
+
+.leadCard:has(.priority[data-priority="High"]) .evidenceBar i,
+.leadCard:has(.priority[data-priority="Now"]) .evidenceBar i {
+  background: var(--warning);
+}
+
+.root section[aria-label="CRM workspace"] .leadCard h3 {
+  margin: 12px 0 8px;
+  font-size: 15px;
+}
+
+.root section[aria-label="CRM workspace"] .leadCard p {
+  margin: 4px 0;
+  color: var(--text-secondary);
+}
+
+/* "Open lead" with an arrow */
+.root section[aria-label="CRM workspace"] .leadCard button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  background: var(--panel);
+}
+
+.root section[aria-label="CRM workspace"] .leadCard button::after {
+  content: "\2192";
+}
+
+/* Next action: full-width fields, date narrower, the main button on the right */
+.root section[aria-label="Create linked task"] h2 {
+  margin-bottom: 16px;
+  font-size: 20px;
+}
+
+.root section[aria-label="Create linked task"] .fields {
+  max-width: none;
+}
+
+.root section[aria-label="Create linked task"] input[type="date"] {
+  max-width: 460px;
+}
+
+.root section[aria-label="Create linked task"] .fields > button {
+  justify-self: end;
+}
+
+/* Red = the main action: Search CRM, Review new task, Confirm CRM action in Odoo */
+.root section[aria-label="CRM workspace"] > form.fields > button:not(:disabled),
+.root section[aria-label="Create linked task"] .fields > button:not(:disabled),
+.root section[aria-label="Review CRM action"] > button:first-of-type:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label="CRM workspace"] > form.fields > button:hover:not(:disabled),
+.root section[aria-label="Create linked task"] .fields > button:hover:not(:disabled),
+.root section[aria-label="Review CRM action"] > button:first-of-type:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* ---------- Instructor (dre4a mockup) ---------- */
+
+/* Card header: title + Refresh shifts, with a line under it across the card */
+/* Title on the left, Refresh shifts on the right */
+.root section[aria-label="Instructor workspace"] > .row:first-child {
+  justify-content: space-between;
+  margin: -20px -22px 0;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--line);
+}
+
+.root section[aria-label="Instructor workspace"] > .row:first-child h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.root section[aria-label="Instructor workspace"] > .row:first-child + * {
+  margin-top: 20px;
+}
+
+/* "Individual staff identity · Native Odoo timesheets · Review before saving" as chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips li {
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--raised);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* No instructor profile: amber box, "!" tile, title, text */
+.noProfile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--warning) 10%, transparent);
+}
+
+.noProfile > i {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--warning) 20%, transparent);
+  color: var(--warning);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.noProfile strong {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--warning);
+}
+
+.noProfile p {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* "TEAM TIMESHEETS": a new section with a line across the card */
+.root section[aria-label="Instructor workspace"] > h3 {
+  margin: 24px -22px 0;
+  padding: 20px 22px 0;
+  border-top: 1px solid var(--line);
+}
+
+.root section[aria-label="Instructor workspace"] > h3 + p {
+  margin-top: 6px;
+}
+
+/* No shifts: a dashed box with a clock */
+.emptyBox {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: 40px 24px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.root section[aria-label="Instructor workspace"] > .emptyBox {
+  margin-top: 16px;
+}
+
+.emptyBox > i {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  background: var(--interactive);
+  color: var(--text-secondary);
+}
+
+.emptyBox strong {
+  font-size: 14px;
+}
+
+.emptyBox p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Red = the main action: Review clock in/out, Confirm instructor action in Odoo */
+.root section[aria-label="Instructor workspace"] form > button:not(:disabled),
+.root section[aria-label="Instructor workspace"] [aria-label="Review instructor action"] .row > button:first-child:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label="Instructor workspace"] form > button:hover:not(:disabled),
+.root section[aria-label="Instructor workspace"] [aria-label="Review instructor action"] .row > button:first-child:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}

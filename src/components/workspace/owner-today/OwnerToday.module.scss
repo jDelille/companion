@@ -93,17 +93,11 @@
 
 /* ---------- Numbers row ---------- */
 
-// The row's top and bottom lines run the full width of the workspace,
-// so it steps out of the page padding and puts that padding back inside
+// Four separate cards, like the panels above them
 .metrics {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin: 0 -24px;
-  border-block: 1px solid var(--line);
-
-  @include bp.compact {
-    margin-inline: -16px;
-  }
+  gap: 12px;
 
   @include bp.workspace-narrow {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -113,21 +107,13 @@
 .metric {
   display: grid;
   gap: 6px;
-  padding: 22px 24px;
-  border-right: 1px solid var(--line);
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
   color: inherit;
   text-decoration: none;
-
-  &:first-child {
-    padding-left: 24px;
-
-    @include bp.compact {
-      padding-left: 16px;
-    }
-  }
-  &:last-child {
-    border-right: 0;
-  }
+  transition: background-color 150ms ease, border-color 150ms ease;
 
   strong {
     font-size: 32px;
@@ -142,8 +128,13 @@
   }
 }
 
-a.metric:hover span {
-  color: var(--text);
+a.metric:hover {
+  border-color: var(--text-secondary);
+  background: var(--raised);
+
+  span {
+    color: var(--text);
+  }
 }
 
 /* ---------- Panels ---------- */
@@ -231,7 +222,7 @@ a.metric:hover span {
   }
   em {
     margin-top: 8px;
-    color: var(--brand-bright);
+    color: var(--text); // no red highlight
     font-size: 13px;
     font-style: normal;
     font-weight: 600;
@@ -295,15 +286,15 @@ a.metric:hover span {
 
 /* ---------- Decisions ---------- */
 
-// How many decisions are open, in a small red circle
+// How many decisions are open, in a small neutral circle
 .count {
   min-width: 26px;
   height: 26px;
   display: grid;
   place-items: center;
   border-radius: var(--radius-pill);
-  background: var(--brand-soft);
-  color: var(--brand-bright);
+  background: var(--interactive); // no red highlight
+  color: var(--text);
   font-size: 11px;
 }
 
@@ -465,8 +456,8 @@ a.metric:hover span {
     place-items: center;
     border: 1px solid var(--line);
     border-radius: 50%;
-    background: var(--brand-soft);
-    color: var(--brand-bright);
+    background: var(--canvas); // avatars: the darkest black, not red
+    color: var(--text);
     font-size: 11px;
     font-style: normal;
   }
@@ -489,4 +480,188 @@ a.metric:hover span {
     font-size: 18px;
     font-style: normal;
   }
+}
+
+/* ---------- Loading placeholders ----------
+   Same size as the real rows and numbers, so nothing jumps when data arrives.
+   Static on purpose: no pulse or wave. */
+.page .skeleton {
+  display: block;
+  height: 12px;
+  margin: 4px 0;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+}
+
+.page .skeletonTime {
+  width: 44px;
+}
+.page .skeletonTitle {
+  width: min(220px, 70%);
+}
+.page .skeletonDetail {
+  width: min(140px, 45%);
+  height: 10px;
+}
+.page .skeletonCount {
+  width: 52px;
+  height: 24px;
+}
+.page .skeletonIcon {
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  border-radius: var(--radius-control);
+}
+// Matches the 32px numbers in Business pulse
+.page .skeletonNumber {
+  width: 56px;
+  height: 35px;
+  margin: 0;
+  border-radius: var(--radius-control);
+}
+
+
+/* ---------- Arrival motion ----------
+   The page fades up in reading order (header → Classes → Decisions → pulse),
+   and rows fade in one after another when they replace the placeholders.
+   Fade + short upward slide only; nothing moves with reduced motion. */
+@keyframes today-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .intro,
+  .panel,
+  .sectionLabel,
+  .metrics,
+  .arrive,
+  .row,
+  .decision,
+  .metric strong,
+  .panelNote {
+    animation: today-arrive 360ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+
+  // Sections, in reading order
+  .panel {
+    animation-delay: 60ms;
+  }
+  .panel + .panel {
+    animation-delay: 120ms;
+  }
+  .sectionLabel,
+  .metrics {
+    animation-delay: 180ms;
+  }
+
+  // Rows inside a panel, one after another (header is the first child)
+  .row:nth-child(2),
+  .decision:nth-child(2) {
+    animation-delay: 30ms;
+  }
+  .row:nth-child(3),
+  .decision:nth-child(3) {
+    animation-delay: 60ms;
+  }
+  .row:nth-child(4),
+  .decision:nth-child(4) {
+    animation-delay: 90ms;
+  }
+  .row:nth-child(n + 5),
+  .decision:nth-child(n + 5) {
+    animation-delay: 120ms;
+  }
+}
+
+/* ---------- Today details (idea-1 mockup) ---------- */
+
+// Green dot before "Today · Live operations"
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.liveDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+}
+
+// "3 things" in the title, in amber
+.attentionCount {
+  color: var(--warning);
+  font-style: normal;
+}
+
+// "On the mat now" in green with a dot
+.row small.onMat {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--success);
+
+  &::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+}
+
+// How full the class is: a bar, then "3 / 3"
+.row .fill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fillBar {
+  display: block;
+  width: 88px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+  overflow: hidden;
+
+  i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--text-secondary);
+  }
+
+  .fillLive {
+    background: var(--success);
+  }
+
+  @include bp.compact {
+    display: none;
+  }
+}
+
+// The class running now: green pill with a soft green fill
+.row em.live {
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+}
+
+// Decision count: a neutral circle
+.count {
+  border: 1px solid var(--line);
+}
+
+// Placeholders appear at once and stay still; only the real rows fade in
+.page [role="status"] > .row,
+.page [role="status"] > .decision {
+  animation: none;
 }

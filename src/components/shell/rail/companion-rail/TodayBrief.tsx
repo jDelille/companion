@@ -26,20 +26,33 @@ export default function TodayBrief() {
 
   return (
     <section className={styles.todayBrief} aria-label="Today brief">
-      <h3>{hour === null ? "Hello" : greeting(hour)}</h3>
-      <p>
-        {checking && decisions.length === 0
-          ? "Checking what needs your attention…"
-          : decisions.length
+      {/* A non-breaking space keeps the heading's height until the greeting is known */}
+      <h3>{hour === null ? " " : greeting(hour)}</h3>
+      {/* Placeholders until the whole check is done, so the list arrives once, not item by item */}
+      {checking ? (
+        <div className={styles.skeletonGroup} role="status" aria-label="Checking what needs your attention">
+          <i className={`${styles.skeleton} ${styles.skeletonSentence}`} aria-hidden="true" />
+          {[1, 2, 3].map((placeholder) => (
+            <i key={placeholder} className={`${styles.skeleton} ${styles.skeletonLine}`} aria-hidden="true" />
+          ))}
+        </div>
+      ) : (
+        <p>
+          {decisions.length
             ? `${decisions.length} ${decisions.length === 1 ? "thing needs" : "things need"} your attention.`
             : "Nothing needs a decision right now."}
-      </p>
-      {decisions.length > 0 && (
+        </p>
+      )}
+      {!checking && decisions.length > 0 && (
         <>
           <ul>
             {decisions.map((d) => (
               <li key={d.key}>
-                <Link href={d.href}>{d.title}</Link>
+                <Link href={d.href}>
+                  {/* Amber for warnings, blue for information, like the Today page */}
+                  <i className={d.tone === "warning" ? styles.dotWarning : styles.dotInfo} aria-hidden="true" />
+                  {d.title}
+                </Link>
               </li>
             ))}
           </ul>

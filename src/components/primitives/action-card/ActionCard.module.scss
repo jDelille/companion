@@ -120,7 +120,7 @@
     font-size: 1.1rem;
   }
   &:hover:not(:disabled) .arrow {
-    background: var(--brand-soft);
+    background: var(--interactive); // no red on hover
   }
   &:disabled {
     min-height: 78px;

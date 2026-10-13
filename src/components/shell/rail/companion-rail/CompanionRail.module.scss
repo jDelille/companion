@@ -297,7 +297,7 @@
     text-decoration: none;
 
     &:hover {
-      color: var(--brand-bright);
+      color: var(--text-secondary); // no red on hover
     }
   }
 
@@ -322,4 +322,130 @@
 
 .todayBriefNote a {
   color: var(--text);
+}
+
+/* ---------- Loading placeholders ----------
+   Shapes the size of the real content. Static on purpose: no pulse or wave. */
+.skeletonGroup {
+  display: grid;
+  gap: 10px;
+  margin-top: 1.25rem;
+}
+
+.companionRail .skeleton {
+  display: block;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+}
+
+// "Connected Odoo records" pill
+.companionRail .skeletonPill {
+  width: 150px;
+  height: 24px;
+}
+// "Member companion" heading
+.companionRail .skeletonHeading {
+  width: 60%;
+  height: 18px;
+  margin-top: 0.75rem;
+}
+// One task row
+.companionRail .skeletonRow {
+  height: 44px;
+  border-radius: var(--radius-control);
+}
+// "3 things need your attention."
+.companionRail .skeletonSentence {
+  width: 75%;
+}
+// One decision link in the Today brief
+.companionRail .skeletonLine {
+  height: 38px;
+  border-radius: var(--radius-control);
+}
+
+
+/* ---------- Arrival motion ----------
+   Content fades up as it arrives, one item after another.
+   Only content moves, never the dock itself; nothing moves with reduced motion. */
+@keyframes companion-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .companionRail__state > *,
+  .todayBrief > *,
+  .todayBrief li,
+  .tasks > *,
+  .intel > div {
+    animation: companion-arrive 320ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+
+  // One after another inside lists
+  .todayBrief li:nth-child(2),
+  .tasks > :nth-child(2),
+  .intel > div:nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .todayBrief li:nth-child(3),
+  .tasks > :nth-child(3),
+  .intel > div:nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .todayBrief li:nth-child(n + 4),
+  .tasks > :nth-child(n + 4),
+  .intel > div:nth-child(n + 4) {
+    animation-delay: 120ms;
+  }
+}
+
+/* ---------- Today brief as a card (idea-1 mockup) ---------- */
+.todayBrief {
+  padding: 18px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--raised);
+
+  ul {
+    border-top: 0;
+  }
+
+  li:last-child a {
+    border-bottom: 0;
+  }
+
+  li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+.dotWarning,
+.dotInfo {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dotWarning {
+  background: var(--warning);
+}
+
+.dotInfo {
+  background: var(--info);
+}
+
+// Placeholders appear at once and stay still; only the real content fades in
+.companionRail .skeletonGroup {
+  animation: none;
 }

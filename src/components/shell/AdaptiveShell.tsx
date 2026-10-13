@@ -3,16 +3,14 @@
 import { ReactNode, useEffect, useRef, useState } from "react";
 import Link from "@/components/primitives/AppLink";
 import { usePathname, useSearchParams } from "next/navigation";
-import dynamic from "next/dynamic";
 import styles from "./Shell.module.scss";
 import ConnectedNavigation from "./ConnectedNavigation";
 import ContextPane from "./ContextPane";
+// Loaded with the page, not separately: a separate load swapped the dock for a short
+// "Opening Companion…" line on every page load, which pushed the page content sideways.
+// The dock's own content still loads in afterwards, with placeholders.
+import CompanionRail from "./rail/companion-rail/CompanionRail";
 import { useWorkspaceActions } from "@/components/workspace/WorkspaceActions";
-
-const CompanionRail = dynamic(
-  () => import("./rail/companion-rail/CompanionRail"),
-  { loading: () => <p role="status">Opening Companion…</p> },
-);
 
 type Props = {
   children: ReactNode;
