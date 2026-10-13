@@ -4,6 +4,7 @@ import {useEffect,useRef,useState} from 'react';
 import {explainHubError,type ActionFeedback} from '@/domain/hub-actions';
 import styles from './page.module.css';
 import intakeStyles from './intake.module.css';
+import {PersonName} from '@/components/primitives/avatar/Avatar';
 
 type SessionRow = {id:string;title:string;startsAt:string;endsAt:string;registered:number;attended:number};
 type Correction = {before:string;after:string;reason:string;actor:string;at:string;reversal:boolean};
@@ -26,13 +27,17 @@ function RowEditor({row,sheet,blocked,onReview}:{row:Row;sheet:Sheet;blocked:boo
   const reversal=ATTENDED.includes(row.status)&&!!status&&!ATTENDED.includes(status);
   const locked=!sheet.session.open||(reversal&&!sheet.canReverse)||(!!row.logId&&!sheet.canReverse);
   return <div className={styles.auditEntry} aria-label={`Attendance for ${row.name}`} role="group">
-    <strong>{row.name}</strong>
-    <p>{label(row.status)}{row.checkedInAt?` · recorded ${new Date(row.checkedInAt).toLocaleString()}`:''}{row.creditHold?` · class credit ${row.creditHold}`:''}{!row.registered?' · not on the current roster':''}</p>
-    {row.corrections.map((c,i)=><small key={i}>{c.actor} changed {label(c.before)} → {label(c.after)} · {new Date(c.at).toLocaleString()} · {c.reason}</small>)}
+    {/* Student cell: name, status pill, then when it was recorded */}
+    <div className={styles.studentCell}>
+      <PersonName name={row.name}/>
+      <span className={styles.statusPill} data-status={row.status}>{label(row.status)}</span>
+      {(row.checkedInAt||row.creditHold||!row.registered)&&<small className={styles.recorded}>{row.checkedInAt?`Recorded ${new Date(row.checkedInAt).toLocaleString()}`:''}{row.creditHold?`${row.checkedInAt?' · ':''}Class credit ${row.creditHold}`:''}{!row.registered?`${row.checkedInAt||row.creditHold?' · ':''}Not on the current roster`:''}</small>}
+      {row.corrections.map((c,i)=><small key={i}>{c.actor} changed {label(c.before)} → {label(c.after)} · {new Date(c.at).toLocaleString()} · {c.reason}</small>)}
+    </div>
     {sheet.session.open&&(!row.logId||sheet.canReverse)&&<div className={styles.row}>
       <label>New status<select aria-label={`New status for ${row.name}`} value={status} disabled={blocked} onChange={e=>setStatus(e.target.value)}>
         <option value="">Choose</option>{sheet.marks.filter(m=>m!==row.status).map(m=><option key={m} value={m}>{label(m)}</option>)}</select></label>
-      <label>Reason<input aria-label={`Reason for ${row.name}`} value={reason} maxLength={500} disabled={blocked} onChange={e=>setReason(e.target.value)}/></label>
+      <label>Reason<input aria-label={`Reason for ${row.name}`} placeholder="Reason for change" value={reason} maxLength={500} disabled={blocked} onChange={e=>setReason(e.target.value)}/></label>
       <button disabled={blocked||!status||!reason.trim()||locked} onClick={()=>onReview({row,status,reason:reason.trim(),reversal})}>Review {row.name}</button>
     </div>}
     {reversal&&!sheet.canReverse&&<p role="alert">Reversing recorded attendance requires a manager.</p>}
@@ -71,7 +76,9 @@ export default function AttendanceWorkspace({busy,locked,feedback,clearFeedback,
       {!sessions.length&&<p>No classes in your attendance window.</p>}
       {sheet&&sheet.session.id===sessionId&&<>
         {!sheet.session.open&&<p>This class is outside the 31-day correction window.</p>}
+        {sheet.rows.length>0&&<div className={styles.attendanceHead} aria-hidden="true"><span>Student</span><span>New status</span><span>Reason</span></div>}
         {sheet.rows.length?sheet.rows.map(row=><RowEditor key={`${row.memberId}:${row.version}:${row.status}`} row={row} sheet={sheet} blocked={blocked} onReview={r=>{clearFeedback();setConfirmed(false);setReview(r);}}/>):<p>No registered students.</p>}
+        {sheet.rows.length>0&&<p className={styles.attendanceFoot}>Review shows the change before it’s saved. Nothing is written until you confirm.</p>}
       </>}
     </div>}
     <div ref={reviewRef} tabIndex={-1} className={intakeStyles.result}>

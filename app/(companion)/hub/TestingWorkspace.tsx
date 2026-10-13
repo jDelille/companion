@@ -2,6 +2,7 @@
 
 import {useEffect,useRef,useState} from 'react';
 import {explainHubError,type ActionFeedback} from '@/domain/hub-actions';
+import Avatar,{PersonName} from '@/components/primitives/avatar/Avatar';
 import styles from './page.module.css';
 import intakeStyles from './intake.module.css';
 
@@ -72,16 +73,20 @@ export default function TestingWorkspace({busy,locked,feedback,clearFeedback,ret
       <h2>Eligibility</h2>
       <div className={styles.row}><label>Find students<input aria-label="Find students" value={query} maxLength={100} disabled={blocked} onChange={e=>setQuery(e.target.value)}/></label><button disabled={blocked} onClick={()=>setSearch(query.trim())}>Search students</button></div>
       {!data?<p role="status">Loading eligibility…</p>:<>
-        {data.rows.map(row=><div key={row.memberId} className={styles.auditEntry} role="group" aria-label={`Eligibility for ${row.name}`}>
+        {/* One row per student: pick · avatar · name · belt now → next · status and classes */}
+        {data.rows.length>0&&<div className={styles.eligibilityList}>
+        {data.rows.map(row=><div key={row.memberId} className={styles.eligibilityRow} role="group" aria-label={`Eligibility for ${row.name}`}>
+          <span className={styles.pickCell}>{!row.openTest&&row.nextRank&&<input type="checkbox" aria-label={`Add ${row.name} to roster`} checked={!!picked[row.memberId]} disabled={blocked} onChange={e=>setPicked(p=>({...p,[row.memberId]:e.target.checked?row.nextRank!.id:''}))}/>}</span>
+          <Avatar name={row.name}/>
           <strong>{row.name}</strong>
-          <p>{row.currentRank||'No belt'} → {row.nextRank?.name||'—'} · {STATUS[row.status]}{row.threshold?` · ${row.attended}/${row.threshold} classes`:` · ${row.attended} classes`}{row.openTest?` · on ${row.openTest.name}`:''}</p>
-          {!row.openTest&&row.nextRank&&<div className={styles.row}>
-            <label><input type="checkbox" aria-label={`Add ${row.name}`} checked={!!picked[row.memberId]} disabled={blocked} onChange={e=>setPicked(p=>({...p,[row.memberId]:e.target.checked?row.nextRank!.id:''}))}/>Add to roster</label>
-            {picked[row.memberId]&&<label>Testing for<select aria-label={`Testing rank for ${row.name}`} value={picked[row.memberId]} disabled={blocked} onChange={e=>setPicked(p=>({...p,[row.memberId]:e.target.value}))}>{data.ranks.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>}
-          </div>}
+          <span className={styles.rankChange}><span className={styles.rankChip}>{row.currentRank||'No belt'}</span><span aria-label="to">→</span><span className={styles.rankChip}>{row.nextRank?.name||'—'}</span></span>
+          <span className={styles.eligibilityStatus}>{STATUS[row.status]}{row.openTest?` · on ${row.openTest.name}`:''}<span className={styles.classChip} data-some={row.attended>0?'true':'false'}>{row.threshold?`${row.attended}/${row.threshold} classes`:`${row.attended} classes`}</span></span>
+          {!row.openTest&&row.nextRank&&picked[row.memberId]&&<label className={styles.testingFor}>Testing for<select aria-label={`Testing rank for ${row.name}`} value={picked[row.memberId]} disabled={blocked} onChange={e=>setPicked(p=>({...p,[row.memberId]:e.target.value}))}>{data.ranks.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>}
         </div>)}
+        </div>}
         {!data.rows.length&&<p>No active students match.</p>}
-        <div className={styles.fields}>
+        <h3>New testing roster</h3>
+        <div className={`${styles.fields} ${styles.rosterForm}`}>
           <label>Test name<input aria-label="Test name" value={testName} maxLength={200} disabled={blocked} onChange={e=>setTestName(e.target.value)}/></label>
           <label>Test date<input aria-label="Test date" type="date" value={testDate} disabled={blocked} onChange={e=>setTestDate(e.target.value)}/></label>
           <label>Reason for this roster<input aria-label="Reason for this roster" value={rosterReason} maxLength={500} disabled={blocked} onChange={e=>setRosterReason(e.target.value)}/></label>
@@ -89,6 +94,7 @@ export default function TestingWorkspace({busy,locked,feedback,clearFeedback,ret
             payload:{testId:null,expectedVersion:0,name:testName.trim(),testDate,add:chosen.map(([memberId,targetRankId])=>({memberId,targetRankId})),removeRegistrationIds:[],reason:rosterReason.trim()},
             lines:[`New test: ${testName.trim()} on ${testDate}`,...chosen.map(([id,rank])=>`${data.rows.find(r=>r.memberId===id)?.name} → ${rankName(rank)}`),`Reason: ${rosterReason.trim()}`],
             effects:['Creates a native belt test with pending registrations. No belt, invoice or message is created.','Students on the roster are marked as having a pending test, so the daily eligibility job does not create a duplicate test or testing-fee invoice.']})}>Review testing roster</button>
+          <p className={styles.rosterHint}>Select at least one student, then add a name and reason.</p>
         </div>
         <label className={styles.fields}>Saved tests<select aria-label="Saved tests" value={testId} disabled={blocked} onChange={e=>{setTestId(e.target.value);clearFeedback();}}>
           <option value="">Choose a test</option>{data.tests.map(t=><option key={t.id} value={t.id}>{t.name} · {t.date} · {t.state} · {t.count} students</option>)}</select></label>
@@ -97,7 +103,7 @@ export default function TestingWorkspace({busy,locked,feedback,clearFeedback,ret
     {roster&&roster.test.id===testId&&<div className={styles.card} aria-label="Testing roster" role="region">
       <h2>{roster.test.name}</h2><p>{roster.school} · {roster.test.date} · {roster.test.state}{roster.test.program?` · ${roster.test.program}`:''}</p>
       {roster.rows.map(row=><div key={row.registrationId} className={styles.auditEntry} role="group" aria-label={`Testing row for ${row.name}`}>
-        <strong>{row.name}</strong><p>{row.currentRank||'No belt'} → {row.targetRank}{row.promotionId?' · promoted':''}</p>
+        <PersonName name={row.name}/><p>{row.currentRank||'No belt'} → {row.targetRank}{row.promotionId?' · promoted':''}</p>
         <div className={styles.row}>
           <label>Result<select aria-label={`Result for ${row.name}`} value={results[row.registrationId]||row.result} disabled={blocked||!editable||!!row.promotionId} onChange={e=>setResults(r=>({...r,[row.registrationId]:e.target.value}))}>{RESULTS.map(r=><option key={r} value={r}>{r}</option>)}</select></label>
           {row.result==='pass'&&!row.promotionId&&<label><input type="checkbox" aria-label={`Promote ${row.name}`} checked={promote.includes(row.registrationId)} disabled={blocked} onChange={e=>{setPreview(null);setPromote(p=>e.target.checked?[...p,row.registrationId]:p.filter(id=>id!==row.registrationId));}}/>Promote</label>}
@@ -129,7 +135,7 @@ export default function TestingWorkspace({busy,locked,feedback,clearFeedback,ret
       <h2>Promotion history</h2>
       <div className={styles.row}><label>Find promotion history<input aria-label="Find promotion history" value={historyQuery} maxLength={100} disabled={blocked} onChange={e=>setHistoryQuery(e.target.value)}/></label><button disabled={blocked} onClick={()=>void loadHistory()}>Search history</button></div>
       {history?.map(h=><div key={h.id} className={styles.auditEntry} role="group" aria-label={`Award ${h.rank} for ${h.name}`}>
-        <strong>{h.name} · {h.rank}{h.stripes?` · ${h.stripes} stripes`:''}</strong><p>{h.date} · {h.source}{h.reversed?` · reversed by ${h.reversedBy}: ${h.reversalReason}`:''}</p>
+        <PersonName name={h.name} label={`${h.name} · ${h.rank}${h.stripes?` · ${h.stripes} stripes`:''}`}/><p>{h.date} · {h.source}{h.reversed?` · reversed by ${h.reversedBy}: ${h.reversalReason}`:''}</p>
         {h.latest&&!h.reversed&&<div className={styles.row}>
           <label>Reason<input aria-label={`Reason for reversing ${h.name}`} value={reversing[h.id]||''} maxLength={500} disabled={blocked} onChange={e=>setReversing(r=>({...r,[h.id]:e.target.value}))}/></label>
           <button disabled={blocked||!(reversing[h.id]||'').trim()} onClick={()=>open({operation:'reverse_promotion',payload:{rankHistoryId:h.id,expectedVersion:h.memberVersion,reason:(reversing[h.id]||'').trim()},

@@ -3,6 +3,7 @@ import Link from "@/components/primitives/AppLink";
 import { odooRoute } from "@/server/odoo-runtime";
 import { ChevronRightIcon } from "@/icons";
 import styles from "@/components/ai/follow-up/FollowUp.module.scss";
+import Avatar from "@/components/primitives/avatar/Avatar";
 export const dynamic = "force-dynamic";
 
 // Same layout as the staff workspace: title + intro, then a list of cards
@@ -35,12 +36,19 @@ export default async function IntegrationMembers() {
       </header>
 
       {members.length ? (
-        <ul className={styles.itemList}>
+        <>
+        <span className={styles.sectionLabel}>
+          {members.length} {members.length === 1 ? "member" : "members"}
+        </span>
+        <ul className={`${styles.itemList} ${styles.memberList}`}>
           {members.map((m) => (
             <li key={m.id}>
               {/* The whole card opens the member */}
               <Link href={`/people/${m.id}`} className={styles.memberItem}>
-                <span className={styles.itemTitle}>{m.name}</span>
+                <span className={styles.memberIdentity}>
+                  <Avatar name={m.name} />
+                  <span className={styles.itemTitle}>{m.name}</span>
+                </span>
                 <span className={styles.chevron} aria-hidden="true">
                   <ChevronRightIcon color="currentColor" size={16} />
                 </span>
@@ -48,6 +56,7 @@ export default async function IntegrationMembers() {
             </li>
           ))}
         </ul>
+        </>
       ) : (
         <p className={styles.empty}>No members are available in this authorized scope.</p>
       )}

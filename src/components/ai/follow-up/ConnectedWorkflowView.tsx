@@ -5,6 +5,7 @@ import Link from "@/components/primitives/AppLink";
 import { getCompanionContext } from "@/integrations/companion";
 import type { CompanionContext } from "@/domain/companion";
 import styles from "./FollowUp.module.scss";
+import { PersonName } from "@/components/primitives/avatar/Avatar";
 import RefreshIcon from "@/icons/RefreshIcon";
 import { ChevronRightIcon } from "@/icons";
 
@@ -124,7 +125,7 @@ export default function ConnectedWorkflowView({
                     <li key={r.id}>
                       {/* The whole card opens the class roster */}
                       <Link href={r.href} className={styles.classItem}>
-                        <span className={styles.itemTitle}>{r.label}</span>
+                        <PersonName name={r.label} />
                         <span className={`${styles.pill} ${styles[pillTone(r.detail)]}`}>
                           {formatDetail(r.detail)}
                         </span>

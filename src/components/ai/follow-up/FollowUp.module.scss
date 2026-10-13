@@ -590,3 +590,30 @@ a.itemTitle:hover {
   padding: 12px;
   border-left: 2px solid #ba9fff;
 }
+
+/* ---------- Choose a member (member2 mockup) ---------- */
+
+// One card per member, with a little space between them
+.memberList {
+  gap: 8px;
+}
+
+.memberList .memberItem {
+  min-height: 64px;
+  padding: 12px 18px;
+  border-radius: var(--radius-card);
+}
+
+// Avatar + name on the left, chevron on the right
+.memberIdentity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+
+// "3 MEMBERS" sits close to its list (the page puts 24px between blocks)
+.sectionLabel + .memberList {
+  margin-top: -14px;
+}

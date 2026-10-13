@@ -4,6 +4,7 @@ import Link from "@/components/primitives/AppLink";
 import { getRoster, getSessions } from "@/integrations/kiosk";
 import type { RosterMember, SessionOption } from "@/contracts/kiosk-attendance";
 import styles from "./Workspace.module.scss";
+import { PersonName } from "@/components/primitives/avatar/Avatar";
 export default function DemoRoster({ id }: { id: string }) {
   const [data, setData] = useState<{
     session: SessionOption;
@@ -52,7 +53,7 @@ export default function DemoRoster({ id }: { id: string }) {
         <ul className={styles.roster}>
           {data.roster.map((m) => (
             <li key={m.memberId}>
-              <strong>{m.displayName}</strong>
+              <PersonName name={m.displayName} />
               <span>
                 {m.attendanceState === "pending"
                   ? "Not yet checked in"
