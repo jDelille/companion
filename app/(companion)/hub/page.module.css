@@ -518,3 +518,116 @@
 .root section[aria-label="CRM workspace"] > .viewToggle + section {
   margin-top: 12px;
 }
+
+/* ---------- Inbox (VNext design) ----------
+   CSS only: Jodi's MessageCard markup and logic are unchanged. */
+
+/* 24px between the member picker, each message and Recent actions */
+.root section[aria-label="Find a member"],
+.root section[aria-label="Parent messages"] > .card {
+  margin: 0 0 24px;
+}
+
+.root section[aria-label="Recent actions"] {
+  margin: 0;
+}
+
+/* Sender name next to the channel pill */
+.root section[aria-label="Parent messages"] .card > .row strong {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* The parent's message: a raised block instead of a left rule */
+.root section[aria-label="Parent messages"] .quote {
+  padding: 12px 16px;
+  border-left: 0;
+  border-radius: var(--radius-control);
+  background: var(--raised);
+}
+
+/* Student | Class side by side (the only fields group with two pickers);
+   the button and the guardian note take the full row under them */
+.root section[aria-label="Parent messages"] .card > .fields:has(> label + label) {
+  grid-template-columns: 1fr 1fr;
+  max-width: none;
+}
+
+.root section[aria-label="Parent messages"] .card > .fields:has(> label + label) > :not(label) {
+  grid-column: 1 / -1;
+  justify-self: start;
+}
+
+@media (max-width: 700px) {
+  .root section[aria-label="Parent messages"] .card > .fields:has(> label + label) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Red = the main action on each step:
+   Confirm student and class, Approve and queue reply, Confirm booking in Odoo.
+   Prepare follow-up and Review class change stay secondary. */
+.root section[aria-label="Parent messages"] .card > .fields:has(> label + label) > button:not(:disabled),
+.root section[aria-label="Parent messages"] .card > .fields:has(textarea) > button:not(:disabled),
+.root section[aria-label="Parent messages"] .booking .fields > p + button:not(:disabled) {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
+.root section[aria-label="Parent messages"] .card > .fields:has(> label + label) > button:hover:not(:disabled),
+.root section[aria-label="Parent messages"] .card > .fields:has(textarea) > button:hover:not(:disabled),
+.root section[aria-label="Parent messages"] .booking .fields > p + button:hover:not(:disabled) {
+  background: var(--brand-bright);
+  border-color: var(--brand-bright);
+}
+
+/* Buttons size to their label, not the full fields width */
+.root section[aria-label="Parent messages"] .fields > button {
+  justify-self: start;
+}
+
+/* Recent actions: same box as "Reviewed follow-ups" on the Follow-ups page.
+   Label on top, then one row per action separated by lines. */
+.root section[aria-label="Recent actions"] {
+  padding: 0;
+  overflow: hidden;
+}
+
+.root section[aria-label="Recent actions"] > h2 {
+  margin: 0;
+  padding: 18px 22px 14px;
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.root section[aria-label="Recent actions"] > .auditEntry {
+  margin: 0;
+  padding: 18px 22px;
+  border-top: 1px solid var(--line);
+}
+
+/* Who, what, when, then the receipt under it */
+.root section[aria-label="Recent actions"] .auditEntry > p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.root section[aria-label="Recent actions"] .auditEntry > .savedReceipt,
+.root section[aria-label="Recent actions"] .auditEntry > small {
+  margin: 12px 0 0;
+}
+
+/* "No recorded actions yet.": the dashed empty box from Follow-ups */
+.root section[aria-label="Recent actions"] > h2 + p {
+  margin: 0 22px 22px;
+  padding: 28px 24px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-control);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}

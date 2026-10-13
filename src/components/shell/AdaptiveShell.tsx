@@ -47,10 +47,9 @@ export default function AdaptiveShell({
   const onPeople =
     pathname.startsWith("/people") ||
     (pathname === "/hub" && ["intake", "archived", "courses", "manage", "book"].includes(routeView ?? ""));
-  // Operations pages show "Arriving soon" (today's classes), as in the VNext mockup's Ops section
-  const onClasses =
-    pathname.startsWith("/ops") ||
-    (pathname === "/hub" && ["instructor", "operations", "attendance"].includes(routeView ?? ""));
+  // Classes pages show "Arriving soon" (today's classes), as in the VNext mockup's Ops section.
+  // Instructor, Attendance and Reports show the "Your workspace" placeholder for now.
+  const onClasses = pathname.startsWith("/ops");
   const sectionPane = onPeople || onClasses;
   // Today uses the full width, like the VNext Owner Today screen
   const fullWidth = pathname === "/";
