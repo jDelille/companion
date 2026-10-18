@@ -16,7 +16,8 @@
   }
 
   &__header {
-    height: 65px;
+    min-height: 76px;
+    padding-right: 40px;
     flex-shrink: 0;
     color: var(--text);
     display: flex;
@@ -47,11 +48,10 @@
     min-height: 0; // lets it shrink to the space left and scroll instead of growing
     overflow-y: auto;
     padding-bottom: 12px; // breathing room above the composer
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
 
-    &::-webkit-scrollbar {
-      display: none;
-    }
+
 
     // "Connected Odoo records": a green pill
     .statusLine {
@@ -136,8 +136,8 @@
     flex-direction: column;
     gap: 10px;
     padding: 14px;
-    border-radius: var(--radius-control);
-    background: var(--raised);
+    border-radius: var(--radius-card);
+    background: var(--glass-fill);
 
     h4 {
       margin: 0;
@@ -176,7 +176,8 @@
     gap: 8px;
 
     button {
-      padding: 8px 12px;
+      padding: 10px 14px;
+      min-height: 44px;
       border: 1px solid var(--line);
       border-radius: 6px;
       background: none;

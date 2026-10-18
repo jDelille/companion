@@ -1,6 +1,9 @@
 @use "../../../../styles/breakpoints" as bp;
 
 .member360 {
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-block: 12px 24px;
 }
 
 // Odoo test-data notice above the member (blue = information; violet is AI-only)

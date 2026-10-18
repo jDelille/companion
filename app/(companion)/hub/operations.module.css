@@ -1,8 +1,13 @@
-.tableWrap { overflow-x:auto; }
+.tableWrap { overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius-card); margin-top:16px; }
 .printable { margin-top:1.5rem; }
 .printable table { width:100%; border-collapse:collapse; text-align:left; }
-.printable th,.printable td { padding:.75rem; border-bottom:1px solid var(--muted); overflow-wrap:anywhere; }
+.printable th,.printable td { padding:14px 16px; border-bottom:1px solid var(--line); overflow-wrap:anywhere; }
+.printable th { font-size:11px; font-weight:600; letter-spacing:.04em; color:var(--text-secondary); background:var(--glass-fill); }
+.printable td { font-size:13px; }
+.printable tr:last-child td { border-bottom:0; }
 @media print {
+  .printable th { color:black; background:white; }
+  .printable .tableWrap { border:0; border-radius:0; }
   @page { margin:12mm; }
   :global(html):has(.printable) { background:var(--text) !important; color:var(--canvas) !important; color-scheme:light; overflow:visible; }
   :global(body):has(.printable) *:not(:has(.printable)):not(.printable):not(.printable *) { display:none !important; }

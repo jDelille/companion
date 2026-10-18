@@ -1,7 +1,7 @@
 "use client";
 import Link from "@/components/primitives/AppLink";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useState, type Ref } from "react";
+import { Fragment, useState, type Ref } from "react";
 import Modal from "@/components/primitives/modal/Modal";
 import NavIcon, { type NavIconName } from "./NavIcon";
 import styles from "./Shell.module.scss";
@@ -82,8 +82,9 @@ export default function ConnectedNavigation({
         </Link>
       )}
       {items.filter(item => !mobile || !item.desktopOnly).map((item) => (
+        <Fragment key={item.href}>
+        {!mobile && ["Today", "Sales", "Instructor"].includes(item.label) && <div className={styles.navGroup}>{item.label === "Today" ? "Workspace" : item.label === "Sales" ? "Relationships" : "Management"}</div>}
         <Link
-          key={item.href}
           href={memberId && ["Sales", "Inbox"].includes(item.label) ? `/hub?view=${item.label === "Sales" ? "crm" : "messages"}&memberId=${encodeURIComponent(memberId)}` : item.href}
           aria-current={item.matches(pathname, view) ? "page" : undefined}
         >
@@ -92,6 +93,7 @@ export default function ConnectedNavigation({
           </span>
           <span>{item.label}</span>
         </Link>
+        </Fragment>
       ))}
       {onCompanion && (
         <button

@@ -17,10 +17,8 @@
   article {
     display: flex;
     flex-direction: column;
-    padding: 20px 22px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-card); // same corners as every card
-    background-color: var(--panel);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius-card);
 
     // Three levels, dimmest to brightest:
     // section label (muted, uppercase) < row label (secondary) < value (white, bold)

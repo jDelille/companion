@@ -87,7 +87,7 @@ export default function AttendanceWorkspace({busy,locked,feedback,clearFeedback,
         {review.reversal&&<p role="alert">This reverses a recorded check-in. The original record and kiosk receipt are kept with this correction. Any class credit already used is not refunded here.</p>}
         {ATTENDED.includes(review.status)&&!ATTENDED.includes(review.row.status)&&<p>Odoo checks the student’s membership and course eligibility before saving.</p>}
         <label className={intakeStyles.confirm}><input type="checkbox" checked={confirmed} disabled={blocked} onChange={e=>setConfirmed(e.target.checked)}/>I confirmed this attendance change.</label>
-        <div className={styles.row}><button disabled={blocked||!confirmed} onClick={()=>void confirm()}>{busy?'Saving…':'Confirm attendance in Odoo'}</button><button disabled={blocked} onClick={()=>setReview(null)}>Cancel</button></div>
+        <div className={styles.row}><button className={styles.primaryAction} disabled={blocked||!confirmed} onClick={()=>void confirm()}>{busy?'Saving…':'Confirm attendance in Odoo'}</button><button disabled={blocked} onClick={()=>setReview(null)}>Cancel</button></div>
       </div>}
       {feedback&&<div className={styles.card} role={feedback.kind==='error'?'alert':'status'} aria-label="Attendance result"><p>{feedback.text}</p>{feedback.refreshWarning&&<p>{feedback.refreshWarning}</p>}{feedback.kind==='uncertain'&&retry&&<button disabled={busy} onClick={()=>void checkResult()}>Check attendance result</button>}</div>}
     </div>
