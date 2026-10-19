@@ -1,27 +1,43 @@
 :root {
   // Surfaces
   --canvas: #08080a;
+  --workspace-background: var(--canvas); // flat canvas, as in the VNext build
   --panel: #101014;
   --raised: #17171d;
   --interactive: #1e1e26;
   --line: #2a2a35;
 
   // Border
-  --dark-border: #292934;
+  --dark-border: var(--line); // same as the doc's line colour
 
   // Text
   --text: #f6f6f8;
   --text-secondary: #a8a8b8;
   --muted: #717184;
+  --font-display:
+    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --font-label: var(--font-dm-mono), ui-monospace, "SFMono-Regular", Menlo, monospace; // small uppercase labels
 
   // Meaning (red = action, gold = rank, violet = AI only)
   --brand: #e8192c;
+  --brand-bright: color-mix(in srgb, var(--brand) 88%, var(--text)); // red button hover, from doc colours only
+  --brand-soft: color-mix(in srgb, var(--brand) 14%, transparent);
   --mastery: #d7b75c;
   --agent: #8a7cf6;
   --success: #26c76f;
   --warning: #f6a63b;
   --danger: #ef4053;
   --info: #4c8dff;
+
+  // Type scale: every kiosk text uses one of these (headings use the kiosk title tokens)
+  --text-xs: 0.75rem; // 12px uppercase labels, eyebrows, tags
+  --text-sm: 0.875rem; // 14px muted info: durations, field labels, descriptions
+  --input-text: 13px; // text and placeholder inside every input, select and textarea
+  --text-base: 1rem; // 16px body, buttons, details
+  --text-md: 1.125rem; // 18px subtitles, choices
+  --text-lg: 1.25rem; // 20px names, values, inputs, card titles, messages
+  --text-xl: 1.5rem; // 24px big card labels, class times
 
   // Sizing
   --control-height: 40px;
@@ -30,6 +46,23 @@
   --radius-card: 16px;
   --radius-leaf: 18px;
   --radius-tray: 22px;
+  --radius-circle: 50%;
+  --radius-pill: 999px; // oval buttons and fields
+  --button-inset: 1.25rem; // side padding inside text buttons (PlainButton)
+
+  // "Glass" surfaces are now solid, so every card has the same background:
+  // panel fill, line border; hover = raised + brighter border (same as the staff cards)
+  --glass-fill: var(--panel);
+  --glass-fill-hover: var(--raised);
+  --glass-edge: var(--line);
+  --glass-edge-strong: var(--text-secondary);
+  --glass-blur: 18px;
+  --glass-shadow: 0 10px 40px color-mix(in srgb, var(--canvas) 50%, transparent);
+
+  // Soft colored light behind the glass, so the frosting has something to blur.
+  // Brand red and AI violet, kept faint so they read as atmosphere, not actions.
+  --glow-brand: color-mix(in srgb, var(--brand) 14%, transparent);
+  --glow-agent: color-mix(in srgb, var(--agent) 12%, transparent);
 
   // Layout (not from the doc)
   --companion-width: 325px;

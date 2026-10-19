@@ -10,15 +10,16 @@ import {
   type CompanionRequestReply,
   type CompanionView,
   type ContextAnswer,
-} from "@/domain/companion";
+} from "../domain/companion";
 
 // The only place the Companion rail gets data from. Calls the
-// /api/v2/companion routes, which are mocks for now and will sit in front of
-// the real AI and automation services later. None of these throw: whatever
+// /api/v2/companion routes, backed by scoped Odoo in integration mode. None of these throw: whatever
 // happens comes back as an answer.
 
 // Which page the Companion is looking at
 export function viewFromPath(pathname: string): CompanionView {
+  const sessionId = pathname.match(/^\/ops\/sessions\/([1-9][0-9]*)$/)?.[1];
+  if (sessionId) return {key: `session:${sessionId}`, memberId: null, sessionId};
   const memberId = pathname.match(/^\/people\/([^/]+)/)?.[1];
   if (memberId) {
     return { key: `member:${memberId}`, memberId };
@@ -40,6 +41,7 @@ export async function getCompanionContext(
 ): Promise<ContextAnswer> {
   const view = viewFromPath(pathname);
   let url = "/api/v2/companion/context";
+  if (view.sessionId) url += `?sessionId=${encodeURIComponent(view.sessionId)}`;
   if (view.memberId) {
     url += `?memberId=${encodeURIComponent(view.memberId)}`;
   }
@@ -75,6 +77,9 @@ export async function sendRequest(
     if (response.ok && looksLikeRequestReply(body)) {
       return body;
     }
+    if (response.status === 409 && looksLikeProblem(body) && body.code === "ATTENDANCE_REVIEW_REQUIRED") {
+      return { outcome: "attendanceReviewRequired" };
+    }
   } catch {
     // offline or timed out
   }
@@ -103,7 +108,7 @@ export async function sendApproval(
   const body = await response.json().catch(() => null);
 
   if (response.ok && looksLikeApprovalReply(body)) {
-    if (body.receipt.suggestionId === command.suggestionId) {
+    if (body.receipt.suggestionId === command.suggestionId && body.correlationId === command.correlationId) {
       return { outcome: "done", receipt: body.receipt };
     }
   }
@@ -120,6 +125,7 @@ const looksLikeContext = (body: unknown): body is CompanionContext => {
 
 const looksLikeRequestReply = (body: unknown): body is CompanionRequestReply => {
   const reply = body as CompanionRequestReply | null;
+  if (reply?.outcome === "answer") return typeof reply.answer === "string" && reply.answer.length <= 20000 && typeof reply.mode === "string";
   if (reply?.outcome === "newTask") return typeof reply.suggestion?.id === "string";
   if (reply?.outcome === "existingTask") return typeof reply.suggestionId === "string";
   return reply?.outcome === "notUnderstood";

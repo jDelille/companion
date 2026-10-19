@@ -1,0 +1,89 @@
+@use "../../../../../styles/breakpoints" as bp;
+
+// Same card as the Overview grid's articles
+.history {
+  margin: 1.25rem 2rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background-color: var(--panel);
+
+  @include bp.compact {
+    margin: 1rem;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+
+  h2 {
+    font-size: 16px;
+    color: var(--text);
+  }
+}
+
+.summary {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.list {
+  list-style: none;
+}
+
+// date | class | time, one check-in per row
+.row {
+  display: grid;
+  grid-template-columns: 7.5rem 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  font-size: var(--text-sm);
+
+  & + & {
+    border-top: 1px solid var(--line);
+  }
+}
+
+.date {
+  color: var(--text-secondary);
+}
+
+.session {
+  color: var(--text);
+  font-weight: 600; // the class is the value; date and time are its labels
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+// Small neutral tag, same as the kiosk's "Late"
+.tag {
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+  color: var(--text-secondary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.empty,
+.note {
+  padding: 0.625rem 0;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}

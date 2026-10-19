@@ -1,3 +1,5 @@
+@use "../../../../../styles/glass" as glass;
+
 // Width comes from the shell, like every kiosk screen.
 // No top bar: the Result screen has no Back.
 .screen {
@@ -15,7 +17,7 @@
 }
 
 .eyebrow {
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -23,15 +25,15 @@
 }
 
 .headline {
-  font-size: 2.25rem;
+  font-size: var(--kiosk-title);
 }
 
 // Label on the left, value on the right (same style as Confirm's summary)
 .details {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  @include glass.card;
+  border-radius: var(--radius-leaf);
 }
 
 .detailRow {
@@ -42,11 +44,11 @@
   padding: 1.25rem;
 
   & + & {
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--glass-edge);
   }
 
   dt {
-    font-size: 0.95rem;
+    font-size: var(--text-sm);
     color: var(--text-secondary);
   }
 
@@ -54,7 +56,7 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    font-size: 1.25rem;
+    font-size: var(--text-lg);
     font-weight: 600;
     text-align: right;
   }
@@ -63,9 +65,28 @@
 // Small neutral tag, e.g. "Late"
 .tag {
   padding: 0.2rem 0.6rem;
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-pill);
   background: var(--interactive);
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: var(--text-xs);
   font-weight: 600;
+}
+
+// Done and the line under it
+.done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.doneHint {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+// Kept from the current design: pieces added after the VNext build
+.receiptHeading {
+  text-align: center;
+  margin-block: 1rem 0.5rem;
 }

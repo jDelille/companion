@@ -10,12 +10,9 @@ type Options = {
   onTimeout: () => void;
 };
 
-// Activity that means "someone is still using the kiosk". input covers
-// on-screen keyboards that don't send key events.
 const ACTIVITY_EVENTS = ["pointerdown", "keydown", "input"] as const;
 
-// Privacy idle timer (K07). Returns how many seconds are left once the warning
-// is due, or null before that, plus stillHere() to start counting again.
+// Privacy idle timer (K07).
 export function useIdleTimer({
   active,
   restartKey,
@@ -26,7 +23,6 @@ export function useIdleTimer({
   const lastActivityAt = useRef(0);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
-  // Always calls the latest onTimeout without restarting the timer
   const timeout = useEffectEvent(onTimeout);
 
   const stillHere = () => {
@@ -67,7 +63,7 @@ export function useIdleTimer({
   }, [active, restartKey, timeoutSeconds, warningSeconds]);
 
   return {
-    secondsLeft: active ? secondsLeft : null, // never warn while paused (Welcome, sending)
+    secondsLeft: active ? secondsLeft : null,
     stillHere,
   };
 }

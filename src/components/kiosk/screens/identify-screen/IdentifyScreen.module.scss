@@ -1,9 +1,35 @@
+@use "../../../../../styles/glass" as glass;
+
 // Width comes from the shell, like every kiosk screen
 .screen {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   padding: 2rem 0;
+}
+
+// Everything under the class header: same spacing as the screen. It waits
+// until the class card has mostly landed in the header (the 350ms morph in
+// kiosk.scss), then fades up, so the card never slides across it.
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: after-morph 220ms ease-out 260ms both;
+}
+
+@keyframes after-morph {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+// No fade or slide for people who ask for less motion: it's just there
+@media (prefers-reduced-motion: reduce) {
+  .body {
+    animation: none;
+  }
 }
 
 .topBar {
@@ -14,7 +40,7 @@
 
 .heading {
   margin-top: 1rem;
-  font-size: 2.25rem;
+  font-size: var(--kiosk-title);
 }
 
 // One large field, the only thing to do on this screen
@@ -23,19 +49,18 @@
   box-sizing: border-box; // all: unset resets this to content-box
   width: 100%;
   min-height: calc(var(--touch-height) * 1.5);
-  padding: 0 1.25rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--panel);
+  padding: 0 1.75rem;
+  @include glass.flat;
+  border-radius: var(--radius-pill);
   color: var(--text);
-  font-size: 1.5rem;
+  font-size: var(--text-lg);
 
   &::placeholder {
     color: var(--muted);
   }
 
   &:focus-visible {
-    border-color: var(--text-secondary);
+    border-color: var(--glass-edge-strong);
   }
 
   &:disabled {
@@ -52,6 +77,90 @@
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px; // same gap as the other kiosk cards
   margin-top: 1.5rem;
+}
+
+// Phones: a bit smaller still, but never under 16px (iOS zooms into smaller fields)
+@container kiosk (width < 540px) {
+  .search {
+    font-size: var(--text-md);
+  }
+}
+
+.grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 12px; // same gap as the other kiosk cards
+  margin-top: 1.5rem;
+}
+
+.tile {
+  position: relative;
+}
+
+.badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--interactive); // a readable pill, like the other status pills
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: var(--text-sm, 0.85rem);
+  pointer-events: none;
+}
+
+/* ---------- Tap-your-name grid, laid out like Paul's HTML kiosk ----------
+   Each tile: a large avatar circle, the name centred under it; checked-in students get a
+   green border and a green "Checked in" pill. Doc token colours only. */
+.grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); // Paul's kiosk: ~220px per card, more columns on wider screens
+  gap: 18px;
+}
+
+.tile > button {
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  min-height: 170px;
+  padding: 20px 12px 40px;
+  text-align: center;
+
+  // the avatar circle, larger
+  > span:first-child {
+    width: 72px;
+    height: 72px;
+    font-size: var(--text-lg);
+  }
+
+  // no arrow on a tile: the whole tile is the button
+  > span:last-child {
+    display: none;
+  }
+}
+
+// Already checked in: green border on the tile
+.tile:has(.badge) > button {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 8%, var(--panel));
+}
+
+// "Checked in" pill: green, under the name
+.tile .badge {
+  top: auto;
+  right: auto;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+  background: color-mix(in srgb, var(--success) 14%, transparent);
+  color: var(--success);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }

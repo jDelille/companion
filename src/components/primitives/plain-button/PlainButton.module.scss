@@ -5,15 +5,18 @@
   align-items: center;
   flex-shrink: 0;
   min-height: var(--touch-height);
-  padding: 0 1.25rem;
-  border-radius: var(--radius-control);
-  font-size: 1rem;
+  padding: 0 var(--button-inset);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-base);
   color: var(--text);
   cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
 
   &:hover,
   &:active {
-    background: var(--raised);
+    background: var(--glass-fill-hover);
+    border-color: var(--glass-edge);
   }
 
   &:disabled {
@@ -26,4 +29,10 @@
     outline: 2px solid var(--text-secondary);
     outline-offset: 2px;
   }
+}
+
+// Back in a top bar: pulled left by its own padding so the text lines up with
+// the content edge. The oval only shows on hover/press, like every text button.
+.flush {
+  margin-inline-start: calc(-1 * var(--button-inset));
 }

@@ -7,7 +7,8 @@ import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
 import StatusMessage, {
   type StatusAction,
 } from "@/components/kiosk/status-message/StatusMessage";
-import ActionCard from "@/components/primitives/action-card/ActionCard";
+import PrimaryButton from "@/components/primitives/primary-button/PrimaryButton";
+import SuccessMark from "@/components/kiosk/success-mark/SuccessMark";
 import type { CheckInOutcome } from "@/domain/kiosk/checkInOutcome";
 import { formatClockTime } from "@/domain/kiosk/sessionFormat";
 import styles from "./ResultScreen.module.scss";
@@ -19,6 +20,7 @@ type Props = {
   onDone: () => void;
   onRetry: () => void; // only offered when not confirmed
   onChooseClass: () => void; // only offered when this class can't take check-ins
+  onStaffHelp: () => void; // offered with "see the front desk"
 };
 
 // K06: only ever shown after the server answered (or clearly didn't).
@@ -30,14 +32,18 @@ const ResultScreen = ({
   onDone,
   onRetry,
   onChooseClass,
+  onStaffHelp,
 }: Props) => {
   return (
     <div className={styles.screen}>
-      <SessionHeader session={session} />
+      {outcome.kind !== "success" && outcome.kind !== "alreadyCheckedIn" && (
+        <SessionHeader session={session} />
+      )}
 
       {outcome.kind === "success" && (
         <Receipt
           headline="You're checked in"
+          animate
           session={session}
           member={member}
           receipt={outcome.receipt}
@@ -48,6 +54,7 @@ const ResultScreen = ({
       {outcome.kind === "alreadyCheckedIn" && (
         <Receipt
           headline="You're already checked in"
+          animate={false}
           session={session}
           member={member}
           receipt={outcome.receipt}
@@ -59,7 +66,10 @@ const ResultScreen = ({
         <Refusal
           headline="Please see the front desk"
           message="We couldn't finish your check-in here."
-          actions={[{ label: "Done", onClick: onDone }]}
+          actions={[
+            { label: "Get help from staff", onClick: onStaffHelp },
+            { label: "Done", onClick: onDone },
+          ]}
         />
       )}
 
@@ -101,6 +111,7 @@ const ResultScreen = ({
 
 type ReceiptProps = {
   headline: string;
+  animate: boolean;
   session: SessionOption;
   member: RosterMember;
   receipt: AttendanceReceipt;
@@ -108,11 +119,23 @@ type ReceiptProps = {
 };
 
 // Success and already-checked-in: the receipt always names the selected session
-const Receipt = ({ headline, session, member, receipt, onDone }: ReceiptProps) => {
+const Receipt = ({
+  headline,
+  animate,
+  session,
+  member,
+  receipt,
+  onDone,
+}: ReceiptProps) => {
   return (
     <>
-      <div className={styles.titles}>
-        <p className={styles.eyebrow}>Check-in</p>
+      <div
+        className={`${styles.titles} ${styles.receiptHeading}`}
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <SuccessMark animate={animate} />
         <h1 className={styles.headline}>{headline}</h1>
       </div>
 
@@ -134,17 +157,17 @@ const Receipt = ({ headline, session, member, receipt, onDone }: ReceiptProps) =
           <dd>
             {formatClockTime(receipt.checkedInAt)}
             {/* Neutral, just information: not a warning */}
-            {receipt.status === "late" && <span className={styles.tag}>Late</span>}
+            {receipt.status === "late" && (
+              <span className={styles.tag}>Late</span>
+            )}
           </dd>
         </div>
       </dl>
 
-      <ActionCard
-        label="Done"
-        description="Clears the screen for the next person"
-        size="large"
-        onClick={onDone}
-      />
+      <div className={styles.done}>
+        <PrimaryButton onClick={onDone}>Done</PrimaryButton>
+        <p className={styles.doneHint}>Clears the screen for the next person</p>
+      </div>
     </>
   );
 };

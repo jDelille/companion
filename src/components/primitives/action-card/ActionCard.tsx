@@ -7,18 +7,43 @@ type Props = {
   disabled?: boolean;
   onClick?: () => void;
   className?: string; // for layout from the parent (margins, flex)
+  appearance?: "glass" | "row";
 };
 
 // Big tappable card with a label, a short description and an arrow
-const ActionCard = ({ label, description, size = "normal", disabled = false, onClick, className }: Props) => {
-  const classNames = [styles.card, styles[size], className].filter(Boolean).join(" ");
+const ActionCard = ({
+  label,
+  description,
+  size = "normal",
+  disabled = false,
+  onClick,
+  className,
+  appearance = "glass",
+}: Props) => {
+  const classNames = [
+    styles.card,
+    styles[size],
+    appearance === "row" && styles.row,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
-    <button type="button" className={classNames} disabled={disabled} onClick={onClick}>
+    <button
+      type="button"
+      className={classNames}
+      disabled={disabled}
+      onClick={onClick}
+    >
       <span className={styles.label}>{label}</span>
       <span className={styles.description}>{description}</span>
       {/* no arrow when disabled so it doesn't look tappable */}
-      {!disabled && <span className={styles.arrow} aria-hidden="true">→</span>}
+      {!disabled && (
+        <span className={styles.arrow} aria-hidden="true">
+          →
+        </span>
+      )}
     </button>
   );
 };

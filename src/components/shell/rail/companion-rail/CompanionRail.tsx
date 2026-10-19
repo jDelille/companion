@@ -1,12 +1,16 @@
 "use client";
 
 import React from "react";
+import FollowUpComposer from "@/components/ai/follow-up/FollowUpComposer";
+import followupStyles from "@/components/ai/follow-up/FollowUp.module.scss";
 import useCompanion from "./useCompanion";
 import TaskItem from "./TaskItem";
 import ReceiptHistory from "./ReceiptHistory";
 import AgentComposer from "./AgentComposer";
 import MemberIntel from "./MemberIntel";
 import SuggestedCard from "./SuggestedCard";
+import TodayBrief from "./TodayBrief";
+import { usePathname } from "next/navigation";
 import styles from "./CompanionRail.module.scss";
 
 type Props = {
@@ -16,18 +20,29 @@ type Props = {
 const CompanionRail = ({ children }: Props) => {
   const companion = useCompanion();
   const featured = companion.featured;
+  const onToday = usePathname() === "/";
 
   return (
     <div className={styles.companionRail}>
       <div className={styles.companionRail__header}>
         <h2>
-          <span className={styles.companionRail__header__icon}>✦</span>Do For Me
+          <span className={styles.companionRail__header__icon}>✦</span>Companion
         </h2>
       </div>
 
       <div className={styles.companionRail__state}>
-        {companion.contextStatus === "loading" && (
-          <p className={styles.contextNote}>Loading…</p>
+        <p className={styles.contextNote}>
+          Ask a question or prepare an action for review.
+        </p>
+        {/* Placeholders the size of the status pill and task rows (Today has its own in TodayBrief) */}
+        {companion.contextStatus === "loading" && !onToday && (
+          <div className={styles.skeletonGroup} role="status" aria-label="Loading suggestions">
+            <i className={`${styles.skeleton} ${styles.skeletonPill}`} aria-hidden="true" />
+            <i className={`${styles.skeleton} ${styles.skeletonHeading}`} aria-hidden="true" />
+            {[1, 2, 3].map((placeholder) => (
+              <i key={placeholder} className={`${styles.skeleton} ${styles.skeletonRow}`} aria-hidden="true" />
+            ))}
+          </div>
         )}
         {companion.contextStatus === "unavailable" && (
           <p className={styles.contextNote}>
@@ -41,7 +56,8 @@ const CompanionRail = ({ children }: Props) => {
             {companion.label}
           </div>
         )}
-        {companion.heading && <h3>{companion.heading}</h3>}
+        {/* On Today the Companion greets and lists what needs attention, instead of a generic heading */}
+        {onToday ? <TodayBrief /> : companion.heading && <h3>{companion.heading}</h3>}
 
         {companion.intel && <MemberIntel items={companion.intel} />}
         {featured && (
@@ -69,6 +85,20 @@ const CompanionRail = ({ children }: Props) => {
           </div>
         )}
 
+        {companion.view.memberId && companion.followUpEnabled && (
+          <FollowUpComposer
+            key={companion.view.key}
+            sessions={companion.sessions || []}
+            busy={companion.requestStatus === "thinking"}
+            onPrepare={companion.request}
+          />
+        )}
+        {companion.answer && (
+          <div className={followupStyles.answer} role="status">
+            <small>{companion.answer.mode}</small>
+            <p>{companion.answer.text}</p>
+          </div>
+        )}
         <ReceiptHistory receipts={companion.receipts} />
       </div>
 

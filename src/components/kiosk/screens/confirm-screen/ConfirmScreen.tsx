@@ -1,6 +1,6 @@
 import type { RosterMember, SessionOption } from "@/contracts/kiosk-attendance";
 import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
-import ActionCard from "@/components/primitives/action-card/ActionCard";
+import PrimaryButton from "@/components/primitives/primary-button/PrimaryButton";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import { formatStartTime } from "@/domain/kiosk/sessionFormat";
 import styles from "./ConfirmScreen.module.scss";
@@ -29,7 +29,7 @@ const ConfirmScreen = ({
   return (
     <div className={styles.screen}>
       <div className={styles.topBar}>
-        <PlainButton onClick={onBack} disabled={isSending}>
+        <PlainButton flush onClick={onBack} disabled={isSending}>
           ← Back
         </PlainButton>
       </div>
@@ -55,16 +55,12 @@ const ConfirmScreen = ({
         </div>
       </dl>
 
-      {/* Same big card as Check In on Welcome: the big card is always the next step */}
-      <ActionCard
-        label={isSending ? "Checking in…" : "Confirm check-in"}
-        description={`${member.displayName} → ${session.title}`}
-        size="large"
-        disabled={isSending}
-        onClick={onConfirm}
-      />
+      {/* The one committing action on this screen */}
+      <PrimaryButton tone="brand" disabled={isSending} onClick={onConfirm}>
+        {isSending ? "Checking in…" : "Confirm check-in"}
+      </PrimaryButton>
 
-      {/* The card's text changes silently; this tells screen readers it's working */}
+      {/* The button's text changes silently; this tells screen readers it's working */}
       <p className={styles.visuallyHidden} role="status">
         {isSending ? "Checking in, please wait." : ""}
       </p>

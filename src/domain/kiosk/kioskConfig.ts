@@ -1,7 +1,7 @@
 // Kiosk settings in one place, so they're easy to swap once the real values exist
 
-// PROVISIONAL: synthetic placeholder. Nothing in the contract or mock data has a school name yet.
-export const SCHOOL_NAME = "Dojang Downtown";
+// Neutral platform identity. Session cards carry the backend's actual location.
+export const SCHOOL_NAME = "Dojang";
 
 export type SecondaryActionId =
   | "classes"
@@ -19,14 +19,15 @@ export type SecondaryAction = {
 };
 
 // Secondary buttons on the Welcome screen (K01). WelcomeScreen renders straight from this list.
-// None of these are built yet, so they're all unavailable and shouldn't look tappable.
+// Classes uses the same authoritative session-first journey as Check In.
+// Unsupported destinations stay explicitly unavailable.
 export const SECONDARY_ACTIONS: SecondaryAction[] = [
   {
     id: "classes",
     label: "Classes",
     prominence: "card",
     shown: true,
-    available: false,
+    available: true,
   },
   {
     id: "events",
@@ -61,6 +62,15 @@ export const SECONDARY_ACTIONS: SecondaryAction[] = [
     available: false,
   },
 ];
+
+// Read-only school help works with the scoped Odoo schedule in connected mode.
+// It does not enable AI, trial submissions or staff notifications.
+export const CONCIERGE_ENABLED = true;
+
+// PROVISIONAL: not agreed yet. How long a Concierge question or action may take
+// before the kiosk stops waiting. A timed-out action may still have run, which
+// is why its retry resends the same idempotency key.
+export const CONCIERGE_TIMEOUT_SECONDS = 15;
 
 // PROVISIONAL: not agreed yet. How long the kiosk waits with no input before
 // clearing everything and going back to Welcome (K07). Change it here only.

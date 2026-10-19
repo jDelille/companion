@@ -1,3 +1,5 @@
+@use "../../../../../styles/glass" as glass;
+
 // Width comes from the shell, like every kiosk screen
 .screen {
   display: flex;
@@ -14,15 +16,15 @@
 
 .heading {
   margin-top: 1rem;
-  font-size: 2.25rem;
+  font-size: var(--kiosk-title);
 }
 
 // Student and class, label on the left, value on the right
 .summary {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  @include glass.card;
+  border-radius: var(--radius-leaf);
 }
 
 .summaryRow {
@@ -33,16 +35,16 @@
   padding: 1.25rem;
 
   & + & {
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--glass-edge);
   }
 
   dt {
-    font-size: 0.95rem;
+    font-size: var(--text-sm);
     color: var(--text-secondary);
   }
 
   dd {
-    font-size: 1.25rem;
+    font-size: var(--text-lg);
     font-weight: 600;
     text-align: right;
   }

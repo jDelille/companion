@@ -1,14 +1,6 @@
-// PROVISIONAL: not in Jodi's contract yet, so the path and response shape might change
-import { todaysSessions } from "@/integrations/mock/kiosk";
-import { mockRoute } from "@/integrations/mock/kiosk-http";
-import { getScenario } from "@/integrations/mock/kiosk-scenario";
-
-// Today's sessions (SessionOption[])
-export function GET() {
-  return mockRoute(() => {
-    if (getScenario() === "no-sessions") {
-      return Response.json([]);
-    }
-    return Response.json(todaysSessions());
-  });
+import { odooRoute, odooTestMode } from "@/server/odoo-runtime";
+import { GET as mockGET } from "@/integrations/mock/routes/sessions";
+export const dynamic = "force-dynamic";
+export async function GET(request: Request) {
+  return odooTestMode() ? odooRoute(request, "sessions") : mockGET();
 }

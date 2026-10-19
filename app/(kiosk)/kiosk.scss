@@ -1,11 +1,19 @@
 // Kiosk-only base styles. Shares the token variables with the Companion,
 // but not the Companion's globals (reset, body layout).
 @use "../../styles/variables";
+@use "../../styles/motion";
+
+@include motion.preferences;
 
 // Kiosk-only layout token. Every portrait screen sits in one centered column this wide.
 // Landscape (Check In left, Today right) will get its own layout later.
 :root {
-  --kiosk-column-width: 600px;
+  --kiosk-column-width: none; // full screen like Paul's kiosk (20px side padding comes from the shell)
+
+  // Heading sizes. KioskShell shrinks them on phones, so every screen scales together.
+  --kiosk-title-welcome: 3.5rem; // "Welcome to …"
+  --kiosk-title-large: 3rem; // "Choose your class"
+  --kiosk-title: 2.25rem; // "Find your name", Confirm, Result, Concierge
 }
 
 * {
@@ -20,7 +28,9 @@ body {
 }
 
 body {
-  background: var(--canvas);
+  // Neutral charcoal-to-black, fixed while the kiosk screens change.
+  background: var(--workspace-background);
+  background-attachment: fixed;
   color: var(--text);
   font-family:
     var(--font-inter),
@@ -31,7 +41,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-// Row -> header morph (share="morph" on SessionRow and SessionHeader).
+// Card -> header morph (share="morph" on SessionCard and SessionHeader).
+h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
 // Short and direct, as the motion rules ask.
 ::view-transition-group(.morph) {
   animation-duration: 350ms;

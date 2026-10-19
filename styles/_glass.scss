@@ -1,0 +1,25 @@
+// Card surfaces for the kiosk and Companion. Solid now (no see-through tint, no blur),
+// so every card has the same background whatever sits behind it.
+// Colors come from the tokens in _variables.scss.
+@mixin card {
+  background: var(--glass-fill); // = --panel
+  border: 1px solid var(--glass-edge); // = --line
+}
+
+// Text fields and small controls: the raised input background, like every input in the app
+@mixin flat {
+  background: var(--raised);
+  border: 1px solid var(--glass-edge);
+}
+
+// Big title card: no outline
+@mixin card-borderless {
+  @include card;
+  border-color: transparent;
+}
+
+// Hover/press on a tappable card
+@mixin card-active {
+  background: var(--glass-fill-hover); // = --raised
+  border-color: var(--glass-edge-strong); // = --text-secondary
+}

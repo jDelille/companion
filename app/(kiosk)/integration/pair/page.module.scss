@@ -1,0 +1,122 @@
+@use "../../../../styles/glass" as glass;
+
+// Pair a test device. Same look as the kiosk: one glass card in the column.
+.page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  @include glass.card;
+  border-radius: var(--radius-leaf);
+}
+
+.titles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  p {
+    font-size: var(--text-base);
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+// Pairing key (Access uses the shared Select)
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--touch-height);
+  padding: 0 1rem;
+  border: 1px solid var(--glass-edge);
+  border-radius: var(--radius-control);
+  background: var(--glass-fill);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-base);
+  font-weight: 400;
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// Access (shared Select): same size and fill as the Pairing key field on this page
+.form .field [aria-haspopup="listbox"] {
+  min-height: var(--touch-height);
+  padding: 0 1rem;
+  border-color: var(--glass-edge);
+  background: var(--glass-fill);
+  font-size: var(--text-base);
+  font-weight: 400;
+}
+
+// "Connect test device": the big glass oval, like Confirm on the kiosk
+.submit {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: calc(var(--touch-height) * 1.25);
+  margin-top: 0.5rem;
+  @include glass.flat;
+  border-radius: var(--radius-pill);
+  color: var(--text);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+
+  &:hover,
+  &:active {
+    @include glass.card-active;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 3px;
+  }
+}
+
+// Phones: a bit less padding inside the card
+@container kiosk (width < 540px) {
+  .card {
+    padding: 1.5rem;
+  }
+
+  .titles h1 {
+    font-size: 1.5rem;
+  }
+}

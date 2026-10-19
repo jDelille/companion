@@ -18,7 +18,8 @@ export type CheckInStep =
   | "identify"
   | "confirm"
   | "sending"
-  | "result";
+  | "result"
+  | "concierge"; // "Ask a question" from Welcome. Its own flow lives in conciergeFlow.ts
 
 // Where today's session list is at while on the session step
 export type SessionsLoad =
@@ -36,7 +37,13 @@ export type RosterLoad =
 // Each step carries its own data. Later steps get theirs as their transitions are added.
 export type CheckInFlowState =
   | { step: "welcome" }
-  | { step: "session"; sessions: SessionsLoad }
+  | {
+      step: "session";
+      sessions: SessionsLoad;
+      // The class you just left with Back / Change class on identify, so its
+      // header can slide back into its card. Display only; never pre-selects it.
+      returningFrom?: SessionOption;
+    }
   | {
       step: "identify";
       session: SessionOption; // the picked session travels with the flow
@@ -61,10 +68,17 @@ export type CheckInFlowState =
       member: RosterMember;
       command: CheckInCommand | null; // null only if the command couldn't be built
       outcome: CheckInOutcome;
+    }
+  | {
+      step: "concierge"; // side trip, never part of a check-in
+      startWith: "questions" | "staffHelp"; // staffHelp opens straight on "call staff"
     };
 
 export type CheckInFlowAction =
   | { type: "start" } // Check In tapped on Welcome
+  | { type: "openConcierge" } // Ask a question tapped on Welcome
+  | { type: "getStaffHelp" } // Get help from staff, offered on Welcome and when stuck
+  | { type: "goToCheckIn" } // the Concierge's "Check In" suggestion
   | { type: "sessionsLoaded"; sessions: SessionOption[] }
   | { type: "sessionsFailed" }
   | { type: "retrySessions" } // Try again after the list failed to load
@@ -89,10 +103,14 @@ export type CheckInFlowAction =
 export const initialCheckInFlow: CheckInFlowState = { step: "welcome" };
 
 // Back to the session list with a fresh fetch, dropping the roster, the search
-// text and any picked student along with the step they lived in
-const backToSessionList = (): CheckInFlowState => ({
+// text and any picked student along with the step they lived in.
+// returningFrom only drives the slide back; the class still has to be picked again.
+const backToSessionList = (
+  returningFrom?: SessionOption,
+): CheckInFlowState => ({
   step: "session",
   sessions: { status: "loading" },
+  returningFrom,
 });
 
 export function checkInFlowReducer(
@@ -105,16 +123,33 @@ export function checkInFlowReducer(
       if (state.step !== "welcome") return state;
       return { step: "session", sessions: { status: "loading" } };
 
+    case "openConcierge":
+      // Only from Welcome: the Concierge never interrupts a check-in in progress
+      if (state.step !== "welcome") return state;
+      return { step: "concierge", startWith: "questions" };
+
+    case "getStaffHelp":
+      // Staff help is always reachable (Miro 09.13), except while a check-in
+      // is sending. Leaving drops the class and student, like any reset.
+      if (state.step === "sending") return state;
+      return { step: "concierge", startWith: "staffHelp" };
+
+    case "goToCheckIn":
+      // A suggestion, not a shortcut: the normal session-first check-in from
+      // the start, nothing carried over from what was typed
+      if (state.step !== "concierge") return state;
+      return { step: "session", sessions: { status: "loading" } };
+
     case "sessionsLoaded":
       if (state.step !== "session") return state;
       return {
-        step: "session",
+        ...state,
         sessions: { status: "ready", list: action.sessions },
       };
 
     case "sessionsFailed":
       if (state.step !== "session") return state;
-      return { step: "session", sessions: { status: "unavailable" } };
+      return { ...state, sessions: { status: "unavailable" } };
 
     case "retrySessions":
       if (state.step !== "session" || state.sessions.status !== "unavailable") {
@@ -181,7 +216,9 @@ export function checkInFlowReducer(
       ) {
         return state;
       }
-      return backToSessionList();
+      // identify, confirm and result all show the class header, so it can
+      // slide back into its card in the list
+      return backToSessionList(state.session);
 
     case "retryCheckIn":
       // Same command, same idempotency key: if the first attempt was saved after
@@ -238,7 +275,8 @@ export function checkInFlowReducer(
 
     case "back":
       if (state.step === "session") return { step: "welcome" };
-      if (state.step === "identify") return backToSessionList();
+      if (state.step === "concierge") return { step: "welcome" };
+      if (state.step === "identify") return backToSessionList(state.session);
       if (state.step === "confirm") {
         // Back to pick someone else: the chosen student is dropped (and with
         // them anything decided about them), but the search text stays so

@@ -5,7 +5,7 @@
   background: var(--panel);
   border-left: 1px solid var(--dark-border);
   height: 100%;
-  padding: 0 1rem;
+  padding: 0 1.25rem;
   display: flex;
   flex-direction: column;
 
@@ -25,9 +25,9 @@
     h2 {
       display: flex;
       align-items: center;
-      gap: 7px;
-      font-weight: 500;
-      font-size: 15px;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: var(--text-base);
     }
 
     &__icon {
@@ -53,62 +53,80 @@
       display: none;
     }
 
+    // "Connected Odoo records": a green pill
     .statusLine {
-      text-transform: uppercase;
-      color: var(--success);
-      font-size: 11px;
-      display: flex;
+      align-self: flex-start;
+      display: inline-flex;
       align-items: center;
-      gap: 5px;
-      margin: 1rem 0;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+      border-radius: var(--radius-pill);
+      background: color-mix(in srgb, var(--success) 12%, transparent);
+      color: var(--success);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--font-label);
 
       .statusIcon {
-        width: 10px;
-        height: 10px;
+        width: 7px;
+        height: 7px;
         background-color: var(--success);
         border-radius: 50%;
       }
     }
 
+    // "Member companion"
     h3 {
       color: var(--text);
-      margin: 1rem 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0;
     }
 
     .tasks {
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
   }
 
+  // "Member intelligence": violet because it's AI context
   .intelLabel {
-    margin: 0 0 8px;
-    font-size: 10px;
-    letter-spacing: 0.12em;
+    margin: 1.25rem 0 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    font-family: var(--font-label);
     color: var(--agent);
-    margin-top: 1rem;
   }
 
+  // Each item: muted label on top, white bold value under it
   .intel {
-    margin: 0 0 16px;
+    margin: 0;
 
     div {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text);
-      font-size: 12px;
+      flex-direction: column;
+      gap: 0.375rem;
+      padding: 1rem 0;
       border-bottom: 1px solid var(--line);
-      padding: 15px 0;
-      flex-wrap: wrap;
     }
 
     dt {
-      color: var(--text);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
     }
+
     dd {
       margin: 0;
-      font-weight: 600;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      line-height: 1.5;
       color: var(--text);
     }
   }
@@ -168,4 +186,266 @@
       background-color: var(--panel);
     }
   }
+}
+
+// Kept from the current design: pieces added after the VNext build
+.companionRail__header {
+    height: 65px;
+    flex-shrink: 0;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: var(--text-base);
+    }
+
+    &__icon {
+      color: var(--agent);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+.companionRail__state {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0; // lets it shrink to the space left and scroll instead of growing
+    overflow-y: auto;
+    padding-bottom: 12px; // breathing room above the composer
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    // "Connected Odoo records": a green pill
+    .statusLine {
+      align-self: flex-start;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+      border-radius: var(--radius-pill);
+      background: color-mix(in srgb, var(--success) 12%, transparent);
+      color: var(--success);
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-family: var(--font-label);
+
+      .statusIcon {
+        width: 7px;
+        height: 7px;
+        background-color: var(--success);
+        border-radius: 50%;
+      }
+    }
+
+    // "Member companion"
+    h3 {
+      color: var(--text);
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 1.5rem 0 0;
+    }
+
+    .tasks {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+// Today: greeting, what needs attention, Review all
+.todayBrief {
+  display: grid;
+  gap: 10px;
+  margin-top: 1.5rem;
+
+  h3 {
+    color: var(--text);
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  ul {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  li a {
+    display: block;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text-secondary); // no red on hover
+    }
+  }
+
+  button {
+    justify-self: start;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--text-secondary);
+    }
+  }
+}
+
+.todayBriefNote a {
+  color: var(--text);
+}
+
+/* ---------- Loading placeholders ----------
+   Shapes the size of the real content. Static on purpose: no pulse or wave. */
+.skeletonGroup {
+  display: grid;
+  gap: 10px;
+  margin-top: 1.25rem;
+}
+
+.companionRail .skeleton {
+  display: block;
+  height: 12px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive);
+}
+
+// "Connected Odoo records" pill
+.companionRail .skeletonPill {
+  width: 150px;
+  height: 24px;
+}
+// "Member companion" heading
+.companionRail .skeletonHeading {
+  width: 60%;
+  height: 18px;
+  margin-top: 0.75rem;
+}
+// One task row
+.companionRail .skeletonRow {
+  height: 44px;
+  border-radius: var(--radius-control);
+}
+// "3 things need your attention."
+.companionRail .skeletonSentence {
+  width: 75%;
+}
+// One decision link in the Today brief
+.companionRail .skeletonLine {
+  height: 38px;
+  border-radius: var(--radius-control);
+}
+
+
+/* ---------- Arrival motion ----------
+   Content fades up as it arrives, one item after another.
+   Only content moves, never the dock itself; nothing moves with reduced motion. */
+@keyframes companion-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .companionRail__state > *,
+  .todayBrief > *,
+  .todayBrief li,
+  .tasks > *,
+  .intel > div {
+    animation: companion-arrive 320ms cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+
+  // One after another inside lists
+  .todayBrief li:nth-child(2),
+  .tasks > :nth-child(2),
+  .intel > div:nth-child(2) {
+    animation-delay: 40ms;
+  }
+  .todayBrief li:nth-child(3),
+  .tasks > :nth-child(3),
+  .intel > div:nth-child(3) {
+    animation-delay: 80ms;
+  }
+  .todayBrief li:nth-child(n + 4),
+  .tasks > :nth-child(n + 4),
+  .intel > div:nth-child(n + 4) {
+    animation-delay: 120ms;
+  }
+}
+
+/* ---------- Today brief as a card (idea-1 mockup) ---------- */
+.todayBrief {
+  padding: 18px 16px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--raised);
+
+  ul {
+    border-top: 0;
+  }
+
+  li:last-child a {
+    border-bottom: 0;
+  }
+
+  li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+}
+
+.dotWarning,
+.dotInfo {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.dotWarning {
+  background: var(--warning);
+}
+
+.dotInfo {
+  background: var(--info);
+}
+
+// Placeholders appear at once and stay still; only the real content fades in
+.companionRail .skeletonGroup {
+  animation: none;
 }

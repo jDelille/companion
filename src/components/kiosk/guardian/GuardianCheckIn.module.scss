@@ -1,0 +1,232 @@
+// Parent check-in with phone + PIN (Jodi's flow), in the kiosk card style.
+// Doc token colours only; every tap target is at least 48px.
+
+// Closed: one full-width card button, like the Welcome cards, with → on the right
+.start {
+  margin-top: 12px;
+
+  button {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 72px;
+    padding: 14px 18px 14px 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--panel);
+    color: var(--text);
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+
+    &::after {
+      content: "\2192";
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      color: var(--text-secondary);
+    }
+
+    &:hover,
+    &:active {
+      border-color: var(--text-secondary);
+      background: var(--raised);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--text-secondary);
+      outline-offset: 2px;
+    }
+  }
+}
+
+// Open: one solid card holding the whole flow
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 12px;
+  padding: 20px 22px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+
+  > p {
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+    line-height: 1.5;
+  }
+
+  // Errors and expiry notices (wrong PIN, locked, closed for privacy): amber
+  > p[role="alert"] {
+    color: var(--warning);
+  }
+
+  // Every button in the panel: kiosk-sized, standard corners
+  button {
+    min-height: var(--touch-height);
+    padding: 0 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-base);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+
+    &:hover:not(:disabled),
+    &:active:not(:disabled) {
+      border-color: var(--text-secondary);
+      background: var(--interactive);
+    }
+
+    &:disabled {
+      color: var(--muted);
+      cursor: default;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--text-secondary);
+      outline-offset: 2px;
+    }
+  }
+
+  // Done: quiet, full width, at the bottom
+  > button:last-child {
+    width: 100%;
+  }
+}
+
+// Phone number | Kiosk PIN | Verify parent
+.fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+
+  label {
+    display: flex;
+    flex: 1 1 12rem;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 56px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised); // same as every input in the app
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-md); // 18px: easy to read, and iOS won't zoom
+    font-weight: 500;
+
+    &:focus-visible {
+      outline: 2px solid var(--text-secondary);
+      outline-offset: 1px;
+    }
+
+    &:disabled {
+      color: var(--muted);
+    }
+  }
+
+  // Verify parent: the main action, red
+  button {
+    min-height: 56px;
+
+    &:not(:disabled) {
+      border-color: var(--brand);
+      background: var(--brand);
+    }
+
+    &:hover:not(:disabled),
+    &:active:not(:disabled) {
+      border-color: var(--brand-bright);
+      background: var(--brand-bright);
+    }
+  }
+}
+
+// One row per child: avatar + name on the left, Check in / status on the right
+.student {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  min-height: 72px;
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+
+  > span:not(.who) {
+    color: var(--text-secondary);
+    font-size: var(--text-base);
+  }
+
+  // Check in <name>: the main action, red
+  > button:not(:disabled) {
+    border-color: var(--brand);
+    background: var(--brand);
+  }
+
+  > button:hover:not(:disabled),
+  > button:active:not(:disabled) {
+    border-color: var(--brand-bright);
+    background: var(--brand-bright);
+  }
+}
+
+// Rows of one list sit flush, with rounded ends
+.panel > :not(.student) + .student {
+  border-radius: 12px 12px 0 0;
+}
+
+.student + .student {
+  margin-top: -16px; // cancel the panel gap so rows share a border line
+  border-top: 0;
+}
+
+.panel > .student:not(:has(+ .student)) {
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.panel > :not(.student) + .student:not(:has(+ .student)) {
+  border-radius: 12px;
+}
+
+.who {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  strong {
+    font-size: var(--text-lg);
+    font-weight: 600;
+  }
+}
+
+// "Check-in receipt" title on the receipt card
+.receiptTitle {
+  color: var(--text);
+  font-size: var(--text-lg);
+  font-weight: 600;
+}

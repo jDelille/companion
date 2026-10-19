@@ -1,4 +1,6 @@
 import type { CompanionContext, Suggestion } from "@/domain/companion";
+import { mockMembers } from "./members";
+import { membershipLabel } from "../../domain/member-presentation";
 
 // Only the mock Companion routes read this file. The rail gets it through
 // src/integrations/companion.ts.
@@ -66,12 +68,13 @@ const members: Record<string, CompanionContext> = {
       { label: "Testing readiness", value: "92%" },
     ],
     featured: {
-      summary: "One remaining curriculum requirement blocks testing eligibility.",
+      summary:
+        "One remaining curriculum requirement blocks testing eligibility.",
       suggestion: {
         id: "maya-poomsae",
         title: "Complete Poomsae evaluation tonight.",
         explanation:
-          "Maya meets the attendance requirement (82%) and has completed her other curriculum items. The Poomsae evaluation is the last requirement before she's testing eligible, and Master Kim teaches her 5:45 class tonight.",
+          "Maya meets the attendance requirement (88%) and has completed her other curriculum items. The Poomsae evaluation is the last requirement before she's testing eligible, and Master Kim teaches her 5:45 class tonight.",
         actionLabel: "Schedule evaluation",
         capability: "member.prepare_promotion",
         risk: "medium",
@@ -86,37 +89,60 @@ const members: Record<string, CompanionContext> = {
   },
 };
 
-// Members without their own context get the front desk, like before
+// Unknown or unconfigured member contexts never inherit another member's tasks.
 export function getContextFor(memberId: string | null): CompanionContext {
-  if (memberId && members[memberId]) {
-    return members[memberId];
-  }
-  return frontDesk;
+  if (memberId === null) return frontDesk;
+  const member = mockMembers.find((person) => person.id === memberId);
+  if (!member) return { heading: "Member unavailable", suggestions: [] };
+  const ownContext = members[memberId];
+  return {
+    ...ownContext,
+    heading: member.name,
+    suggestions: ownContext?.suggestions ?? [],
+    intel: [
+      { label: "Membership", value: membershipLabel(member) },
+      { label: "Rank", value: member.rank.name },
+      ...(member.testReadiness === undefined
+        ? []
+        : [{ label: "Test readiness", value: `${member.testReadiness}%` }]),
+    ],
+  };
 }
 
-// Tasks the agent can create from a typed or spoken request
-const emailRequest: Suggestion = {
-  id: "req-email",
-  title: "Draft email to Linda Chen",
-  explanation: "About Maya's upcoming belt test.",
-  actionLabel: "Send email",
-  capability: "communication.prepare_email",
-  risk: "medium",
-  preview: [
-    { label: "To", value: "Linda Chen (guardian)" },
-    { label: "Subject", value: "Maya's belt test" },
-    {
-      label: "Draft",
-      value:
-        "Hi Linda, Maya's been doing great and is almost ready for her Purple Belt test…",
-    },
-  ],
-};
+function emailRequestFor(memberId: string | null): Suggestion | null {
+  const member = mockMembers.find((person) => person.id === memberId);
+  if (!member) return null;
+  return {
+    id: `req-email-${member.id}`,
+    title: `Draft a message for ${member.name}`,
+    explanation:
+      "Sample draft only. Recipient details and sending are not connected.",
+    actionLabel: "Save sample draft",
+    capability: "communication.prepare_email",
+    risk: "medium",
+    preview: [
+      { label: "Member", value: member.name },
+      { label: "Membership", value: membershipLabel(member) },
+      {
+        label: "Recipient",
+        value: "Not connected — verify contact details before sending",
+      },
+      {
+        label: "Draft",
+        value: `Hello, this is Dojang following up with ${member.name}. Please contact the front desk if you need help.`,
+      },
+    ],
+  };
+}
 
 // Every task the mock knows about, so the routes can look one up by id
 // instead of trusting what the browser sends
 function allSuggestions(): Suggestion[] {
-  const everything = [...frontDesk.suggestions, emailRequest];
+  const everything = [...frontDesk.suggestions];
+  for (const member of mockMembers) {
+    const draft = emailRequestFor(member.id);
+    if (draft) everything.push(draft);
+  }
   for (const memberContext of Object.values(members)) {
     everything.push(...memberContext.suggestions);
     if (memberContext.featured) {
@@ -132,10 +158,13 @@ export function findSuggestion(id: string): Suggestion | null {
 }
 
 // Scripted responses for the "Ask the agent" box
-export function matchRequest(text: string): Suggestion | null {
+export function matchRequest(
+  text: string,
+  memberId: string | null,
+): Suggestion | null {
   const t = text.toLowerCase().replace(/-/g, "");
   if (t.includes("email") || t.includes("meeting") || t.includes("parents")) {
-    return emailRequest;
+    return emailRequestFor(memberId);
   }
   return null;
 }
@@ -175,4 +204,17 @@ export function matchExisting(
     }
   }
   return best;
+}
+
+// Resolve submitted ids against the selected member, not the global sample catalog.
+export function scopedSuggestion(
+  id: string,
+  memberId: string | null,
+): Suggestion | null {
+  const context = getContextFor(memberId);
+  const allowed = [...context.suggestions];
+  if (context.featured) allowed.push(context.featured.suggestion);
+  const draft = emailRequestFor(memberId);
+  if (draft) allowed.push(draft);
+  return allowed.find((suggestion) => suggestion.id === id) ?? null;
 }

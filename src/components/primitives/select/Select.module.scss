@@ -1,0 +1,116 @@
+// Custom dropdown. Colors and sizes are tokens, so it fits anywhere in the app.
+.select {
+  position: relative;
+  width: 100%;
+}
+
+// The closed box. `.select .trigger` so a parent's general `button` style
+// (e.g. the hub's) can't override it.
+.select .trigger {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 40px;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised); // same as every input in the app
+  color: var(--text);
+  font-size: var(--input-text);
+  cursor: pointer;
+  transition: border-color 150ms ease;
+
+  &:hover:not(:disabled) {
+    border-color: var(--text-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--agent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  &[aria-expanded="true"] .chevron {
+    transform: rotate(180deg);
+  }
+}
+
+.value,
+.placeholder {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.placeholder {
+  color: var(--muted);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: transform 150ms ease;
+}
+
+// The open list
+.list {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0.25rem;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--canvas) 60%, transparent);
+}
+
+.option {
+  padding: 0.5rem 0.625rem;
+  border-radius: calc(var(--radius-control) - 4px);
+  color: var(--text);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+// Highlighted by mouse or arrow keys
+.active {
+  background: var(--interactive);
+}
+
+// The picked option
+.chosen {
+  font-weight: 600;
+}
+
+// Can't be picked (e.g. "Replace" when the class already started)
+.disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.empty {
+  padding: 0.5rem 0.625rem;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}

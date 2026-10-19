@@ -1,6 +1,7 @@
 import React from "react";
 import Greeting from "@/components/kiosk/greeting/Greeting";
 import ActionCard from "@/components/primitives/action-card/ActionCard";
+import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { SecondaryAction } from "@/domain/kiosk/kioskConfig";
 import styles from "./WelcomeScreen.module.scss";
 
@@ -8,12 +9,24 @@ type Props = {
   schoolName: string;
   actions: SecondaryAction[]; // from kioskConfig; hidden ones are skipped
   onCheckIn: () => void; // just reports the tap, the flow decides what's next
+  onAsk?: () => void; // the AI Concierge; leave out when it's turned off
+  onStaffHelp: () => void; // always there (Miro 09.13), AI or not
 };
 
-const WelcomeScreen = ({ schoolName, actions, onCheckIn }: Props) => {
+const WelcomeScreen = ({
+  schoolName,
+  actions,
+  onCheckIn,
+  onAsk,
+  onStaffHelp,
+}: Props) => {
   const shownActions = actions.filter((action) => action.shown);
-  const cardActions = shownActions.filter((action) => action.prominence === "card");
-  const textActions = shownActions.filter((action) => action.prominence === "text");
+  const cardActions = shownActions.filter(
+    (action) => action.prominence === "card",
+  );
+  const textActions = shownActions.filter(
+    (action) => action.prominence === "text",
+  );
 
   return (
     <div className={styles.screen}>
@@ -25,31 +38,64 @@ const WelcomeScreen = ({ schoolName, actions, onCheckIn }: Props) => {
 
       {/* check in call to action */}
 
-      <ActionCard
-        label="Check In"
-        description="Pick your class, then find your name"
-        size="large"
-        onClick={onCheckIn}
-        className={styles.checkIn}
-      />
+      <div className={styles.checkIn}>
+        <button
+          type="button"
+          onClick={onCheckIn}
+          className={styles.checkInButton}
+        >
+          Check in
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M5 12h14m-6-6 6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Optional AI Concierge: questions, trial requests, calling staff */}
+      {onAsk && (
+        <ActionCard
+          label="Ask a question"
+          appearance="row"
+          description="Classes, trying a class, directions, or getting help"
+          onClick={onAsk}
+          className={styles.ask}
+        />
+      )}
 
       {/* Secondary Classes / Events; Testing / Schedule / Staff where enabled  */}
 
-      {/* No tap handlers yet since none are built. When one becomes available,
-          add a callback for it like onCheckIn. */}
+      {/* Classes reuses the same live session selection, without requiring AI. */}
       {cardActions.length > 0 && (
         <div className={styles.secondaryActions}>
           {cardActions.map((action) => (
             <ActionCard
               key={action.id}
               label={action.label}
-              description="Coming soon"
-              disabled={!action.available}
+              appearance="row"
+              description={action.id === 'classes' ? 'View today’s sessions and check in' : 'Not connected'}
+              disabled={!action.available || action.id !== 'classes'}
+              onClick={action.id === 'classes' ? onCheckIn : undefined}
               className={styles.secondaryCard}
             />
           ))}
         </div>
       )}
+
+      <PlainButton onClick={onStaffHelp} className={styles.staffHelp}>
+        Get help from staff
+      </PlainButton>
 
       {/* Muted placeholders: disabled so they can't be tapped or focused */}
       {textActions.length > 0 && (

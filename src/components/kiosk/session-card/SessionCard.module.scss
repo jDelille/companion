@@ -1,0 +1,158 @@
+@use "../../../../styles/glass" as glass;
+
+.card {
+  all: unset;
+  box-sizing: border-box; // all: unset resets this to content-box
+  display: grid;
+  grid-template-columns: 8rem 1fr auto; // time | name + duration | capacity
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  min-height: var(--touch-height);
+  padding: 1.75rem 1.25rem;
+  @include glass.card;
+  border-radius: var(--radius-leaf);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+
+  &:hover,
+  &:active {
+    @include glass.card-active;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: -2px;
+  }
+}
+
+.time {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.period {
+  margin-left: 0.35rem;
+  font-size: var(--text-base);
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0; 
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.duration {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.capacity {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+// Phones: narrower time column and gaps, so the class name gets the room.
+// A name that still doesn't fit ends in "…" instead of wrapping.
+@container kiosk (width < 540px) {
+  .card {
+    grid-template-columns: 4.75rem minmax(0, 1fr) auto;
+    gap: 1.75rem;
+    padding-inline: 1rem;
+  }
+
+  .time {
+    font-size: var(--text-lg);
+  }
+
+  .period {
+    font-size: var(--text-sm);
+    margin-left: 0.2rem;
+  }
+
+  .title {
+    font-size: var(--text-md);
+  }
+
+}
+
+.title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+// Kept from the current design: pieces added after the VNext build
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms var(--ease-out);
+}
+
+/* ---------- Class card laid out like Paul's HTML kiosk ----------
+   Centered card: CLASS NAME (large, capitals) · start time · instructor · length and booked.
+   CSS only: the details wrapper is "display: contents" so its lines can be ordered with the time. */
+.card {
+  display: flex; // replaces the old time | name | arrow grid
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  height: 100%;
+  min-height: 180px;
+  padding: 22px 18px;
+  text-align: center;
+}
+
+.card .details {
+  display: contents;
+}
+
+.card .title {
+  order: 1;
+  overflow: visible;
+  white-space: normal; // long class names wrap instead of being cut off
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.card .time {
+  order: 2;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.card .duration {
+  order: 3;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.card .arrow {
+  display: none; // the whole card is the button
+}

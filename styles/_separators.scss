@@ -1,0 +1,46 @@
+// Short rules leave breathing room between related rows without boxing them in.
+@mixin short-rule($width: 46%) {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    bottom: 0;
+    width: $width;
+    max-width: 15rem;
+    height: 1px;
+    background: linear-gradient(90deg, var(--line), transparent);
+    pointer-events: none;
+  }
+}
+
+@mixin open-details {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+@mixin detail-row {
+  @include short-rule;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1.5rem;
+  padding: 1.15rem 0;
+  &:last-child::after {
+    display: none;
+  }
+  dt {
+    flex-shrink: 0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+  dd {
+    min-width: 0;
+    margin: 0;
+    font-size: var(--text-md);
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: right;
+  }
+}

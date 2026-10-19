@@ -1,151 +1,124 @@
-"use client";
-
-import React, { useState, useSyncExternalStore } from "react";
-import type { MemberAttendance } from "@/domain/member";
-import Modal from "@/components/primitives/modal/Modal";
-import { modals, ModalType } from "@/components/people/member-card/memberModals";
+import type { Member, MemberAttendance, CheckIn } from "@/domain/member";
+import { membershipLabel } from "@/domain/member-presentation";
+import LocalTime from "@/components/primitives/local-time/LocalTime";
+import type { ReactNode } from "react";
 import styles from "./MemberGrid.module.scss";
 
-type Stat = { label: string; value: React.ReactNode };
-
-// Placeholder rows (still Maya's demo data for everyone) until those have a source
-const storyPlaceholders: Stat[] = [
-  { label: "Classes", value: "48" },
-  { label: "Current rank", value: "Blue" },
-  { label: "Join date", value: "Jan 2025" },
-];
-
-const recentPlaceholders: Stat[] = [
-  { label: "Aug 31", value: "Evaluation completed" },
-  { label: "Aug 25", value: "Payment successful" },
-];
-
-const noSubscription = () => () => {};
-
-// "Oct 7, 5:47 PM" in the viewer's time zone. Formatted in the browser only:
-// the server renders this page first and its time zone may not be the viewer's.
-const LocalTime = ({ iso }: { iso: string }) => {
-  const text = useSyncExternalStore(
-    noSubscription,
-    () =>
-      new Date(iso).toLocaleString([], {
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }),
-    () => "",
-  );
-  return <time dateTime={iso}>{text}</time>;
-};
-
-// The real attendance rows, from the same store the kiosk writes to
-const attendanceStory = (attendance: MemberAttendance): Stat => {
-  return { label: "Check-ins (7 days)", value: String(attendance.lastSevenDays) };
-};
-
-const lastCheckIn = (attendance: MemberAttendance): Stat => {
-  const latest = attendance.latest;
-  if (!latest) {
-    return { label: "Last check-in", value: "No check-ins yet" };
-  }
-  return {
-    label: "Last check-in",
-    value: (
-      <>
-        {latest.sessionTitle} · <LocalTime iso={latest.checkedInAt} />
-        {latest.late && " · Late"}
-      </>
-    ),
-  };
-};
-
-const training: Stat[] = [
-  { label: "Program", value: "Children Advanced" },
-  { label: "Primary Instructor", value: "Master Kim" },
-  { label: "Team", value: "Tournament Candidate" },
-  { label: "Home location", value: "Downtown" },
-];
-
-const progression: Stat[] = [{ label: "Current rank", value: "Blue Belt" }];
-
-// "rows" = divider under each stat, "plain" = no dividers
-type Variant = "rows" | "plain";
-
-type StatListProps = {
-  stats: Stat[];
-  variant?: Variant;
-  onEdit?: () => void; // shows a ✎ next to each value
-};
-
-const StatList = ({ stats, variant = "rows", onEdit }: StatListProps) => (
-  <ul className={`${styles.statList} ${styles[variant]}`}>
-    {stats.map((s) => (
-      <li key={s.label}>
-        {s.label}
+type Stat = { label: string; value: ReactNode };
+const StatList = ({ stats }: { stats: Stat[] }) => (
+  <ul className={`${styles.statList} ${styles.rows}`}>
+    {stats.map((stat) => (
+      <li key={stat.label}>
+        {stat.label}
         <div className={styles.value}>
-          <span>{s.value}</span>
-          {onEdit && (
-            <button
-              className={styles.editBtn}
-              onClick={onEdit}
-              aria-label={`Edit ${s.label}`}
-            >
-              ✎
-            </button>
-          )}
+          <span>{stat.value}</span>
         </div>
       </li>
     ))}
   </ul>
 );
 
-type Props = {
+// One plain sentence from real records only, e.g. "Active member · 4 check-ins this week."
+function storyHeadline(member: Member, attendance: MemberAttendance) {
+  const state = `${membershipLabel(member)} member`;
+  const count = attendance.lastSevenDays;
+  if (count === 0) return `${state} · no check-ins this week.`;
+  return `${state} · ${count} ${count === 1 ? "check-in" : "check-ins"} this week.`;
+}
+
+// Newest first, at most three. Falls back to the latest check-in when there's no history.
+function recentCheckIns(attendance: MemberAttendance): CheckIn[] {
+  if (attendance.history?.length) return attendance.history.slice(0, 3);
+  return attendance.latest ? [attendance.latest] : [];
+}
+
+export default function MemberGrid({
+  member,
+  attendance,
+  liveTest = false,
+}: {
+  member: Member;
   attendance: MemberAttendance;
-};
-
-const MemberGrid = ({ attendance }: Props) => {
-  const [open, setOpen] = useState<ModalType | null>(null);
-  const current = open ? modals[open] : null;
-
-  const story = [attendanceStory(attendance), ...storyPlaceholders];
-  const recent = [lastCheckIn(attendance), ...recentPlaceholders];
-
+  liveTest?: boolean;
+}) {
+  const recent = recentCheckIns(attendance);
   return (
     <div className={styles.memberGrid}>
       <article>
-        <span className={styles.label}>Member story</span>
-        <h2>Active and progressing normally.</h2>
-        <StatList stats={story} variant="plain" />
-
-        <span className={styles.label}>Recent</span>
-        <StatList stats={recent} />
-      </article>
-      <article>
-        <span className={styles.label}>Training</span>
-        <StatList stats={training} onEdit={() => setOpen("edit")} />
-
-        <span className={styles.label}>Progression</span>
-        <StatList stats={progression} />
-      </article>
-
-      <Modal
-        open={!!current}
-        label={current?.label ?? ""}
-        title={current?.title ?? ""}
-        description={current?.description ?? ""}
-        onClose={() => setOpen(null)}
-      >
-        {current && (
-          <current.Body
-            onDone={() => setOpen(null)}
-            onCancel={() => setOpen(null)}
-            onAskAI={() => setOpen("ask")}
-          />
+        {/* Card header: label + the one-sentence story, with a line under it */}
+        <header className={styles.cardHeader}>
+          <span className={styles.label}>Member story</span>
+          <h2 className={styles.headline}>{storyHeadline(member, attendance)}</h2>
+        </header>
+        <StatList
+          stats={[
+            { label: "Check-ins (7 days)", value: attendance.lastSevenDays },
+            { label: "Current rank", value: member.rank.name },
+            { label: "Stripes", value: member.rank.stripes },
+            { label: "Member number", value: member.memberNumber },
+          ]}
+        />
+        <span className={styles.label}>
+          {liveTest ? "Recent verified check-ins" : "Recent check-ins"}
+        </span>
+        {recent.length ? (
+          <ul className={styles.recent}>
+            {recent.map((checkIn) => (
+              <li key={checkIn.checkedInAt}>
+                <strong>
+                  <LocalTime iso={checkIn.checkedInAt} />
+                </strong>
+                <span>{checkIn.sessionTitle}</span>
+                {checkIn.late && <em className={styles.latePill}>Late</em>}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.empty}>No check-ins yet.</p>
         )}
-      </Modal>
+      </article>
+
+      <article>
+        <header className={styles.cardHeader}>
+          <span className={styles.label}>Membership</span>
+        </header>
+        <StatList
+          stats={[
+            { label: "Status", value: `${membershipLabel(member)} membership` },
+            { label: "Household", value: member.householdName || "Not provided" },
+            ...(member.nextClass
+              ? [{ label: "Next class", value: member.nextClass }]
+              : []),
+          ]}
+        />
+        <span className={styles.label}>Today&apos;s bookings</span>
+        <StatList
+          stats={
+            member.bookings === undefined
+              ? [{ label: "Bookings", value: "Not connected" }]
+              : member.bookings.length
+                ? member.bookings.map((booking) => ({
+                    label: booking.title,
+                    value: <LocalTime iso={booking.startsAt} />,
+                  }))
+                : [{ label: "Bookings", value: "No classes booked today" }]
+          }
+        />
+        <span className={styles.label}>Progression</span>
+        <StatList
+          stats={[
+            {
+              label: "Current rank",
+              value: member.rank.stripes
+                ? `${member.rank.name} · ${member.rank.stripes} ${member.rank.stripes === 1 ? "stripe" : "stripes"}`
+                : member.rank.name,
+            },
+            ...(member.testReadiness !== undefined
+              ? [{ label: "Test readiness", value: `${member.testReadiness}%` }]
+              : []),
+          ]}
+        />
+      </article>
     </div>
   );
-};
-
-export default MemberGrid;
+}

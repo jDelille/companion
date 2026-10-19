@@ -3,11 +3,15 @@
 .identity {
   display: flex;
   width: 100%;
-  padding: 1rem;
+  padding: 1rem 24px; // sides match the top bar
+
+  @include bp.compact {
+    padding-inline: 16px;
+  }
 
   .member {
     color: var(--text);
-    padding: 1rem;
+    padding: 1rem 0;
     padding-bottom: 0;
     display: flex;
     align-items: center;
@@ -22,7 +26,6 @@
     &__avatar {
       color: var(--text);
       background-color: var(--canvas);
-      background-color: black;
       min-width: 50px;
       height: 50px;
       border-radius: 50%;
@@ -54,6 +57,7 @@
         border: 1px solid var(--text-secondary);
         border-color: var(--mastery);
         text-transform: uppercase;
+        font-family: var(--font-label);
         color: var(--mastery);
         border-radius: 22px;
         font-size: 12px;
@@ -80,12 +84,12 @@
 }
 
 .memberActions {
-  padding: 1rem 2rem;
+  padding: 1rem 24px;
   border-bottom: 1px solid var(--dark-border);
   padding-bottom: 1.5rem;
 
   @include bp.compact {
-    padding-inline: 1rem;
+    padding-inline: 16px;
   }
   ul {
     list-style-type: none;
@@ -106,12 +110,49 @@
         color: var(--text);
         background-color: var(--panel);
         cursor: pointer;
+        &:disabled { opacity: .45; cursor: not-allowed; }
       }
 
-       .checkInBtn {
-          background-color: var(--brand);
+      // "Open check-in" is a link to the kiosk: same shape as the buttons, in action red
+      .checkInBtn {
+        display: inline-flex;
+        align-items: center;
+        white-space: nowrap;
+        border: 1px solid var(--brand);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 10px 12px;
+        border-radius: 8px;
+        color: var(--text);
+        background-color: var(--brand);
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 150ms ease;
 
+        &:hover {
+          background-color: var(--brand-bright);
         }
+        &:focus-visible {
+          outline: 2px solid var(--brand-bright);
+          outline-offset: 2px;
+        }
+      }
     }
   }
 }
+
+// Kept from the current design: pieces added after the VNext build
+.member__avatar {
+    color: var(--text);
+    background-color: var(--canvas);
+    background-color: var(--canvas); // avatars: the darkest black, not red
+    border: 1px solid var(--line);
+    color: var(--text);
+    min-width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }

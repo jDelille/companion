@@ -17,7 +17,7 @@
     gap: 1rem;
     margin-top: 2rem;
     h1 {
-      font-size: 3rem;
+      font-size: var(--kiosk-title-large);
     }
   }
 
@@ -25,30 +25,32 @@
     margin-top: 2.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--line);
-    font-size: 12px;
+    font-size: var(--text-xs);
     font-weight: 600;
     letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--text-secondary);
   }
 
+  // Classes as a grid of cards, like Paul's HTML kiosk
   .list {
     list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); // same sizing as Paul's kiosk
+    gap: 18px;
     margin-top: 1rem;
   }
 
-  // Loading placeholders, same size and layout as SessionRow
+  // Loading placeholders, same size and layout as SessionCard
   .skeletonRow {
     display: grid;
     grid-template-columns: 8rem 1fr;
     align-items: center;
     gap: 2rem;
-    padding: 1.75rem 0.75rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-card);
+    padding: 1.75rem 1.25rem;
+    border: 1px solid var(--glass-edge);
+    border-radius: var(--radius-leaf);
+    background: var(--glass-fill);
     animation: pulse 1.6s ease-in-out infinite;
   }
 
@@ -84,6 +86,29 @@
   }
 }
 
+// Coming Back from identify: the class header slides back into its card (the
+// 350ms morph in kiosk.scss). Everything else waits until it has mostly landed,
+// then fades in, the reverse of the forward pick. Back stays put, so the
+// control you just used doesn't flicker.
+// The morph is off (it looked wrong full-screen), so coming back to the class list
+// no longer staggers the cards in either: the list just appears.
+
+@keyframes after-morph {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}
+
+// Phones: same shape as the tighter class cards
+@container kiosk (width < 540px) {
+  .screen .skeletonRow {
+    grid-template-columns: 4.75rem 1fr;
+    gap: 1.75rem;
+    padding-inline: 1rem;
+  }
+}
+
 // Subtle pulse is allowed by the motion rules. Off for people who ask for less motion.
 @keyframes pulse {
   0%,
@@ -96,7 +121,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .screen .skeletonRow {
+  .screen .skeletonRow,
+  .returning .heading,
+  .returning .today,
+  .returning .list > li {
     animation: none;
   }
 }

@@ -1,0 +1,647 @@
+// Staff workspace: the Ops page and the history under a member.
+// Layout of the design mock: title + Refresh, intro, labelled sections of cards.
+.workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 24px 56px; // same as Today and Classes: sides match the top bar
+  color: var(--text);
+}
+
+// Inside a member tab: same side padding as the member's cards
+.embedded {
+  padding: 1.25rem 24px;
+}
+
+// Small uppercase label above the title, like every page
+.kicker {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.pageTitles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pageTitle {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.intro {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  text-wrap: pretty; // no single word stranded on the last line (e.g. "in" on phones)
+  color: var(--text-secondary);
+
+  strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+}
+
+.refreshButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  min-height: var(--touch-height);
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: var(--radius-control);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    background: var(--raised);
+  }
+
+  svg {
+    transform: rotate(240deg);
+  }
+}
+
+.notice {
+  color: var(--text-secondary);
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// Each section is a panel card, like Today: header, then rows separated by lines
+.section {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 22px 14px;
+}
+
+.sectionCount {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+// Small uppercase label above each group of cards
+.sectionLabel {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-label);
+  color: var(--text-secondary);
+}
+
+// Empty state: a dashed box so it reads as "nothing here yet", not as content
+.empty {
+  margin: 0 22px 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 1.75rem 1.5rem;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-control);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+
+  strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+}
+
+
+// "Connect staff device" inside the not-connected message
+.connectButton {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  margin-top: 0.75rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--interactive);
+  }
+}
+
+.itemList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+
+// Today's classes: the whole card opens the class roster
+.classItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 60px;
+  padding: 12px 22px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--text);
+  text-decoration: none;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
+
+  &:hover {
+    background: var(--interactive);
+  }
+}
+
+// Roster status: green when checked in, muted when not yet, dim when away
+.pill {
+  flex-shrink: 0;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  display: inline-block;
+  font-size: 11px;
+
+  // "present" → "Present", without changing "Not yet checked in"
+  &::first-letter {
+    text-transform: uppercase;
+  }
+}
+.checkedIn {
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+  color: var(--success);
+}
+.pending {
+  color: var(--text-secondary);
+}
+.away {
+  color: var(--muted);
+}
+
+// Members list: name on the left, chevron on the right, whole card opens the member
+.memberItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  color: var(--text);
+  text-decoration: none;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--raised);
+  }
+}
+
+// Plain inline link (e.g. "Connect staff device")
+.textLink {
+  color: var(--text);
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
+
+.followUpItem {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 18px 22px;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.itemTitle {
+  width: fit-content;
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.itemTitle:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+// Avatar + name on the left, date and status on the right
+.followUpHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.followUpWho {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+// No default paragraph margin inside the draft toggle
+.draftTitle {
+  margin: 0;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.meta {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+// Saved state from Odoo, e.g. "Saved internally; not sent": same pill as the rest of the app
+.statusBadge {
+  padding: 2px 10px;
+  border: 1px solid color-mix(in srgb, var(--success) 40%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.summary {
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+// Collapsible reply draft
+.draft {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--raised);
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 40px;
+    padding: 0 1rem;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  // Opened: a thin divider between the toggle and the draft
+  &[open] summary {
+    border-bottom: 1px solid var(--line);
+  }
+
+  &[open] .chevron {
+    transform: rotate(90deg);
+  }
+}
+
+.chevron {
+  display: inline-flex;
+  color: var(--text-secondary);
+  transition: transform 150ms ease;
+}
+
+.draftText {
+  margin: 0;
+  padding: 0.875rem 1rem 0.5rem;
+  white-space: pre-wrap;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.draftMode {
+  display: block;
+  padding: 0 1rem 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.rosterLink {
+  width: fit-content;
+  margin-top: 0.375rem; // a little extra above the card's action, like a footer
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text); // navigation, not AI: violet is AI-only
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+// Phones: a bit less padding, title and Refresh stack
+@media (max-width: 600px) {
+  .workspace {
+    padding: 1.5rem 1rem;
+  }
+
+  .pageHeader {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}
+
+// "Prepare parent follow-up" in the companion rail: a collapsible card
+.card {
+  margin: 1.25rem 0 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--raised);
+  color: var(--text);
+  font-size: var(--text-sm);
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    list-style: none;
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+  }
+
+  &[open] summary {
+    border-bottom: 1px solid var(--line);
+  }
+
+  &[open] .chevron {
+    transform: rotate(90deg);
+  }
+
+  // Note and form sit under the toggle, with the card's padding
+  > p {
+    margin: 0.875rem 1rem 0;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 0.875rem 1rem 1rem;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+  }
+
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised); // same as every input in the app
+    color: var(--text);
+    font: inherit;
+    font-size: var(--input-text);
+  }
+
+  textarea {
+    resize: vertical;
+  }
+
+  // Closed dropdown: our own chevron instead of the browser's arrow
+  select {
+    appearance: none;
+    padding-right: 2.25rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a8a8b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--text-secondary);
+    }
+  }
+
+  // The open list is drawn by the browser; this keeps it dark (Chrome/Edge)
+  option {
+    background: var(--panel);
+    color: var(--text);
+  }
+
+  // "I checked that this report concerns…": a deliberate step, so its own
+  // bordered row. The whole row toggles the box.
+  .confirm {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--panel);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 150ms ease, color 150ms ease;
+
+    &:hover {
+      border-color: var(--text-secondary);
+    }
+
+    // Ticked: text goes white
+    &:has(input:checked) {
+      color: var(--text);
+    }
+
+    // Custom checkbox, level with the first line of text
+    input[type="checkbox"] {
+      appearance: none;
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      margin: 0.125rem 0 0; // centres it on the first line (14px text, 1.5 line height)
+      border: 1.5px solid var(--text-secondary);
+      border-radius: 5px;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      place-content: center;
+      transition: background 150ms ease, border-color 150ms ease;
+
+      // The check mark, hidden until ticked
+      &::after {
+        content: "";
+        width: 5px;
+        height: 9px;
+        margin-top: -2px;
+        border: solid var(--text);
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg) scale(0);
+        transition: transform 120ms ease;
+      }
+
+      &:checked {
+        background: var(--agent);
+        border-color: var(--agent);
+
+        &::after {
+          transform: rotate(45deg) scale(1);
+        }
+      }
+    }
+  }
+
+  // "Prepare for review": AI action, so violet. Only the form's own submit
+  // button, so dropdowns and other controls inside keep their own look.
+  form > button {
+    min-height: 40px;
+    border: none;
+    border-radius: var(--radius-control);
+    background: var(--agent);
+    color: var(--text);
+    font: inherit;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  form > button:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
+  form p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--agent);
+    outline-offset: 2px;
+  }
+}
+
+.answer {
+  color: var(--text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+  margin: 14px 0;
+  padding: 12px;
+  // Jodi #42: no left accent bar; a soft violet box (violet = AI only)
+  border: 1px solid color-mix(in srgb, var(--agent) 30%, transparent);
+  border-radius: var(--radius-control);
+  background: color-mix(in srgb, var(--agent) 8%, transparent);
+}
+
+/* ---------- Choose a member (member2 mockup) ---------- */
+
+// One card per member, with a little space between them
+.memberList {
+  gap: 8px;
+}
+
+.memberList .memberItem {
+  min-height: 64px;
+  padding: 12px 18px;
+  border-radius: var(--radius-card);
+}
+
+// Avatar + name on the left, chevron on the right
+.memberIdentity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+
+// "3 MEMBERS" sits close to its list (the page puts 24px between blocks)
+.sectionLabel + .memberList {
+  margin-top: -14px;
+}
+
+/* Follow-ups rows: the summary and draft line up under the name, past the avatar */
+.followUpItem > .summary,
+.followUpItem > .draft,
+.followUpItem > .rosterLink {
+  margin-left: 48px;
+}
+
+@media (max-width: 600px) {
+  .followUpItem > .summary,
+  .followUpItem > .draft,
+  .followUpItem > .rosterLink {
+    margin-left: 0;
+  }
+}

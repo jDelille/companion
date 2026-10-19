@@ -1,3 +1,6 @@
+@use "../../../../styles/glass" as glass;
+@use "../../../../styles/separators";
+
 .card {
   all: unset;
   box-sizing: border-box; // all: unset resets this to content-box
@@ -6,15 +9,28 @@
   flex-direction: column;
   justify-content: center;
   width: 100%;
-  padding: 1rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
+  padding: 1rem 1.5rem;
+  @include glass.card;
+  border-radius: var(--radius-leaf);
   color: var(--text);
   cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease;
+
+  &:hover,
+  &:active {
+    @include glass.card-active;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
 
   &:disabled {
     cursor: default;
     color: var(--muted);
+    background: var(--glass-fill);
+    border-color: var(--glass-edge);
 
     .description {
       color: var(--muted);
@@ -39,15 +55,17 @@
 
 // Sizes
 
+// Big title card: no outline, the title sits straight on the glass
 .large {
   height: 164px;
   gap: 0.75rem;
+  border-color: transparent;
 
   .label {
-    font-size: 26px;
+    font-size: var(--text-xl);
   }
   .description {
-    font-size: 16px;
+    font-size: var(--text-base);
   }
   .arrow {
     font-size: 2rem;
@@ -59,13 +77,76 @@
   gap: 0.75rem;
 
   .label {
-    font-size: 22px;
+    font-size: var(--text-lg);
     font-weight: 500;
   }
   .description {
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
   .arrow {
     font-size: 1.5rem;
+  }
+}
+
+// Row cards (kiosk Welcome and Ask screens): solid cards with a title, a short
+// description and the arrow in a circle on the right, same as the Ask topics.
+.card.row {
+  height: auto;
+  min-height: 76px;
+  gap: 4px;
+  padding: 14px 64px 14px 20px; // room on the right for the arrow
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  .label {
+    font-size: var(--text-base);
+    font-weight: 600;
+  }
+
+  .description {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .arrow {
+    display: grid;
+    place-items: center;
+    right: 18px;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  &:hover:not(:disabled),
+  &:active:not(:disabled) {
+    border-color: var(--text-secondary);
+    background: var(--raised);
+
+    .arrow {
+      border-color: var(--text-secondary);
+      background: var(--interactive); // no red on hover
+      color: var(--text);
+    }
+  }
+
+  // Not available: dashed and see-through, so it doesn't look tappable
+  &:disabled {
+    padding-right: 20px;
+    border-style: dashed;
+    background: transparent;
+    opacity: 1;
+
+    .label,
+    .description {
+      color: var(--muted);
+    }
   }
 }

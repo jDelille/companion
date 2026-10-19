@@ -1,6 +1,5 @@
-import { redirect } from "next/navigation";
-
-// No Today page yet: send "/" to People for now (307, temporary, so it's easy to undo)
+import { odooTestMode } from "@/server/odoo-runtime";
+import OwnerToday from "@/components/workspace/owner-today/OwnerToday";
 export default function Home() {
-  redirect("/people/5001");
+  return <OwnerToday connected={odooTestMode()} />;
 }

@@ -7,7 +7,6 @@ import { getScenario } from "./companion-scenario";
 // Helpers shared by the mock Companion routes. Same idea as kiosk-http.ts,
 // kept separate so the two mocks can change on their own.
 
-const NORMAL_DELAY = 400; // ms, long enough to actually see "Thinking…" and "Working…"
 const SLOW_DELAY = 2500; // ms, for the "slow" scenario
 
 const wait = (milliseconds: number) => {
@@ -16,6 +15,7 @@ const wait = (milliseconds: number) => {
 
 // PROVISIONAL: our own guesses. The UI checks `code`, not `status`.
 const problemStatus: Record<CompanionProblemCode, number> = {
+  ATTENDANCE_REVIEW_REQUIRED: 409,
   INVALID_COMMAND: 400,
   UNKNOWN_SUGGESTION: 404,
   IDEMPOTENCY_CONFLICT: 409,
@@ -47,7 +47,7 @@ export async function mockRoute(
   }
 
   const scenario = getScenario();
-  await wait(scenario === "slow" ? SLOW_DELAY : NORMAL_DELAY);
+  if (scenario === "slow") await wait(SLOW_DELAY);
 
   // The service is down: nothing runs
   if (scenario === "unavailable") {

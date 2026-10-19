@@ -1,0 +1,33 @@
+// Initials in a circle: the darkest black with a thin border (no colour)
+.avatar {
+  display: inline-grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--canvas);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.small {
+  width: 28px;
+  height: 28px;
+  font-size: 10px;
+}
+
+// Avatar + name on one line
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+
+  strong {
+    overflow-wrap: anywhere;
+  }
+}

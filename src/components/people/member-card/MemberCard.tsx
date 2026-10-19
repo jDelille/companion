@@ -4,8 +4,10 @@ import { useState } from "react";
 import type { Member } from "@/domain/member";
 import Modal from "@/components/primitives/modal/Modal";
 import styles from "./MemberCard.module.scss";
-import { modals, ModalType } from "./memberModals";
+import { getMemberModal, ModalType } from "./memberModals";
 import useLongPress from "./useLongPress";
+import Link from "@/components/primitives/AppLink";
+import { membershipLabel } from "@/domain/member-presentation";
 
 type Props = {
   member: Member;
@@ -23,8 +25,7 @@ const actions: { id: number; label: string; modal?: ModalType }[] = [
 
 const MemberCard = ({ member }: Props) => {
   const [open, setOpen] = useState<ModalType | null>(null); // ← new
-  const [checkedIn, setCheckedIn] = useState(false); // ← new
-  const current = open ? modals[open] : null;
+  const current = open ? getMemberModal(open, member) : null;
 
   // tap = details, hold = quick actions
   const memberPress = useLongPress(
@@ -38,8 +39,7 @@ const MemberCard = ({ member }: Props) => {
     .join(""); // ← "MC" from the name
 
   const handleAction = (a: (typeof actions)[number]) => {
-    if (a.label === "Check in") setCheckedIn(true);
-    else if (a.modal) setOpen(a.modal);
+    if (a.modal) setOpen(a.modal);
   };
 
   return (
@@ -69,24 +69,26 @@ const MemberCard = ({ member }: Props) => {
               {member.rank.name} · {member.householdName}
             </p>
           </div>
-          <div className={styles.status}>
-            {checkedIn ? "checked in" : member.membershipState}
-          </div>
+          <div className={styles.status}>{member.membershipState}</div>
         </div>
       </div>
 
       <div className={styles.memberInfo}>
         <div className={styles.infoBox}>
           <span>Membership</span>
-          <p>Current</p>
+          <p>{membershipLabel(member)}</p>
         </div>
         <div className={styles.infoBox}>
-          <span>Next class</span>
-          <p>{member.nextClass}</p>
+          <span>Today’s bookings</span>
+          <p>{member.bookings?.length ?? "Not connected"}</p>
         </div>
         <div className={styles.infoBox}>
           <span>Test readiness</span>
-          <p>{member.testReadiness}%</p>
+          <p>
+            {member.testReadiness === undefined
+              ? "Not available"
+              : `${member.testReadiness}%`}
+          </p>
         </div>
       </div>
 
@@ -94,13 +96,18 @@ const MemberCard = ({ member }: Props) => {
         <ul>
           {actions.map((a) => (
             <li key={a.id}>
-              <button
-                className={a.label === "Check in" ? styles.checkInBtn : ""}
-                onClick={() => handleAction(a)}
-                disabled={a.label === "Check in" && checkedIn}
-              >
-                {a.label === "Check in" && checkedIn ? "✓ Checked in" : a.label}
-              </button>
+              {a.label === "Check in" ? (
+                <Link href="/kiosk" className={styles.checkInBtn}>
+                  Open check-in
+                </Link>
+              ) : (
+                <button
+                  className={a.label === "Check in" ? styles.checkInBtn : ""}
+                  onClick={() => handleAction(a)}
+                >
+                  {a.label}
+                </button>
+              )}
             </li>
           ))}
         </ul>
@@ -116,14 +123,12 @@ const MemberCard = ({ member }: Props) => {
       >
         {current && (
           <current.Body
+            key={`${member.id}:${open}`}
+            member={member}
             onDone={() => setOpen(null)}
             onCancel={() => setOpen(null)}
             onAskAI={() => setOpen("ask")}
             onOpen={setOpen}
-            onCheckIn={() => {
-              setCheckedIn(true);
-              setOpen(null); // close so the card shows "checked in"
-            }}
           />
         )}
       </Modal>

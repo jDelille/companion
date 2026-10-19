@@ -1,5 +1,8 @@
 @use "../../styles/variables" as var;
 @use "../../styles/breakpoints" as bp;
+@use "../../styles/motion";
+
+@include motion.preferences;
 
 * {
   margin: 0;
@@ -19,4 +22,91 @@ body {
 
 ul {
   list-style-type: none;
+}
+
+// Workspace guide panel (connected mode): same type as the demo guide
+.connectedContextSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--text-secondary);
+  }
+}
+
+.chooseMemberBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block: 4px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control); // same corners as every other button
+  background: var(--raised);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 150ms ease;
+
+  &:hover {
+    background: var(--interactive);
+  }
+}
+
+.connectedContextSection .testWorkspaceWrapper {
+  margin-top: 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--raised);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--canvas);
+  color: var(--text);
+  color-scheme: dark;
+}
+body {
+  overflow: hidden;
+}
+// The closed side panels wait just past the right edge. Phones can still pan the
+// page sideways to them, which shifts the bottom dock off-screen on the right.
+html {
+  overflow-x: clip;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+a,
+input,
+textarea {
+  -webkit-tap-highlight-color: transparent;
+}
+:focus-visible {
+  outline: 2px solid var(--text-secondary); // keyboard focus: neutral, not red
+  outline-offset: 3px;
+}
+::selection {
+  background: var(--interactive); // selected text: neutral, not red
+  color: var(--text);
 }

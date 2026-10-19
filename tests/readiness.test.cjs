@@ -1,0 +1,40 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const {readiness,liveness}=require(process.env.DOJANG_READINESS_MODULE);
+const {configFrom,mintCookie}=require(process.env.DOJANG_GATEWAY_MODULE);
+const env={DOJANG_INTEGRATION_MODE:'odoo-test',NEXT_PUBLIC_DEMO_MODE:'false',DOJANG_PUBLIC_ORIGIN:'https://demo.example.test',DOJANG_ODOO_URL:'https://odoo.example.test',DOJANG_KIOSK_TOKEN:'t'.repeat(40),DOJANG_COOKIE_SECRET:'c'.repeat(48),DOJANG_KIOSK_GATEWAY_KEY:'k'.repeat(48),DOJANG_STAFF_GATEWAY_KEY:'s'.repeat(48),DOJANG_KIOSK_PAIR_KEY:'p'.repeat(48),DOJANG_STAFF_PAIR_KEY:'q'.repeat(48),DOJANG_RELEASE_SHA:'a'.repeat(40)};
+const config=configFrom(env);
+const request=(role='staff')=>new Request(env.DOJANG_PUBLIC_ORIGIN+'/api/integration/readiness',{headers:{cookie:`dojang_${role}_test=${mintCookie(config,role)}`}});
+const capabilities={schema:'dojang-readiness-v1',followUpEnabled:true,aiEnabled:false,aiCredentialConfigured:false,ebGymInstalled:false};
+const context={sessions:[],roster:[],followUps:[],followUpEnabled:true,aiEnabled:false,sessionTitle:null};
+const fixture=(caps=capabilities,empty=false)=>async(url,init)=>{
+ const {params}=JSON.parse(init.body);
+ if(url.endsWith('/sessions')) return Response.json({result:{sessions:empty?[]:[{sessionId:'1',title:'Private class',startsAt:'2026-10-12T12:00:00Z',endsAt:'2026-10-12T13:00:00Z',version:1,capacity:8,seatsTaken:1}]}});
+ if(url.endsWith('/members')) return Response.json({result:{members:empty?[]:[{id:'2',name:'Private student'}]}});
+ return Response.json({result:params.operation==='readiness'?caps:context});
+};
+test('public health reports reachability without claiming a backend check',async()=>{const r=await liveness(env).json();assert.equal(r.status,'reachable');assert.equal(r.backend,'not_checked');assert.equal(r.revision,env.DOJANG_RELEASE_SHA)});
+test('unconfigured and demo health cannot look like connected mode',async()=>{assert.equal((await liveness({}).json()).mode,'unconfigured');assert.equal((await liveness({...env,NEXT_PUBLIC_DEMO_MODE:'true'}).json()).mode,'demo');assert.equal((await liveness({...env,DOJANG_RELEASE_SHA:'private value'}).json()).revision,null)});
+test('anonymous and kiosk callers never trigger readiness backend probes',async()=>{for(const req of [new Request(config.origin),request('kiosk')]){let calls=0;const r=await readiness(req,env,async()=>{calls++;throw Error()});assert.equal(r.status,403);assert.equal(calls,0)}});
+test('successful probes report bounded test readiness without leaking records or secrets',async()=>{const r=await readiness(request(),env,fixture());assert.equal(r.status,200);assert.equal(r.headers.get('cache-control'),'private, no-store');const body=await r.json();assert.equal(body.status,'connected_test_ready');assert.equal(body.scope,'paired_kiosk_staff_reads');assert.equal(body.productionReady,false);assert.equal(body.checks.memberCount,1);assert.equal(body.capabilities.ai,'not_configured');assert.equal(body.capabilities.hub,'not_configured');assert.equal(body.capabilities.externalMessaging,'not_checked');assert.equal(body.capabilities.makeupBooking,'not_checked');assert.equal(body.capabilities.identity,'paired_test_device');assert.doesNotMatch(JSON.stringify(body),/Private|ssssss|tttttt/)});
+test('enabling the Hub does not turn paired reads into a booking, identity or delivery test',async()=>{
+ const calls=[];const impl=fixture();
+ const r=await readiness(request(),{...env,DOJANG_HUB_ENABLED:'true'},async(url,init)=>{calls.push(url);return impl(url,init)});
+ const body=await r.json();
+ assert.equal(body.capabilities.hub,'configured_not_exercised');
+ assert.equal(body.capabilities.makeupBooking,'not_checked');
+ assert.equal(body.capabilities.externalMessaging,'not_checked');
+ assert.equal(body.capabilities.identity,'paired_test_device');
+ assert.equal(body.productionReady,false);
+ assert.equal(calls.length,4);
+ assert.ok(calls.every(url=>url.startsWith(config.backend+'/kiosk/v2/')));
+});
+test('AI key and addon presence are configuration evidence, not execution evidence',async()=>{const r=await readiness(request(),env,fixture({...capabilities,aiEnabled:true,aiCredentialConfigured:true,ebGymInstalled:true}));const body=await r.json();assert.equal(body.capabilities.ai,'configured_not_exercised');assert.equal(body.capabilities.ebGym,'installed_not_integration_verified');assert.equal(body.productionReady,false)});
+test('missing fixtures or disabled followup yield incomplete status',async()=>{for(const [caps,empty] of [[capabilities,true],[{...capabilities,followUpEnabled:false},false]]){const r=await readiness(request(),env,fixture(caps,empty));assert.equal(r.status,503);assert.equal((await r.json()).status,'connected_test_incomplete')}});
+test('a broken role credential or old backend fails closed',async()=>{for(const fetcher of [async()=>Response.json({error:{message:'secret'}}),fixture({...capabilities,schema:'old'})]){const r=await readiness(request(),env,fetcher);assert.equal(r.status,503);assert.doesNotMatch(await r.text(),/secret/);}});
+test('configured host is fixed and both role credentials are exercised',async()=>{const seen=[];const impl=fixture();await readiness(request(),env,async(url,init)=>{seen.push({url,key:init.headers.authorization});return impl(url,init)});assert.ok(seen.every(r=>r.url.startsWith(config.backend+'/kiosk/v2/')));assert.ok(seen.some(r=>r.key==='Bearer '+config.kioskKey));assert.ok(seen.some(r=>r.key==='Bearer '+config.staffKey))});
+
+const checkDeployment=(...args)=>import('../tools/check-deployment.mjs').then(m=>m.checkDeployment(...args));
+test('operator check requires exact release and configured mode before sending pairing secret',async()=>{for(const overrides of [{revision:'b'.repeat(40)},{mode:'demo'}]){let calls=0;await assert.rejects(checkDeployment(config.origin,env.DOJANG_RELEASE_SHA,config.staffPairKey,async()=>{calls++;return Response.json({service:'dojang-companion',mode:'odoo-test',revision:env.DOJANG_RELEASE_SHA,...overrides})}));assert.equal(calls,1)}});
+test('operator refuses plaintext and missing credentials without network access',async()=>{let calls=0;for(const args of [['http://example.test',env.DOJANG_RELEASE_SHA,config.staffPairKey],[config.origin,env.DOJANG_RELEASE_SHA,'']]) await assert.rejects(checkDeployment(...args,async()=>{calls++}));assert.equal(calls,0)});
+test('operator pairs only staff and uses the cookie for read-only readiness',async()=>{const calls=[];const result=await checkDeployment(config.origin,env.DOJANG_RELEASE_SHA,config.staffPairKey,async(url,init)=>{calls.push({url,init});if(url.endsWith('/health'))return Response.json({service:'dojang-companion',mode:'odoo-test',revision:env.DOJANG_RELEASE_SHA});if(url.endsWith('/pair')){assert.deepEqual(JSON.parse(init.body),{role:'staff',pairKey:config.staffPairKey});assert.equal(init.redirect,'manual');return new Response(null,{status:303,headers:{'set-cookie':'dojang_staff_test=signed.value; Path=/; HttpOnly; Secure'}})}assert.equal(init.headers.cookie,'dojang_staff_test=signed.value');assert.equal(init.redirect,'error');return Response.json({revision:env.DOJANG_RELEASE_SHA,scope:'paired_kiosk_staff_reads',status:'connected_test_ready',backend:'verified_read_round_trip',productionReady:false,checks:{kioskRead:true,staffRead:true,companionRead:true},capabilities:{identity:'paired_test_device'}})});assert.equal(calls.length,3);assert.equal(result.status,'connected_test_ready');assert.equal(result.scope,'paired_kiosk_staff_reads');assert.equal(result.productionReady,false);assert.doesNotMatch(JSON.stringify(result),/signed\.value|qqqqqq/)});

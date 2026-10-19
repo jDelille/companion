@@ -1,0 +1,14 @@
+.tableWrap { overflow-x:auto; }
+.printable { margin-top:1.5rem; }
+.printable table { width:100%; border-collapse:collapse; text-align:left; }
+.printable th,.printable td { padding:.75rem; border-bottom:1px solid var(--muted); overflow-wrap:anywhere; }
+@media print {
+  @page { margin:12mm; }
+  :global(html):has(.printable) { background:var(--text) !important; color:var(--canvas) !important; color-scheme:light; overflow:visible; }
+  :global(body):has(.printable) *:not(:has(.printable)):not(.printable):not(.printable *) { display:none !important; }
+  :global(body):has(.printable), :global(body):has(.printable) *:has(.printable) { display:block !important; position:static !important; height:auto !important; max-height:none !important; overflow:visible !important; width:auto !important; margin:0 !important; padding:0 !important; transform:none !important; background:var(--text) !important; color:var(--canvas) !important; }
+  .printable { position:static; margin:0; padding:0; background:var(--text); color:var(--canvas); overflow:visible; }
+  .printable .tableWrap { overflow:visible; }
+  .printable tr { break-inside:avoid; }
+  .noPrint { display:none; }
+}

@@ -15,8 +15,9 @@ type Props = {
 const statusMessages: Record<RequestStatus, string> = {
   idle: "",
   thinking: "Thinking…",
-  understood: "Task ready above.",
-  notUnderstood: 'Not sure how to help. Try "email the parents".',
+  understood: "Result ready above.",
+  notUnderstood: 'Try "show attendance" on a member or "show class roster" on a class. Use the parent follow-up form to prepare a draft.',
+  attendanceReviewRequired: "This student is already checked in or the class is closed. Review attendance before preparing an absence follow-up.",
   unavailable: "The agent isn't available right now. Try again.",
 };
 

@@ -12,6 +12,7 @@
   .label {
     color: var(--text-secondary);
     text-transform: uppercase;
+    font-family: var(--font-label);
     font-size: 10px;
     font-weight: 300;
     letter-spacing: 1px;
@@ -77,6 +78,7 @@
       .status {
         border: 1px solid var(--text-secondary);
         text-transform: uppercase;
+        font-family: var(--font-label);
         color: var(--success);
         border-radius: 22px;
         font-size: 12px;
@@ -128,11 +130,44 @@
           cursor: pointer;
         }
 
+        // "Open check-in" is a link to the kiosk: same shape as the buttons, in action red
         .checkInBtn {
+          display: inline-flex;
+          align-items: center;
+          white-space: nowrap;
+          border: 1px solid var(--brand);
+          font-size: 12px;
+          font-weight: 600;
+          padding: 10px 12px;
+          border-radius: 8px;
+          color: var(--text);
           background-color: var(--brand);
+          text-decoration: none;
+          cursor: pointer;
+          transition: background-color 150ms ease;
 
+          &:hover {
+            background-color: var(--brand-bright);
+          }
+          &:focus-visible {
+            outline: 2px solid var(--brand-bright);
+            outline-offset: 2px;
+          }
         }
       }
     }
   }
 }
+
+// Kept from the current design: pieces added after the VNext build
+.member__avatar {
+    color: var(--text);
+    background-color: var(--canvas);
+    min-width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
