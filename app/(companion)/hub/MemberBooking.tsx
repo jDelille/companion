@@ -43,7 +43,7 @@ export default function MemberBooking({ member, sessions, now, busy, locked, fee
         onChange={id => { setTargetId(id); setReview(false); clearFeedback(); }} /></label>
       {!available.length && <p>No future classes are available in your authorized scope.</p>}
       {review && target && <p>Register <strong>{member.name}</strong> for <strong>{target.title}</strong> on {new Date(target.startsAt).toLocaleString()}?</p>}
-      <button className={review ? styles.primaryAction : undefined} disabled={busy || locked || !target || saved} onClick={() => {
+      <button disabled={busy || locked || !target || saved} onClick={() => {
         if (!review) setReview(true);
         else if (target) book(target);
       }}>{saved ? "Booking saved" : busy && locked ? "Saving booking…" : review ? "Confirm member booking in Odoo" : "Review member booking"}</button>

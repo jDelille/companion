@@ -391,7 +391,7 @@ export default function MemberManagement({ memberId, section, sessions, now, bus
       <p>{data.member.state} · {data.member.rank} · {data.member.stripes} stripes{data.member.dateOfBirth && <> · Born {data.member.dateOfBirth}</>}</p>
       {review && <div ref={reviewRef} tabIndex={-1} className={styles.savedReceipt} role="group" aria-label="Review member action">
         <h3>Review before saving</h3><p>{review.description}</p><p>No message will be sent and no payment will be collected.</p>
-        <div className={styles.row}><button className={styles.primaryAction} disabled={disabled} onClick={() => void confirm()}>{review.operation === "payment_link" ? "Prepare secure checkout" : review.archive ? "Confirm archive in Odoo" : "Confirm member action in Odoo"}</button>
+        <div className={styles.row}><button disabled={disabled} onClick={() => void confirm()}>{review.operation === "payment_link" ? "Prepare secure checkout" : review.archive ? "Confirm archive in Odoo" : "Confirm member action in Odoo"}</button>
           <button disabled={disabled} onClick={() => setReview(null)}>Cancel review</button></div>
       </div>}
       {data.canEdit && <details className={styles.booking} open={onboardingOpen} onToggle={event => setOnboardingOpen(event.currentTarget.open)}><summary>Onboarding checklist</summary>

@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import Link from "@/components/primitives/AppLink";
-import Select from "@/components/primitives/select/Select";
-import styles from "./Workspace.module.scss";
+// Same page, panel and row styles as Today and Classes
+import styles from "./owner-today/OwnerToday.module.scss";
+
 type DirectoryMember = {
   id: string;
   name: string;
@@ -10,87 +11,83 @@ type DirectoryMember = {
   rank?: { name: string };
   membershipState?: string;
 };
+
+// "Maya Chen" -> "MC"
+const initials = (name: string) =>
+  name
+    .split(" ")
+    .filter((part) => part.length > 0)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("");
+
 export default function MemberDirectory({
   members,
 }: {
   members: DirectoryMember[];
 }) {
   const [query, setQuery] = useState("");
-  const [membership, setMembership] = useState("");
-  const states = [...new Set(members.map((member) => member.membershipState).filter((state): state is string => Boolean(state)))].sort();
   const filtered = members.filter((m) =>
     `${m.name} ${m.memberNumber ?? ""}`
       .toLowerCase()
-      .includes(query.toLowerCase().trim()) && (!membership || m.membershipState === membership),
+      .includes(query.toLowerCase().trim()),
   );
   return (
     <section className={styles.page}>
-      <header className={styles.heading}>
+      <header className={styles.intro}>
         <div>
+          <span className={styles.kicker}>People · Members</span>
           <h1>Members</h1>
-          <p>Profiles, memberships and attendance.</p>
+          <p>
+            {members.length} {members.length === 1 ? "member" : "members"}
+          </p>
         </div>
-        <Link className={styles.button} href="/hub?view=intake">New student <span aria-hidden="true">+</span></Link>
+        <div className={styles.actions}>
+          <Link className={styles.primary} href="/hub?view=intake">
+            + New student
+          </Link>
+        </div>
       </header>
-      <div className={styles.directoryToolbar}>
-      <input
-        className={styles.search}
-        type="search"
-        placeholder="Search by name or member number"
-        aria-label="Search members"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <Select
-        ariaLabel="Filter by membership status"
-        value={membership}
-        onChange={setMembership}
-        options={[{ value: "", label: "All membership statuses" }, ...states.map((state) => ({ value: state, label: state }))]}
-      />
-      </div>
-      <div className={styles.sectionHeading}>
-        <span aria-live="polite">
-          {filtered.length} of {members.length} members in this view
-        </span>
-        {(query || membership) && <button className={styles.quietButton} onClick={() => { setQuery(""); setMembership(""); }}>Clear filters</button>}
-      </div>
-      <div className={styles.directoryColumns} aria-hidden="true"><span>Member</span><span>Rank</span><span>Membership</span><span /></div>
-      {filtered.length ? (
-        <ul className={styles.directory}>
-          {filtered.map((m) => (
-            <li key={m.id}>
-              <Link href={`/people/${m.id}`} aria-label={m.name}>
-                <div className={styles.directoryIdentity}>
-                <span className={styles.avatar} aria-hidden="true">
-                  {m.name
-                    .split(" ")
-                    .map((p) => p[0])
-                    .slice(0, 2)
-                    .join("")}
-                </span>
-                <div>
-                  <strong>{m.name}</strong>
-                  <p>
-                    {m.memberNumber ? `#${m.memberNumber}` : "View member record"}
-                  </p>
-                </div>
-                </div>
-                <span className={styles.directoryRank}><span className={styles.mobileFieldLabel}>Rank · </span>{m.rank?.name || "Not recorded"}</span>
-                <span className={styles.directoryState}>{m.membershipState || "Status not recorded"}</span>
-                <span className={styles.arrow} aria-hidden="true">
-                  →
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <div className={styles.empty}>
-          {query || membership
-            ? "No members match these filters."
-            : "No members are available in this scope."}
+
+      <article className={styles.panel}>
+        <header>
+          <span>
+            <small>Directory</small>
+            <h2>All members</h2>
+          </span>
+          <span className={styles.headerNote} aria-live="polite">
+            {filtered.length} {filtered.length === 1 ? "member" : "members"}
+          </span>
+        </header>
+        <div className={styles.panelSearch}>
+          <input
+            type="search"
+            placeholder="Filter by name or member number"
+            aria-label="Filter members"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
         </div>
-      )}
+        {filtered.length ? (
+          filtered.map((m) => (
+            <Link key={m.id} className={styles.memberRow} href={`/people/${m.id}`} aria-label={m.name}>
+              <i aria-hidden="true">{initials(m.name)}</i>
+              <span>
+                <strong>{m.name}</strong>
+                <small>
+                  {[m.memberNumber, m.rank?.name, m.membershipState].filter(Boolean).join(" · ") ||
+                    "View member record"}
+                </small>
+              </span>
+              <em aria-hidden="true">›</em>
+            </Link>
+          ))
+        ) : (
+          <p className={styles.panelNote}>
+            {query ? "No members match that search." : "No members are available in this scope."}
+          </p>
+        )}
+      </article>
     </section>
   );
 }

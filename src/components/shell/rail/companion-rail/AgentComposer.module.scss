@@ -41,7 +41,6 @@
   input {
     flex: 1;
     min-width: 0;
-    font-size: 16px;
     height: 100%;
     border: none;
     outline: none;
@@ -79,8 +78,3 @@
     }
   }
 }
-
-.agentComposer:focus-within { border-color: var(--text-secondary); }
-
-.agentComposer .agentBtn:focus-visible,
-.agentComposer .micBtn:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }

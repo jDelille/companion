@@ -1,63 +1,14 @@
 @use "../../../styles/breakpoints" as bp;
-@use "../../../styles/glass";
 
 .adaptiveShell {
-  // Operator density from 1Club; retain Dojang's editorial type and warm white.
-  --text: #f4f0e9;
-  --text-secondary: #b4b4b4;
-  --muted: #a0a0a0;
-  --workspace-background: radial-gradient(ellipse at 75% 0%, #1b1b1b, #0b0b0b 65%);
-  --brand-soft: rgba(255, 255, 255, 0.055);
-  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
-  position: relative;
-  display: grid;
-  grid-template-columns: 216px minmax(0, 1fr);
-  height: 100vh;
+  display: flex;
+  width: 100%;
   height: 100dvh;
-  overflow: hidden;
-  background: var(--workspace-background);
-  color: var(--text);
-  isolation: isolate;
-}
-.railSlot {
-  min-height: 0;
-  border-right: 1px solid var(--line);
-  background: rgba(11, 11, 11, 0.65);
-}
-.workspaceSlot {
-  position: relative;
-  isolation: isolate;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  min-width: 0;
-}
-.workspaceBody {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scroll-padding-block: 24px;
-  padding-bottom: 32px;
-  container: workspace / inline-size;
-}
-.connectedHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-height: 64px;
-  padding: 12px 36px;
-  flex-shrink: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-}
-.headerLocation {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  strong {
-    font-weight: 500;
+  background: var(--canvas);
+
+  // Phones: stack workspace above the bottom nav
+  @include bp.compact {
+    flex-direction: column;
   }
 
   /* ---------- Rail ---------- */
@@ -178,34 +129,91 @@
         transform 200ms ease,
         visibility 0s linear 200ms;
     }
-    &[aria-current="page"],
-    &[aria-expanded="true"] {
-      color: var(--text);
-      background: var(--glass-fill);
-      box-shadow: inset 0 0 0 1px var(--glass-edge);
-      svg {
-        color: var(--brand-bright);
+
+    // Phones: bottom tray parked below the screen (overrides the side panel above)
+    @include bp.compact {
+      top: auto;
+      left: 1rem; // same 1rem gaps and border as the modal bottom sheet
+      right: 1rem;
+      bottom: calc(
+        1rem + env(safe-area-inset-bottom)
+      ); // floats above the bottom edge
+      width: auto;
+      height: 60dvh; // real height, not just a cap
+      max-height: 75dvh;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-tray);
+      overflow: hidden; // clip the rail's square corners to the rounded ones
+      transform: translateY(
+        calc(100% + 2rem)
+      ); // parked fully below the screen, past the gap
+    }
+
+    .companionClose {
+      display: none;
+
+      @include bp.below-wide {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: var(--radius-control);
+        background: var(--interactive);
+        color: var(--text);
+        cursor: pointer;
+        z-index: 1;
       }
     }
   }
-}
-.connectedNav {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 20px 12px;
-  overflow-y: auto;
-  gap: 3px;
-  > a:not(.wordmark):not(.kioskLink), > button { min-height: 42px; padding-block: 10px; font-size: 13px; }
-  .wordmark {
-    padding: 0 10px;
-    margin-bottom: 12px;
-    color: var(--text);
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 0.07em;
-    background: none;
-    small {
+
+  // Open = no offset, whether it came in from the side or the bottom
+  &[data-companion-open="true"] .companionSlot {
+    @include bp.below-wide {
+      transform: none;
+      visibility: visible;
+      transition:
+        transform 200ms ease,
+        visibility 0s; // show right away, then slide in
+    }
+  }
+
+  .companionTrigger {
+    display: none;
+
+    @include bp.below-wide {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 15;
+      width: 45px;
+      height: 45px;
+      border: none;
+      border-radius: 50%;
+      background: var(--agent);
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    @include bp.compact {
+      bottom: 88px; // sits above the bottom nav
+    }
+  }
+
+  /* ---------- Bottom nav (phones only) ---------- */
+
+  .bottomNavSlot {
+    display: none;
+
+    @include bp.compact {
       display: block;
     }
   }
@@ -248,37 +256,12 @@
     outline-offset: 2px;
   }
 }
-.navGroup {
-  padding: 18px 16px 7px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-.mobileBrand,
-.bottomNavSlot {
-  display: none;
-}
-.backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 40;
-  border: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-}
-.contextSlot,
-.companionSlot {
-  @include glass.card;
-  position: fixed;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: min(420px, 100%);
-  z-index: 41;
-  visibility: hidden;
-  transform: translateX(100%);
+
+// Desktop: a fixed-width sidebar so it doesn't change size with the labels
+.connectedNav {
+  flex-direction: column;
+  flex-shrink: 0;
+  width: 188px;
   overflow-y: auto;
   scrollbar-width: none;
   height: 100%;

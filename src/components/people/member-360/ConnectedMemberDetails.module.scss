@@ -4,12 +4,179 @@
 .panel {
   padding: 24px; // same side padding as the member page
   line-height: 1.6;
-  h2 { font-size: 20px; font-weight: 500; }
-  h3 { font-size: 15px; margin-top: 12px; }
-  p { color: var(--text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
-  strong, a { color: var(--text); }
-  article { padding-block: 14px; border-bottom: 1px solid var(--line); }
-  small { color: var(--text-secondary); }
-  button { justify-self: start; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius-pill); min-height: 44px; color: var(--text); background: var(--glass-fill); cursor: pointer; }
-  a { padding-block: 6px; }
+
+  // Even spacing between blocks; rows of one list sit flush (see article below)
+  > * {
+    margin: 0;
+  }
+  > * + * {
+    margin-top: 16px;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  strong {
+    color: var(--text);
+  }
+
+  // Sub-headings ("Current class registrations", "Allergies"): small uppercase labels
+  h3 {
+    margin-top: 24px;
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  > h3 + * {
+    margin-top: 8px;
+  }
+
+  // Notes under a list ("Most recent 30 records…")
+  small {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  // Records: consecutive rows form one bordered list with lines between them
+  article {
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    border-top: 0;
+    font-size: 14px;
+
+    p {
+      font-size: 13px;
+    }
+  }
+
+  // First row of a list: top border and rounded top corners
+  :not(article) + article {
+    border-top: 1px solid var(--line);
+    border-radius: 12px 12px 0 0;
+  }
+
+  // Rows after the first sit flush against each other
+  article + article {
+    margin-top: 0;
+  }
+
+  // Last row of a list: rounded bottom corners
+  article:not(:has(+ article)) {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+
+  // A list with a single row: fully rounded
+  :not(article) + article:not(:has(+ article)) {
+    border-radius: 12px;
+  }
+
+  // Links on their own ("Review checkout →"): quiet secondary buttons
+  > a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--control-height);
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 150ms ease, border-color 150ms ease;
+
+    &:hover {
+      border-color: var(--text-secondary);
+      background: var(--interactive);
+    }
+  }
+
+  // Links inside text (phone numbers)
+  p a {
+    color: var(--text);
+  }
+
+  // Refresh records / Try again: quiet secondary buttons
+  button {
+    min-height: var(--control-height);
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-control);
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease, border-color 150ms ease;
+
+    &:hover {
+      border-color: var(--text-secondary);
+      background: var(--interactive);
+    }
+  }
+
+  > a + button {
+    margin-left: 8px;
+  }
+}
+
+// Tab title + Refresh records on the right
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+// The heading's section title when the records couldn't load
+.panel > h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+// A family member row: avatar + name on the left, arrow on the right
+.personLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+
+  > span:last-child {
+    color: var(--text-secondary);
+  }
+
+  &:hover > span:last-child {
+    color: var(--text);
+  }
+}
+
+// Avatar + name rows: the detail line lines up under the name, past the avatar
+.panel article > span:first-child + p {
+  margin-top: 4px;
+  padding-left: 38px;
+}
+
+@media (max-width: 767px) {
+  .panel {
+    padding: 20px 16px;
+  }
 }

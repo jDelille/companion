@@ -11,9 +11,9 @@
   --dark-border: var(--line); // same as the doc's line colour
 
   // Text
-  --text: #f4f0e9;
-  --text-secondary: #b6b3af;
-  --muted: #a3a09c;
+  --text: #f6f6f8;
+  --text-secondary: #a8a8b8;
+  --muted: #717184;
   --font-display:
     var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -60,9 +60,9 @@
   --glass-shadow: 0 10px 40px color-mix(in srgb, var(--canvas) 50%, transparent);
 
   // Soft colored light behind the glass, so the frosting has something to blur.
-  // Brand red, kept faint so they read as atmosphere, not actions.
-  --glow-brand: rgba(255, 255, 255, 0.04);
-  --glow-agent: rgba(255, 255, 255, 0.02);
+  // Brand red and AI violet, kept faint so they read as atmosphere, not actions.
+  --glow-brand: color-mix(in srgb, var(--brand) 14%, transparent);
+  --glow-agent: color-mix(in srgb, var(--agent) 12%, transparent);
 
   // Layout (not from the doc)
   --companion-width: 325px;

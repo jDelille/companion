@@ -158,7 +158,7 @@ export default function CommunicationsWorkspace({members,busy,locked,feedback,cl
       {review&&<div className={styles.card} aria-label="Review communications action"><h2>Review before saving</h2>
         {review.lines.map((l,i)=><p key={i}>{l}</p>)}
         <label className={intakeStyles.confirm}><input type="checkbox" checked={confirmed} disabled={blocked} onChange={e=>setConfirmed(e.target.checked)}/>I reviewed this action.</label>
-        <div className={styles.row}><button className={styles.primaryAction} disabled={blocked||!confirmed} onClick={()=>void confirm()}>{busy?'Saving…':'Confirm communications action in Odoo'}</button><button disabled={blocked} onClick={()=>setReview(null)}>Cancel</button></div>
+        <div className={styles.row}><button disabled={blocked||!confirmed} onClick={()=>void confirm()}>{busy?'Saving…':'Confirm communications action in Odoo'}</button><button disabled={blocked} onClick={()=>setReview(null)}>Cancel</button></div>
       </div>}
       {feedback&&<div className={styles.card} role={feedback.kind==='error'?'alert':'status'} aria-label="Communications result"><p>{feedback.text}</p>{feedback.kind==='uncertain'&&retry&&<button disabled={busy} onClick={()=>void retry().then(after)}>Check communications result</button>}</div>}
     </div>
