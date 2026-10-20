@@ -16,6 +16,7 @@ import {
   DO_FOR_ME_EVENT,
   MEMBER_ACTION_EVENT,
   MEMBER_TAB_EVENT,
+  OPEN_COMMAND_EVENT,
   sendShellEvent,
 } from "./shellEvents";
 import styles from "./Workspace.module.scss";
@@ -87,17 +88,25 @@ const CommandBar = () => {
   const [membersFailed, setMembersFailed] = useState(false);
   const [afterNavigation, setAfterNavigation] = useState<AfterNavigation | null>(null);
 
-  // Ctrl+K (⌘K on a Mac) jumps to the search box from anywhere
+  // Ctrl+K (⌘K on a Mac) jumps to the search box from anywhere; so do page buttons
+  // like "+ Quick action" and Today's big search box (they send OPEN_COMMAND_EVENT)
   useEffect(() => {
+    const focusSearch = () => {
+      input.current?.focus();
+      input.current?.select();
+    };
     const onKeyDown = (event: KeyboardEvent) => {
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        input.current?.focus();
-        input.current?.select();
+        focusSearch();
       }
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener(OPEN_COMMAND_EVENT, focusSearch);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener(OPEN_COMMAND_EVENT, focusSearch);
+    };
   }, []);
 
   // Clicking anywhere else closes the dropdown

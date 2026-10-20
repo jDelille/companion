@@ -1,5 +1,6 @@
 import { odooTestMode } from "@/server/odoo-runtime";
-import OwnerToday from "@/components/workspace/owner-today/OwnerToday";
+import TodayByRole from "@/components/workspace/owner-today/TodayByRole";
+// Owners and managers get the Owner / executive Today; everyone else the staff Today
 export default function Home() {
-  return <OwnerToday connected={odooTestMode()} />;
+  return <TodayByRole connected={odooTestMode()} />;
 }

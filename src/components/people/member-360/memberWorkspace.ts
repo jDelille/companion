@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 export type MemberWorkspace = {
   courses: { id: string; name: string }[];
   timeline: { id: string; action: string; actor: string; at: string }[];
+  bookings: { id: string; title: string; startsAt: string }[]; // upcoming registrations
 };
 
 const requests = new Map<string, Promise<MemberWorkspace | null>>();
@@ -30,6 +31,7 @@ function readWorkspace(memberId: string): Promise<MemberWorkspace | null> {
       return {
         courses: Array.isArray(value.courses) ? value.courses : [],
         timeline: Array.isArray(value.timeline) ? value.timeline : [],
+        bookings: Array.isArray(value.bookings) ? value.bookings : [],
       };
     })
     .catch(() => null)

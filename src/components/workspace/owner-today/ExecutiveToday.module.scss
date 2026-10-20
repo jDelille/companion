@@ -1,0 +1,147 @@
+@use "../../../../styles/breakpoints" as bp;
+
+// The header: label, the big greeting in a serif (like owner-screen.png; the system serif,
+// no web font), the date, and the two buttons on the right
+.intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 32px;
+
+  @include bp.workspace-narrow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  h1 {
+    max-width: 14em;
+    margin: 12px 0 10px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(32px, 4.5vw, 52px);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+// KPI numbers in the same serif, larger ("a strong" so it's more specific than the
+// shared Today tile style, without !important)
+.metrics a strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 40px;
+  font-weight: 400;
+}
+
+// Needs attention | Operating rhythm, side by side when the workspace has room
+.columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-top: 16px;
+
+  @include bp.workspace-split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  > article {
+    margin-bottom: 0;
+  }
+}
+
+// "18 / 22": a small outlined pill at the end of each class row
+.seats {
+  justify-self: end;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: var(--font-label);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+// "+ Quick action": a small menu under the button
+.quick {
+  position: relative;
+}
+
+.quickMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 5;
+  display: grid;
+  min-width: 200px;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+
+  a {
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 13px;
+    text-decoration: none;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--raised);
+    }
+  }
+}
+
+// The morning brief, opened from the header
+.brief {
+  margin-bottom: 16px;
+}
+
+.briefBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px 20px;
+
+  > small {
+    margin-top: 6px;
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+  }
+
+  a {
+    color: var(--text);
+    text-underline-offset: 3px;
+  }
+}
+
+.briefActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}

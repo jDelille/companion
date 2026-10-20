@@ -1,0 +1,235 @@
+@use "../../../../styles/breakpoints" as bp;
+
+// Laid out like do-for-me-1.png: label + hint, the big search, then
+// Active context (wide) | Service queue (narrow)
+
+.top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.hint {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.label {
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+// Looks like a big search box; opens the top bar's search
+.search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 52px;
+  margin-bottom: 16px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  cursor: text;
+
+  kbd {
+    padding: 4px 7px;
+    border: 1px solid var(--dark-border);
+    border-radius: 6px;
+    background: var(--panel);
+    font-family: inherit;
+    font-size: 10px;
+
+    @include bp.compact {
+      display: none;
+    }
+  }
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @include bp.workspace-split {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--canvas);
+  font-size: 11px;
+}
+
+.memberName {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+
+  a {
+    color: var(--text);
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  small {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+// "ACTIVE": an outlined pill in the success colour
+.state {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--success);
+  border-radius: 999px;
+  color: var(--success);
+  font-family: var(--font-label);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+// Membership · Next class · Test readiness: three small tiles
+.facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+
+  @include bp.workspace-narrow {
+    grid-template-columns: 1fr;
+  }
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--raised);
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  strong {
+    font-size: 13px;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  a,
+  button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .checkIn {
+    border-color: var(--brand);
+    background: var(--brand);
+  }
+}
+
+// The queue: what on the left, detail on the right, a line between rows
+.queue {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    border-top: 1px solid var(--line);
+  }
+
+  a {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 0;
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  strong {
+    font-size: 13px;
+  }
+
+  span {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.openQueue {
+  align-self: flex-start;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}

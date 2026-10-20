@@ -16,6 +16,9 @@ export type MemberTabDetail = { memberId: string; tab: string };
 export const ASK_AGENT_EVENT = "dojang:ask-agent";
 export type AskAgentDetail = { text: string };
 
+// Put the cursor in the top bar's search/command box (like Ctrl+K)
+export const OPEN_COMMAND_EVENT = "dojang:open-command";
+
 // Already used by the member page's "Do For Me" button: opens the rail for that member
 export const DO_FOR_ME_EVENT = "dojang:do-for-me";
 

@@ -1,0 +1,137 @@
+@use "../../../../styles/breakpoints" as bp;
+
+// The whole owner page: its own top bar and a scrolling page, no shell around it
+.shell {
+  // The app's body doesn't scroll (the staff shell scrolls inside itself), so this page does
+  height: 100dvh;
+  overflow-y: auto;
+  background: var(--canvas);
+  color: var(--text);
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 12px;
+  height: 64px;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--dark-border);
+  background: var(--canvas);
+
+  @include bp.compact {
+    padding: 0 16px;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+
+  > span:last-child {
+    display: flex;
+    flex-direction: column;
+  }
+
+  strong {
+    font-size: 13px;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 10px;
+
+    @include bp.compact {
+      display: none;
+    }
+  }
+}
+
+// The "D" mark: a small outlined square
+.mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--text);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.location {
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.you {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.workspaceLink {
+  color: var(--text-secondary);
+  font-size: 12px;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+// Your initials, with a green "online" dot
+.avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--text);
+  color: var(--canvas);
+  font-size: 11px;
+  font-weight: 700;
+
+  i {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 9px;
+    height: 9px;
+    border: 2px solid var(--canvas);
+    border-radius: 50%;
+    background: var(--success);
+  }
+}
+
+.main {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  // the page's sections size themselves to this, like the workspace in the shell
+  container: workspace / inline-size;
+}
+
+.note {
+  padding: 32px 24px;
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  a {
+    color: var(--text);
+  }
+}
