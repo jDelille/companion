@@ -1,21 +1,21 @@
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  // negative margins stretch the line across the whole panel
-  margin: -2.5rem -3.5rem 0;
-  padding: 1.25rem 2rem;
-  border-bottom: 1px solid var(--line);
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	// negative margins stretch the line across the whole panel, whatever its padding
+	margin: calc(var(--panel-pad-y) * -1) calc(var(--panel-pad-x) * -1) 0;
+	padding: 1.25rem var(--panel-pad-x);
+	border-bottom: 1px solid var(--line);
 }
 
 .logo {
-  font-family: var(--font-label); // small mono text like my kiosk
-  font-size: 14px;
-  letter-spacing: 0.25em;
+	font-family: var(--font-label); // small mono text like my kiosk
+	font-size: 14px;
+	letter-spacing: 0.25em;
 }
 
 .clock {
-  color: var(--text-secondary);
-  font-size: var(--text-base);
-  font-variant-numeric: tabular-nums; // digits don't jiggle as time changes
+	color: var(--text-secondary);
+	font-size: var(--text-base);
+	font-variant-numeric: tabular-nums; // digits don't jiggle as time changes
 }

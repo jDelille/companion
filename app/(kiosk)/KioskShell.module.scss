@@ -1,56 +1,67 @@
 .shell {
-  display: flex;
-  flex-direction: column;
-  min-height: 100dvh;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
-  container-type: inline-size;
-  container-name: kiosk;
-  // Flush buttons reach a few px into the side margin on phones; never scroll sideways for it
-  overflow-x: clip;
+	display: flex;
+	flex-direction: column;
+	min-height: 100dvh;
+	padding: env(safe-area-inset-top) env(safe-area-inset-right)
+		env(safe-area-inset-bottom) env(safe-area-inset-left);
+	container-type: inline-size;
+	container-name: kiosk;
+	// Flush buttons reach a few px into the side margin on phones; never scroll sideways for it
+	overflow-x: clip;
 }
 
 // The one centered column every screen lives in, so screens never set their own width
 .main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  width: min(
-    100% - 2rem,
-    var(--kiosk-column-width)
-  ); // 1rem gap each side on small screens
-  margin: 2rem auto; // space above and below the panel
-  padding: 2.5rem 3.5rem;
-  background: var(--panel); // slightly lighter than the page
-  border: 1px solid var(--line);
-  border-radius: 24px; // rounded panel like mine
+	--panel-pad-x: 3.5rem; // side padding inside the panel (header uses it too)
+	--panel-pad-y: 2.5rem; // top and bottom padding
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	width: min(
+		100% - 2rem,
+		var(--kiosk-column-width)
+	); // 1rem gap each side on small screens
+	margin: 2rem auto; // space above and below the panel
+	padding: var(--panel-pad-y) var(--panel-pad-x);
+	background: var(--panel); // slightly lighter than the page
+	border: 1px solid var(--line);
+	border-radius: 24px; // rounded panel like mine
 }
 
 // Phones: text buttons get a little less side padding, so a flush Back
 // button's oval sits inside the 20px page margin with room to spare
 @container kiosk (width < 540px) {
-  .main {
-    --button-inset: 0.75rem;
+	.main {
+		--button-inset: 0.75rem;
 
-    // Big headings fit a phone without wrapping into three lines
-    --kiosk-title-welcome: 2.25rem;
-    --kiosk-title-large: 2rem;
-    --kiosk-title: 1.75rem;
-  }
+		// Big headings fit a phone without wrapping into three lines
+		--kiosk-title-welcome: 2.25rem;
+		--kiosk-title-large: 2rem;
+		--kiosk-title: 1.75rem;
+	}
 }
 
 // Kept from the current design: pieces added after the VNext build
 .previewNotice {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 16px 20px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--line);
-  a {
-    color: var(--text);
-    text-decoration: none;
-  }
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 20px;
+	font-size: 11px;
+	color: var(--text-secondary);
+	border-bottom: 1px solid var(--line);
+	a {
+		color: var(--text);
+		text-decoration: none;
+	}
+}
+
+// phones: tighter panel so content has room
+@container kiosk (width < 540px) {
+	.main {
+		--panel-pad-x: 1.25rem;
+		--panel-pad-y: 1.25rem;
+		margin: 1rem auto;
+	}
 }
