@@ -99,6 +99,11 @@ const CompanionRail = ({ children }: Props) => {
   const showTab = (next: Tab) => {
     setDoForMe({ page: pathname, tab: next, suggestion: picked, pageTop: false });
   };
+  const goal = picked ?? pageSuggestions[0] ?? null;
+  // Inspect (Evidence) or Review Plan (Work) for the goal's task
+  const aimAt = (suggestion: Suggestion, next: Tab) => {
+    setDoForMe({ page: pathname, tab: next, suggestion, pageTop: false });
+  };
   // Do For Me on a task: Work shows its review, with Apply
   const doTask = (suggestion: Suggestion) => {
     setDoForMe({ page: pathname, tab: "work", suggestion, pageTop: false });
@@ -171,6 +176,22 @@ const CompanionRail = ({ children }: Props) => {
             )}
             {/* On Today the Companion greets and lists what needs attention, instead of a generic heading */}
             {onToday ? <TodayBrief /> : companion.heading && <h3>{companion.heading}</h3>}
+
+            {/* The goal Do For Me is aimed at: the picked task, or this page's top suggestion */}
+            {goal && (
+              <div className={doForMeStyles.goal}>
+                <small>Goal</small>
+                <p>{goal.title}</p>
+                <div className={doForMeStyles.goalActions}>
+                  <button type="button" onClick={() => aimAt(goal, "evidence")}>
+                    Inspect
+                  </button>
+                  <button type="button" onClick={() => aimAt(goal, "work")}>
+                    Review Plan
+                  </button>
+                </div>
+              </div>
+            )}
 
             {companion.intel && <MemberIntel items={companion.intel} />}
             {featured && (

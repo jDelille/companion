@@ -6,6 +6,8 @@ import { usePathname, useSearchParams } from "next/navigation";
 import styles from "./Shell.module.scss";
 import ConnectedNavigation from "./ConnectedNavigation";
 import ContextPane from "./ContextPane";
+import TodayContext from "./TodayContext";
+import WorkspaceTabs from "./workspace/WorkspaceTabs";
 // Loaded with the page, not separately: a separate load swapped the dock for a short
 // "Opening Companion…" line on every page load, which pushed the page content sideways.
 // The dock's own content still loads in afterwards, with placeholders.
@@ -48,9 +50,9 @@ export default function AdaptiveShell({
   // Classes pages show "Arriving soon" (today's classes), as in the VNext mockup's Ops section.
   // Instructor, Attendance and Reports show the "Your workspace" placeholder for now.
   const onClasses = pathname.startsWith("/ops");
-  const sectionPane = onPeople || onClasses;
-  // Today uses the full width, like the VNext Owner Today screen
-  const fullWidth = pathname === "/";
+  // Today has its own column: search, saved views, filters, object list (master shell layout)
+  const onToday = pathname === "/";
+  const sectionPane = onPeople || onClasses || onToday;
 
   // Shared-device privacy: hide staff pages when the browser restores them from history,
   // and follow other tabs to the kiosk when one switches to public mode.
@@ -144,7 +146,7 @@ export default function AdaptiveShell({
         />
       </div>
 
-      {!fullWidth && <div
+      <div
         id="workspace-context"
         className={`${styles.contextSlot} ${sectionPane ? "" : styles.connectedContext}`}
         onClick={(event) => {
@@ -163,7 +165,9 @@ export default function AdaptiveShell({
         >
           ✕
         </button>
-        {sectionPane ? (
+        {onToday ? (
+          <TodayContext />
+        ) : sectionPane ? (
           <ContextPane section={onPeople ? "people" : "classes"}>{undefined}</ContextPane>
         ) : context ?? (
           <section>
@@ -183,7 +187,7 @@ export default function AdaptiveShell({
           <Link href="/follow-ups">Internal follow-ups →</Link>
           <Link href="/hub?view=ai">AI drafting settings →</Link>
         </nav>}
-      </div>}
+      </div>
 
       <div className={styles.workspaceSlot}>
         <header className={styles.connectedHeader}>
@@ -191,7 +195,7 @@ export default function AdaptiveShell({
             <strong>{demoMode ? "Dojang Downtown" : "Dojang Companion"}</strong>
             <span>{connectedTest ? "Test workspace" : "Staff workspace"}</span>
           </div>
-          {!fullWidth && <button
+          <button
             ref={contextTrigger}
             className={styles.contextTrigger}
             aria-controls="workspace-context"
@@ -201,9 +205,10 @@ export default function AdaptiveShell({
               setContextOpen((open) => !open);
             }}
           >
-            Workspace guide
-          </button>}
+            {onToday ? "Views & filters" : "Workspace guide"}
+          </button>
         </header>
+        <WorkspaceTabs />
         {demoMode && (
           <div className={styles.demoBanner}>Preview · Sample data</div>
         )}

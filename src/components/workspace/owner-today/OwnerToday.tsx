@@ -6,6 +6,7 @@ import { getSessions } from "@/integrations/kiosk";
 import { listMembers, type StaffMemberSummary } from "@/integrations/staff-members";
 import type { SessionOption } from "@/contracts/kiosk-attendance";
 import { useTodayDecisions } from "./decisions";
+import { openWorkspaceTab } from "@/components/shell/workspace/openTabs";
 import styles from "./OwnerToday.module.scss";
 
 // The Today page, after Paul's write-up: TODAY (classes) → DECISIONS → BUSINESS PULSE.
@@ -164,6 +165,7 @@ export default function OwnerToday({ connected = false }: { connected?: boolean 
                 key={s.sessionId}
                 className={`${styles.row} ${finished ? styles.finished : ""}`}
                 href={`/ops/sessions/${s.sessionId}`}
+                onClick={() => openWorkspaceTab({ href: `/ops/sessions/${s.sessionId}`, label: s.title })}
               >
                 <b>{time(s.startsAt)}</b>
                 <span>

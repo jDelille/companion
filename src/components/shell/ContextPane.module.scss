@@ -9,6 +9,7 @@
   gap: 5px;
   position: relative;
   z-index: 1;
+  overflow-y: auto; // long lists scroll inside the column
 
   &__header {
     height: 50px;
@@ -88,6 +89,54 @@
   .active {
     outline: 1px solid var(--dark-border);
     background-color: var(--raised);
+  }
+
+  // Today's saved views are buttons that look like the other rows
+  .viewButton {
+    width: 100%;
+    border: none;
+    background: none;
+    font: inherit;
+    text-align: left;
+    align-items: center;
+
+    > span {
+      color: var(--muted);
+    }
+  }
+
+  // Today's filters: a row of small pills
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+
+    button {
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid var(--dark-border);
+      border-radius: 999px;
+      background: none;
+      color: var(--text-secondary);
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+
+      &:hover {
+        color: var(--text);
+      }
+    }
+
+    .filterOn {
+      background: var(--raised);
+      color: var(--text);
+    }
+  }
+
+  .note {
+    color: var(--muted);
+    font-size: 12px;
+    padding: 0 1rem;
   }
 
   // The selected member: avatar and name lined up in the middle
