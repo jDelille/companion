@@ -284,6 +284,7 @@ const useCompanion = () => {
     heading: context?.heading,
     suggestions,
     intel: context?.intel,
+    records: context?.records,
     featured,
     openId: page.openId,
     toggle,

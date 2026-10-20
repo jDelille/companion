@@ -25,6 +25,7 @@ const btns: { label: string; modal?: ModalType }[] = [
   { label: "Profile details", modal: "edit" },
   { label: "...", modal: "quickActions" }, // the hold-menu from the member card
   { label: "Companion context", modal: "ask" },
+  { label: "Do For Me" }, // opens the Companion's Do For Me panel, not a modal
 ];
 
 const Identity = ({ member, liveTest = false }: Props) => {
@@ -32,6 +33,10 @@ const Identity = ({ member, liveTest = false }: Props) => {
   const current = open ? getMemberModal(open, member) : null;
 
   const handleClick = (btn: (typeof btns)[number]) => {
+    // The shell opens the Companion and the rail shows this member's suggestion in Do For Me
+    if (btn.label === "Do For Me") {
+      window.dispatchEvent(new CustomEvent("dojang:do-for-me", { detail: { memberId: member.id } }));
+    }
     if (btn.modal) setOpen(btn.modal);
   };
 

@@ -1,110 +1,271 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FollowUpComposer from "@/components/ai/follow-up/FollowUpComposer";
 import followupStyles from "@/components/ai/follow-up/FollowUp.module.scss";
 import useCompanion from "./useCompanion";
 import TaskItem from "./TaskItem";
-import ReceiptHistory from "./ReceiptHistory";
 import AgentComposer from "./AgentComposer";
 import MemberIntel from "./MemberIntel";
 import SuggestedCard from "./SuggestedCard";
 import TodayBrief from "./TodayBrief";
+import WorkTab from "./WorkTab";
+import EvidenceTab from "./EvidenceTab";
 import { usePathname } from "next/navigation";
+import { viewFromPath } from "@/integrations/companion";
 import styles from "./CompanionRail.module.scss";
+import doForMeStyles from "./DoForMe.module.scss";
+import type { Suggestion } from "@/domain/companion";
 
 type Props = {
   children?: React.ReactNode;
 };
 
+type Tab = "plan" | "work" | "evidence" | "history";
+
+const tabs: { id: Tab; label: string }[] = [
+  { id: "plan", label: "Plan" },
+  { id: "work", label: "Work" },
+  { id: "evidence", label: "Evidence" },
+  { id: "history", label: "History" },
+];
+
+// "2026-10-07T14:14:00Z" -> "2:14 PM", in the viewer's own time zone
+const formatTime = (iso: string) => {
+  return new Date(iso).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+// The right rail is Do For Me (Jodi's mockup): Plan shows what the Companion
+// suggests for this page, Work shows the picked task, Evidence shows why and the
+// Odoo records read, History lists the receipts Odoo saved. The picked task's
+// review, with Apply, is in Work (nothing runs until staff press it).
 const CompanionRail = ({ children }: Props) => {
   const companion = useCompanion();
   const featured = companion.featured;
-  const onToday = usePathname() === "/";
+  const pathname = usePathname();
+  const onToday = pathname === "/";
+
+  // The open tab and the picked task, and on which page.
+  // pageTop: a page's "Do For Me" button (e.g. on a member) asked for that page's
+  // top suggestion, which may still be loading. Moving to another page starts on Plan again.
+  const [doForMe, setDoForMe] = useState<{
+    page: string;
+    tab: Tab;
+    suggestion: Suggestion | null;
+    pageTop: boolean;
+  } | null>(null);
+  useEffect(() => {
+    const onDoForMe = (event: Event) => {
+      const page = window.location.pathname;
+      // The button says which member it's for. Only aim at that member's task when
+      // this page's Companion context is that member's.
+      const detail = (event as CustomEvent<{ memberId?: string } | null>).detail;
+      const memberId = detail?.memberId;
+      if (memberId && viewFromPath(page).memberId !== memberId) {
+        setDoForMe({ page, tab: "plan", suggestion: null, pageTop: false });
+        return;
+      }
+      setDoForMe({ page, tab: "work", suggestion: null, pageTop: true });
+    };
+    window.addEventListener("dojang:do-for-me", onDoForMe);
+    return () => window.removeEventListener("dojang:do-for-me", onDoForMe);
+  }, []);
+
+  const onThisPage = doForMe !== null && doForMe.page === pathname;
+  const tab: Tab = onThisPage ? doForMe.tab : "plan";
+  const pickedOnThisPage = onThisPage ? doForMe.suggestion : null;
+
+  const pageSuggestions = featured
+    ? [featured.suggestion, ...companion.suggestions]
+    : companion.suggestions;
+
+  // The task Work and Evidence are about: the one picked with Do For Me
+  // (or the page's top suggestion when a page button asked), otherwise the task open
+  // in Plan (a typed request's task arrives open)
+  let picked: Suggestion | null = null;
+  if (pickedOnThisPage) {
+    // The live copy when it's still listed, otherwise the one that was opened
+    picked = pageSuggestions.find((task) => task.id === pickedOnThisPage.id) ?? pickedOnThisPage;
+  } else if (onThisPage && doForMe.pageTop) {
+    picked = pageSuggestions[0] ?? null;
+  }
+  if (!picked && companion.openId) {
+    picked = pageSuggestions.find((task) => task.id === companion.openId) ?? null;
+  }
+
+  const showTab = (next: Tab) => {
+    setDoForMe({ page: pathname, tab: next, suggestion: picked, pageTop: false });
+  };
+  // Do For Me on a task: Work shows its review, with Apply
+  const doTask = (suggestion: Suggestion) => {
+    setDoForMe({ page: pathname, tab: "work", suggestion, pageTop: false });
+  };
+
+  // The picked task's own receipt shows first
+  const receipts = picked
+    ? [
+        ...companion.receipts.filter((receipt) => receipt.suggestionId === picked.id),
+        ...companion.receipts.filter((receipt) => receipt.suggestionId !== picked.id),
+      ]
+    : companion.receipts;
 
   return (
     <div className={styles.companionRail}>
       <div className={styles.companionRail__header}>
         <h2>
-          <span className={styles.companionRail__header__icon}>✦</span>Companion
+          <span className={styles.companionRail__header__icon}>✦</span>Do For Me
         </h2>
       </div>
 
-      <div className={styles.companionRail__state}>
-        <p className={styles.contextNote}>
-          Ask a question or prepare an action for review.
-        </p>
-        {/* Placeholders the size of the status pill and task rows (Today has its own in TodayBrief) */}
-        {companion.contextStatus === "loading" && !onToday && (
-          <div className={styles.skeletonGroup} role="status" aria-label="Loading suggestions">
-            <i className={`${styles.skeleton} ${styles.skeletonPill}`} aria-hidden="true" />
-            <i className={`${styles.skeleton} ${styles.skeletonHeading}`} aria-hidden="true" />
-            {[1, 2, 3].map((placeholder) => (
-              <i key={placeholder} className={`${styles.skeleton} ${styles.skeletonRow}`} aria-hidden="true" />
-            ))}
-          </div>
-        )}
-        {companion.contextStatus === "unavailable" && (
-          <p className={styles.contextNote}>
-            Suggestions aren&apos;t available right now.
-          </p>
-        )}
+      <div className={doForMeStyles.tabs} role="tablist" aria-label="Do For Me">
+        {tabs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            id={`do-for-me-tab-${item.id}`}
+            aria-selected={tab === item.id}
+            aria-controls="do-for-me-tabpanel"
+            onClick={() => showTab(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
 
-        {companion.label && (
-          <div className={styles.statusLine}>
-            <div className={styles.statusIcon}></div>
-            {companion.label}
-          </div>
-        )}
-        {/* On Today the Companion greets and lists what needs attention, instead of a generic heading */}
-        {onToday ? <TodayBrief /> : companion.heading && <h3>{companion.heading}</h3>}
+      <div
+        className={styles.companionRail__state}
+        role="tabpanel"
+        id="do-for-me-tabpanel"
+        aria-labelledby={`do-for-me-tab-${tab}`}
+      >
+        {tab === "plan" && (
+          <>
+            <p className={styles.contextNote}>
+              Ask a question or prepare an action for review.
+            </p>
+            {/* Placeholders the size of the status pill and task rows (Today has its own in TodayBrief) */}
+            {companion.contextStatus === "loading" && !onToday && (
+              <div className={styles.skeletonGroup} role="status" aria-label="Loading suggestions">
+                <i className={`${styles.skeleton} ${styles.skeletonPill}`} aria-hidden="true" />
+                <i className={`${styles.skeleton} ${styles.skeletonHeading}`} aria-hidden="true" />
+                {[1, 2, 3].map((placeholder) => (
+                  <i key={placeholder} className={`${styles.skeleton} ${styles.skeletonRow}`} aria-hidden="true" />
+                ))}
+              </div>
+            )}
+            {companion.contextStatus === "unavailable" && (
+              <p className={styles.contextNote}>
+                Suggestions aren&apos;t available right now.
+              </p>
+            )}
 
-        {companion.intel && <MemberIntel items={companion.intel} />}
-        {featured && (
-          <SuggestedCard
-            suggestion={featured.suggestion}
-            summary={featured.summary}
-            open={companion.openId === featured.suggestion.id}
-            status={companion.status[featured.suggestion.id]}
-            onApprove={() => companion.approve(featured.suggestion)}
-          />
-        )}
+            {companion.label && (
+              <div className={styles.statusLine}>
+                <div className={styles.statusIcon}></div>
+                {companion.label}
+              </div>
+            )}
+            {/* On Today the Companion greets and lists what needs attention, instead of a generic heading */}
+            {onToday ? <TodayBrief /> : companion.heading && <h3>{companion.heading}</h3>}
 
-        {companion.suggestions.length > 0 && (
-          <div className={styles.tasks}>
-            {companion.suggestions.map((task) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                open={companion.openId === task.id}
-                status={companion.status[task.id]}
-                onToggle={() => companion.toggle(task.id)}
-                onApprove={() => companion.approve(task)}
+            {companion.intel && <MemberIntel items={companion.intel} />}
+            {featured && (
+              <SuggestedCard
+                suggestion={featured.suggestion}
+                summary={featured.summary}
+                open={companion.openId === featured.suggestion.id}
+                status={companion.status[featured.suggestion.id]}
+                onDoForMe={() => doTask(featured.suggestion)}
               />
-            ))}
+            )}
+
+            {companion.suggestions.length > 0 && (
+              <div className={styles.tasks}>
+                {companion.suggestions.map((task) => (
+                  <TaskItem
+                    key={task.id}
+                    task={task}
+                    open={companion.openId === task.id}
+                    status={companion.status[task.id]}
+                    onToggle={() => companion.toggle(task.id)}
+                    onApprove={() => companion.approve(task)}
+                  />
+                ))}
+              </div>
+            )}
+
+            {companion.view.memberId && companion.followUpEnabled && (
+              <FollowUpComposer
+                key={companion.view.key}
+                sessions={companion.sessions || []}
+                busy={companion.requestStatus === "thinking"}
+                onPrepare={companion.request}
+              />
+            )}
+            {companion.answer && (
+              <div className={followupStyles.answer} role="status">
+                <small>{companion.answer.mode}</small>
+                <p>{companion.answer.text}</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {tab === "work" && (
+          <div className={doForMeStyles.body}>
+            <WorkTab
+              suggestion={picked}
+              status={picked ? companion.status[picked.id] : undefined}
+              context={companion.label}
+              onApply={() => {
+                if (!picked) return;
+                // Keep this task picked even if the page's top suggestion changes afterwards
+                doTask(picked);
+                companion.approve(picked);
+              }}
+              onNotNow={() => showTab("plan")}
+              onEvidence={() => showTab("evidence")}
+              onHistory={() => showTab("history")}
+            />
           </div>
         )}
 
-        {companion.view.memberId && companion.followUpEnabled && (
-          <FollowUpComposer
-            key={companion.view.key}
-            sessions={companion.sessions || []}
-            busy={companion.requestStatus === "thinking"}
-            onPrepare={companion.request}
-          />
-        )}
-        {companion.answer && (
-          <div className={followupStyles.answer} role="status">
-            <small>{companion.answer.mode}</small>
-            <p>{companion.answer.text}</p>
+        {tab === "evidence" && (
+          <div className={doForMeStyles.body}>
+            <EvidenceTab suggestion={picked} records={companion.records} />
           </div>
         )}
-        <ReceiptHistory receipts={companion.receipts} />
+
+        {tab === "history" && (
+          <div className={doForMeStyles.body}>
+            {receipts.length === 0 && (
+              <p className={doForMeStyles.why}>Nothing has been done here yet.</p>
+            )}
+            {receipts.map((receipt) => (
+              <p
+                key={receipt.id}
+                className={doForMeStyles.receipt}
+                data-current={picked !== null && receipt.suggestionId === picked.id}
+              >
+                <span className={doForMeStyles.time}>{formatTime(receipt.at)}</span>{" "}
+                {receipt.summary} · {receipt.actor}
+              </p>
+            ))}
+          </div>
+        )}
       </div>
 
       <AgentComposer
         status={companion.requestStatus}
-        onRequest={companion.request}
+        onRequest={(text) => {
+          // The answer, or the task it prepares (which then shows in Work), lands in Plan
+          setDoForMe({ page: pathname, tab: "plan", suggestion: null, pageTop: false });
+          companion.request(text);
+        }}
         onTyping={companion.clearRequestStatus}
       />
     </div>

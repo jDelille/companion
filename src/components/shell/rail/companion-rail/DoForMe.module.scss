@@ -1,0 +1,270 @@
+// Do For Me: the right rail's PLAN / WORK / EVIDENCE / HISTORY tabs (Jodi's mockup)
+
+.tabs {
+  display: flex;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line);
+
+  button {
+    flex: 1;
+    padding: 10px 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--text-secondary);
+    }
+
+    // The mockup's selected label disappears; keep it readable
+    &[aria-selected="true"] {
+      border-bottom-color: var(--agent);
+      color: var(--text);
+    }
+  }
+}
+
+// Work / Evidence / History content
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 0;
+
+  h3 {
+    margin: 0;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+// Odoo records the Companion read: each links to its page
+.records {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  a {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    font-size: 13px;
+    text-decoration: none;
+
+    &:hover strong {
+      text-decoration: underline;
+    }
+  }
+
+  strong {
+    font-weight: 500;
+  }
+
+  span {
+    flex-shrink: 0;
+    color: var(--text-secondary);
+  }
+}
+
+.label {
+  margin: 0;
+  color: var(--agent);
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.why {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.risk {
+  align-self: flex-start;
+  margin: 0;
+  padding: 3px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: 11px;
+
+  &[data-risk="medium"] {
+    color: var(--warning);
+  }
+
+  &[data-risk="high"] {
+    color: var(--danger);
+  }
+}
+
+// Field-by-field preview of the change
+.preview {
+  margin: 0;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  dt {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--text);
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+}
+
+.status {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  &[data-status="done"] {
+    color: var(--success);
+  }
+
+  &[data-status="failed"] {
+    color: var(--danger);
+  }
+
+  &[data-status="notConfirmed"] {
+    color: var(--warning); // unknown, not an error
+  }
+}
+
+// Work's top line, like the mockup's green "WAITING FOR APPROVAL" with a ring
+.state {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--success);
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+
+  &[data-status="working"] {
+    color: var(--text-secondary);
+  }
+
+  &[data-status="failed"] {
+    color: var(--danger);
+  }
+
+  &[data-status="notConfirmed"] {
+    color: var(--warning);
+  }
+}
+
+.stateDot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+// Bigger than the other tabs' headings, like the mockup (.body h3 sets the rest)
+.body h3.workTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+// "NO CHANGES HAVE EXECUTED." under a rule, like the mockup
+.executed {
+  margin: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+
+  &[data-status="done"] {
+    color: var(--success);
+  }
+
+  &[data-status="failed"] {
+    color: var(--danger);
+  }
+
+  &[data-status="notConfirmed"] {
+    color: var(--warning);
+  }
+}
+
+// Apply is an action, so it's the brand red like the mockup's "Apply 2 changes"
+.apply {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.next {
+  align-self: flex-start;
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.receipt {
+  margin: 0;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  &[data-current="true"] {
+    color: var(--text);
+  }
+}
+
+.time {
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 11px;
+}

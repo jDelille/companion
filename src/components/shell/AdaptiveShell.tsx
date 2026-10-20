@@ -110,6 +110,26 @@ export default function AdaptiveShell({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [companionOpen, contextOpen]);
 
+  // Companion slides in over the page (Jodi #43); "Companion" in the navigation opens it
+  const openCompanion = () => {
+    setContextOpen(false);
+    setCompanionOpen(true);
+  };
+  const closeCompanion = () => {
+    setCompanionOpen(false);
+    companionTrigger.current?.focus();
+  };
+
+  // A page's "Do For Me" button opens the Companion too (the rail then shows Do For Me)
+  useEffect(() => {
+    const onDoForMe = () => {
+      setContextOpen(false);
+      setCompanionOpen(true);
+    };
+    window.addEventListener("dojang:do-for-me", onDoForMe);
+    return () => window.removeEventListener("dojang:do-for-me", onDoForMe);
+  }, []);
+
   return (
     <div
       className={styles.adaptiveShell}
@@ -117,7 +137,11 @@ export default function AdaptiveShell({
       data-companion-open={companionOpen}
     >
       <div className={styles.railSlot}>
-        <ConnectedNavigation />
+        <ConnectedNavigation
+          onCompanion={openCompanion}
+          companionOpen={companionOpen}
+          triggerRef={companionTrigger}
+        />
       </div>
 
       {!fullWidth && <div
@@ -203,36 +227,33 @@ export default function AdaptiveShell({
         </main>
       </div>
 
+      {/* Clicking outside the open Companion closes it */}
+      {companionOpen && (
+        <button
+          className={styles.backdrop}
+          aria-label="Close companion"
+          onClick={closeCompanion}
+          tabIndex={-1}
+        />
+      )}
       <div id="roster-companion" className={styles.companionSlot}>
         <button
           ref={companionClose}
           className={styles.companionClose}
-          onClick={() => {
-            setCompanionOpen(false);
-            companionTrigger.current?.focus();
-          }}
+          onClick={closeCompanion}
           aria-label="Close companion"
         >
           ✕
         </button>
         {companion ?? <CompanionRail />}
       </div>
-      <button
-        ref={companionTrigger}
-        className={styles.companionTrigger}
-        aria-controls="roster-companion"
-        aria-expanded={companionOpen}
-        onClick={() => {
-          setContextOpen(false);
-          setCompanionOpen(true);
-        }}
-        aria-label="Open companion"
-      >
-        ✦
-      </button>
 
       <div className={styles.bottomNavSlot}>
-        <ConnectedNavigation mobile />
+        <ConnectedNavigation
+          mobile
+          onCompanion={openCompanion}
+          companionOpen={companionOpen}
+        />
       </div>
     </div>
   );

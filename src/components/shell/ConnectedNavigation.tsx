@@ -96,6 +96,7 @@ export default function ConnectedNavigation({
       {onCompanion && (
         <button
           ref={triggerRef}
+          className={styles.companionLink}
           onClick={onCompanion}
           aria-label="Open companion"
           aria-controls="roster-companion"

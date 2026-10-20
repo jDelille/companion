@@ -530,3 +530,66 @@
     color: var(--text);
   }
 }
+
+/* ---------- Companion slide-over (Jodi #43) ---------- */
+
+// Open: slide the Companion in over the page
+.adaptiveShell[data-companion-open="true"] .companionSlot {
+  z-index: 41; // above the backdrop
+  visibility: visible;
+  transform: none;
+  transition: transform 200ms ease, visibility 0s;
+}
+
+// "Companion" in the navigation, styled like the page links
+.companionLink {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+
+  &:hover,
+  &[aria-expanded="true"] {
+    background: var(--panel);
+    color: var(--text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
+}
+
+// ✕ in the panel's top corner
+.companionClose {
+  position: absolute;
+  z-index: 3;
+  right: 14px;
+  top: 14px;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--raised);
+  color: var(--text);
+  cursor: pointer;
+}
+
+// The Do For Me rail fills the Companion slot edge to edge (no box inside a box)
+.adaptiveShell .companionSlot {
+  padding: 0;
+
+  a {
+    padding: 0; // the slot's nav-link padding doesn't apply to links inside the rail
+  }
+}
