@@ -111,7 +111,7 @@ export async function pair(request: Request, c: GatewayConfig): Promise<Response
   const role = body.role as Role;
   const expected = role === "staff" ? c.staffPairKey : c.kioskPairKey;
   if (!equal(body.pairKey, expected)) return fail("FORBIDDEN", undefined, 403);
-  const destination = role === "staff" ? "/integration/members" : "/kiosk";
+  const destination = role === "staff" ? "/" : "/kiosk";
   return new Response(null, { status: 303, headers: { ...headers, "location": destination,
     "set-cookie": `${cookieName(role)}=${mintCookie(c, role)}; Path=/; HttpOnly; SameSite=Strict; Max-Age=7200${c.origin.startsWith("https:") ? "; Secure" : ""}` } });
 }

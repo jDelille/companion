@@ -21,7 +21,7 @@ const pair=async(page,role)=>{
   await pickOption(page,'Access',role);
   await page.locator('input[name=pairKey]').fill(process.env[role==='staff'?'DOJANG_STAFF_PAIR_KEY':'DOJANG_KIOSK_PAIR_KEY']);
   await page.getByRole('button',{name:'Connect test device'}).click();
-  await page.waitForURL('**/'+(role==='staff'?'integration/members':'kiosk'));
+  await page.waitForURL('**/'+(role==='staff'?'':'kiosk'));
 };
 const choose=async(page,name)=>{
   await page.goto(BASE+'/kiosk');
