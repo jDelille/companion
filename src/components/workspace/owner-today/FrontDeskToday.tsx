@@ -169,8 +169,8 @@ export default function FrontDeskToday({ role, connected }: Props) {
           )}
         </article>
 
-        {/* SERVICE QUEUE: today's decisions */}
-        <article className={frontDesk.card}>
+        {/* SERVICE QUEUE: today's decisions (the Do For Me brief's "Review all" scrolls here) */}
+        <article className={frontDesk.card} id="today-decisions">
           <small className={frontDesk.label}>Service queue</small>
           {checking && <p className={frontDesk.note}>Checking…</p>}
           {!checking && decisions.length === 0 && <p className={frontDesk.note}>Nothing is waiting.</p>}

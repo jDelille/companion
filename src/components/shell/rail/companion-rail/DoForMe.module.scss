@@ -51,35 +51,67 @@
   gap: 8px;
 }
 
-// Odoo records the Companion read: each links to its page
+// Odoo records the Companion read: a rounded card, one roomy row per record,
+// each linking to its page (name on the left, its time or status in a pill, then ›)
 .records {
-  margin: 0;
+  margin: 4px 0 0;
   padding: 0;
   list-style: none;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--canvas);
+  overflow: hidden;
+
+  li + li {
+    border-top: 1px solid var(--line);
+  }
 
   a {
     display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--line);
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 10px 12px;
     color: var(--text);
     font-size: 13px;
     text-decoration: none;
+    transition: background 150ms ease;
 
-    &:hover strong {
-      text-decoration: underline;
+    &::after {
+      content: "›";
+      flex-shrink: 0;
+      color: var(--muted);
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: var(--raised);
     }
   }
 
   strong {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
     font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   span {
     flex-shrink: 0;
+    padding: 3px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
     color: var(--text-secondary);
+    font-family: var(--font-label);
+    font-size: 11px;
   }
+}
+
+// Space between the explanation and the records list
+.why + .label {
+  margin-top: 8px;
 }
 
 .label {

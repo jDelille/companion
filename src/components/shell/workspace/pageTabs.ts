@@ -66,6 +66,8 @@ export function tabForPage(pathname: string, query: Query): PageTab | null {
 
   if (pathname === "/follow-ups") return { href: pathname, label: "Follow-ups", final: true };
   if (pathname === "/integration/pair") return { href: pathname, label: "Connect device", final: true };
+  // The member picker is not the Members page; a different name, so it doesn't look like a duplicate
+  if (pathname === "/integration/members") return { href: pathname, label: "Choose a member", final: true };
 
   // Any other page: its last address segment, e.g. /platform → "Platform"
   const last = pathname.split("/").filter(Boolean).pop() ?? "";

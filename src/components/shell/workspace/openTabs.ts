@@ -21,7 +21,15 @@ function load() {
   loaded = true;
   try {
     const saved = JSON.parse(window.sessionStorage.getItem(STORAGE_KEY) ?? "[]");
-    if (Array.isArray(saved)) tabs = saved;
+    if (Array.isArray(saved)) {
+      // One tab per address: drops copies saved by an older version of the tab bar
+      const seen = new Set<string>();
+      tabs = saved.filter((tab: WorkspaceTab) => {
+        if (typeof tab?.href !== "string" || seen.has(tab.href)) return false;
+        seen.add(tab.href);
+        return true;
+      });
+    }
   } catch {
     // no storage (private window, blocked): start with Today only
   }
