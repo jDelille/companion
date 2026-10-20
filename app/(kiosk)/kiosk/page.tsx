@@ -12,6 +12,7 @@ import IdentifyScreen from "@/components/kiosk/screens/identify-screen/IdentifyS
 import GuardianCheckIn from "@/components/kiosk/guardian/GuardianCheckIn";
 import SessionSelectScreen from "@/components/kiosk/screens/session-select-screen/SessionSelectScreen";
 import WelcomeScreen from "@/components/kiosk/screens/welcome-screen/WelcomeScreen";
+import EventsScreen from "@/components/kiosk/screens/events-screen/EventsScreen";
 import {
   checkInFlowReducer,
   initialCheckInFlow,
@@ -30,15 +31,23 @@ import { searchRoster } from "@/domain/kiosk/rosterSearch";
 import type { SessionOption } from "@/contracts/kiosk-attendance";
 import { checkIn, getRoster, getSessions } from "@/integrations/kiosk";
 
-const GUARDIAN_CHECK_IN = process.env.NEXT_PUBLIC_DOJANG_GUARDIAN_CHECKIN === "true";
+const GUARDIAN_CHECK_IN =
+  process.env.NEXT_PUBLIC_DOJANG_GUARDIAN_CHECKIN === "true";
 const ROSTER_GRID = process.env.NEXT_PUBLIC_DOJANG_KIOSK_ROSTER_GRID === "true";
+const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true"; // sample events only in demo mode
 
 export default function KioskPage() {
-  return <PublicModeGate><KioskJourney /></PublicModeGate>;
+  return (
+    <PublicModeGate>
+      <KioskJourney />
+    </PublicModeGate>
+  );
 }
 
 function KioskJourney() {
   const [flow, dispatch] = useReducer(checkInFlowReducer, initialCheckInFlow);
+  // demo-only Events screen: a simple on/off switch, separate from the check-in flow
+  const [showEvents, setShowEvents] = useState(false);
 
   // The last class list we loaded. Going Back from identify shows it straight
   // away while a fresh one loads, so the class header has a card to slide back
@@ -165,11 +174,16 @@ function KioskJourney() {
   // check-in timeout already bounds it), and when the result returns on its own anyway
   const idle = useIdleTimer({
     active:
-      flow.step !== "welcome" && flow.step !== "sending" && !autoReturnDue,
+      (flow.step !== "welcome" || showEvents) &&
+      flow.step !== "sending" &&
+      !autoReturnDue,
     restartKey: flow.step,
     timeoutSeconds: IDLE_TIMEOUT_SECONDS,
     warningSeconds: IDLE_WARNING_SECONDS,
-    onTimeout: () => dispatch({ type: "reset" }),
+    onTimeout: () => {
+      setShowEvents(false); // idle reset also closes Events
+      dispatch({ type: "reset" });
+    },
   });
 
   // Coming back through the browser's back/forward cache would restore the
@@ -185,12 +199,16 @@ function KioskJourney() {
   // One screen per step. Every reset is a plain dispatch, never startTransition,
   // so it switches instantly and no snapshot of the previous person lingers.
   const renderScreen = () => {
+    if (flow.step === "welcome" && showEvents) {
+      return <EventsScreen onBack={() => setShowEvents(false)} />;
+    }
     if (flow.step === "welcome") {
       return (
         <WelcomeScreen
           schoolName={SCHOOL_NAME}
           actions={SECONDARY_ACTIONS}
           onCheckIn={() => dispatch({ type: "start" })}
+          onEvents={DEMO ? () => setShowEvents(true) : undefined}
           // AI is optional: with the Concierge off there's no card, and check-in is unchanged
           onAsk={
             CONCIERGE_ENABLED
@@ -233,25 +251,39 @@ function KioskJourney() {
 
       return (
         <>
-        <IdentifyScreen
-          session={flow.session}
-          rosterStatus={flow.roster.status}
-          query={flow.query}
-          search={search}
-          onQueryChange={(query) => dispatch({ type: "searchChanged", query })}
-          onSelectMember={(member) =>
-            dispatch({ type: "selectMember", member })
-          }
-          onRetry={() => dispatch({ type: "retryRoster" })}
-          // startTransition lets the header morph back into its card in the list
-          onChangeSession={() =>
-            startTransition(() => dispatch({ type: "changeSession" }))
-          }
-          onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
-          onBack={() => startTransition(() => dispatch({ type: "back" }))}
-          roster={ROSTER_GRID ? (flow.roster.status === "ready" ? flow.roster.list : []) : undefined}
-        />
-        {GUARDIAN_CHECK_IN && <GuardianCheckIn key={flow.session.sessionId} session={flow.session} onFinished={() => dispatch({ type: "reset" })} />}
+          <IdentifyScreen
+            session={flow.session}
+            rosterStatus={flow.roster.status}
+            query={flow.query}
+            search={search}
+            onQueryChange={(query) =>
+              dispatch({ type: "searchChanged", query })
+            }
+            onSelectMember={(member) =>
+              dispatch({ type: "selectMember", member })
+            }
+            onRetry={() => dispatch({ type: "retryRoster" })}
+            // startTransition lets the header morph back into its card in the list
+            onChangeSession={() =>
+              startTransition(() => dispatch({ type: "changeSession" }))
+            }
+            onStaffHelp={() => dispatch({ type: "getStaffHelp" })}
+            onBack={() => startTransition(() => dispatch({ type: "back" }))}
+            roster={
+              ROSTER_GRID
+                ? flow.roster.status === "ready"
+                  ? flow.roster.list
+                  : []
+                : undefined
+            }
+          />
+          {GUARDIAN_CHECK_IN && (
+            <GuardianCheckIn
+              key={flow.session.sessionId}
+              session={flow.session}
+              onFinished={() => dispatch({ type: "reset" })}
+            />
+          )}
         </>
       );
     }
