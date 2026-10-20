@@ -261,7 +261,7 @@
 .connectedNav {
   flex-direction: column;
   flex-shrink: 0;
-  width: 188px;
+  width: 148px;
   overflow-y: auto;
   scrollbar-width: none;
   height: 100%;
@@ -425,7 +425,7 @@
   display: none;
 }
 
-// Logo, as on monday-release: red "D." circle + DOJANG / COMPANION
+// Logo: black square with a white D
 .connectedNav .wordmark {
   display: flex;
   flex-direction: row;
@@ -459,17 +459,14 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--brand);
-  color: var(--text);
-  font-size: 26px;
-  letter-spacing: -0.1em;
-
-  span {
-    font-size: 20px;
-  }
+  width: 50px;
+  height: 50px;
+  border: 1px solid var(--dark-border);
+  border-radius: 12px;
+  background: #000;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 // Kiosk link: its own footer at the bottom, with a line above it

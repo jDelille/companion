@@ -75,12 +75,7 @@ export default function ConnectedNavigation({
     >
       {!mobile && (
         <Link href="/" className={styles.wordmark} aria-label="Dojang home">
-          <span className={styles.brandMark}>
-            D<span>.</span>
-          </span>
-          <span>
-            DOJANG<small>COMPANION</small>
-          </span>
+          <span className={styles.brandMark}>D</span>
         </Link>
       )}
       {items.filter(item => !mobile || !item.desktopOnly).map((item) => (
