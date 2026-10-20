@@ -1,0 +1,269 @@
+@use "../../../../../styles/breakpoints" as bp;
+
+// Where the leaf sits: over the page, beside Do For Me (like the mockup), never over it.
+// Top: below the top bar (65px) and the record tabs (50px).
+// Right: the Do For Me column's width wherever it's a column next to the page:
+// always on wide screens, and on mid-size screens while it's open.
+@mixin beside-do-for-me {
+  top: 115px;
+  right: 0;
+
+  @include bp.wide {
+    right: var(--companion-width);
+  }
+
+  @include bp.expanded {
+    :global([data-companion-open="true"]) & {
+      right: var(--companion-width);
+    }
+  }
+
+  // Phones: the whole screen, there's no room beside anything
+  @include bp.compact {
+    top: 0;
+  }
+}
+
+// The page behind the leaf dims; clicking it closes the leaf
+.backdrop {
+  @include beside-do-for-me;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 30; // under the Do For Me slide-in (41), so it stays usable
+  border: 0;
+  background: rgb(0 0 0 / 0.45);
+  cursor: default;
+}
+
+// The leaf: a panel from the right, full height (like the mockup's Edit member)
+.leaf {
+  @include beside-do-for-me;
+  position: fixed;
+  bottom: 0;
+  z-index: 31;
+  width: min(420px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+  box-shadow: -16px 0 40px rgb(0 0 0 / 0.35);
+  color: var(--text);
+  outline: none; // appears in place, no slide-in
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--line);
+
+  small {
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    margin: 6px 0 0;
+    font-size: 20px;
+  }
+}
+
+.close {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--text);
+    background: var(--raised);
+  }
+}
+
+.body {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 24px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  input,
+  select {
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+
+    &:disabled {
+      opacity: 0.6;
+    }
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 12px;
+  }
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--raised);
+
+  span {
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  button {
+    margin-left: auto;
+    border: 0;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    font-size: 12px;
+  }
+}
+
+.eligibility,
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--canvas);
+
+  > small {
+    color: var(--muted);
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0;
+    font-size: 13px;
+  }
+}
+
+.review ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 13px;
+  }
+
+  span {
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+}
+
+.note,
+.message {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.error {
+  margin: 0;
+  color: var(--warning);
+  font-size: 13px;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--line);
+
+  @include bp.compact {
+    padding-inline: 16px;
+  }
+
+  button {
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--panel);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  .primary {
+    border-color: var(--brand);
+    background: var(--brand);
+    color: #fff;
+  }
+}
+
+// "✦ Ask AI to edit" / "✦ Proposed edit": the agent's colour, like Do For Me's labels
+.header small.agentLabel {
+  color: var(--agent);
+}
+
+.field textarea.request {
+  min-height: 96px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--raised);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+}

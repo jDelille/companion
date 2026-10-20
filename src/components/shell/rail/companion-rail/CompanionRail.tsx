@@ -17,6 +17,8 @@ import styles from "./CompanionRail.module.scss";
 import doForMeStyles from "./DoForMe.module.scss";
 import type { Suggestion } from "@/domain/companion";
 import { ASK_AGENT_EVENT, type AskAgentDetail } from "@/components/shell/workspace/shellEvents";
+import { usePageEvidence } from "./pageEvidence";
+import Link from "@/components/primitives/AppLink";
 
 type Props = {
   children?: React.ReactNode;
@@ -88,8 +90,11 @@ const CompanionRail = ({ children }: Props) => {
     return () => window.removeEventListener(ASK_AGENT_EVENT, onAsk);
   }, [request]);
 
+  // A page with its own evidence (the Proposed edit page) opens on Evidence
+  const pageEvidence = usePageEvidence();
+
   const onThisPage = doForMe !== null && doForMe.page === pathname;
-  const tab: Tab = onThisPage ? doForMe.tab : "plan";
+  const tab: Tab = onThisPage ? doForMe.tab : pageEvidence ? "evidence" : "plan";
   const pickedOnThisPage = onThisPage ? doForMe.suggestion : null;
 
   const pageSuggestions = featured
@@ -271,7 +276,26 @@ const CompanionRail = ({ children }: Props) => {
 
         {tab === "evidence" && (
           <div className={doForMeStyles.body}>
-            <EvidenceTab suggestion={picked} records={companion.records} />
+            {pageEvidence ? (
+              <>
+                <p className={doForMeStyles.label}>Evidence</p>
+                <dl className={doForMeStyles.pageEvidence}>
+                  {pageEvidence.items.map((item) => (
+                    <div key={item.title}>
+                      <dt>{item.title}</dt>
+                      <dd>{item.detail}</dd>
+                    </div>
+                  ))}
+                </dl>
+                {pageEvidence.sourcesHref && (
+                  <Link href={pageEvidence.sourcesHref} className={doForMeStyles.sources}>
+                    Inspect sources <span aria-hidden="true">→</span>
+                  </Link>
+                )}
+              </>
+            ) : (
+              <EvidenceTab suggestion={picked} records={companion.records} />
+            )}
           </div>
         )}
 

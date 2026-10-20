@@ -79,6 +79,31 @@ const ContextPane = ({ children, section }: Props) => {
     ? members.filter((member) => member.name.toLowerCase().includes(search)).slice(0, 8)
     : [];
 
+  // Proposed edit (mockup do-for-me-4): just the member and the staff request
+  const proposedEdit = /^\/people\/[^/]+\/proposed-edit$/.test(pathname);
+  if (onPeople && proposedEdit) {
+    const request = params.get("request");
+    return (
+      <div className={styles.contextPane}>
+        {selectedMember && (
+          <Link href={`/people/${selectedMember.id}`} className={`${styles.item} ${styles.active}`}>
+            <Avatar name={selectedMember.name} />
+            <div className={styles.info}>
+              <p>{selectedMember.name}</p>
+              <span>{selectedMember.detail}</span>
+            </div>
+          </Link>
+        )}
+        {request && (
+          <>
+            <p className={styles.label}>Request</p>
+            <blockquote className={styles.request}>“{request}”</blockquote>
+          </>
+        )}
+      </div>
+    );
+  }
+
   if (onPeople) {
     return (
       <div className={styles.contextPane}>

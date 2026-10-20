@@ -13,6 +13,7 @@ import Link from "@/components/primitives/AppLink";
 import { memberInitials } from "@/domain/member-presentation";
 import { MEMBER_ACTION_EVENT, type MemberActionDetail } from "@/components/shell/workspace/shellEvents";
 import { useMemberWorkspace } from "../memberWorkspace";
+import MemberEditLeaf from "../edit-leaf/MemberEditLeaf";
 
 // Windows the top bar's search can open on this page (?action=book, or its event)
 const OPENABLE: ModalType[] = ["message", "book", "payment", "edit"];
@@ -53,7 +54,8 @@ const Identity = ({ member, liveTest = false }: Props) => {
     return () => window.removeEventListener(MEMBER_ACTION_EVENT, onAction);
   }, [member.id]);
 
-  const current = open ? getMemberModal(open, member) : null;
+  // ✎ Edit opens the quick-edit leaf (a panel from the right); the others open a window
+  const current = open && open !== "edit" ? getMemberModal(open, member) : null;
 
   // "Children Advanced · Chen Family": program (the member's course in the Hub) and household
   const workspace = useMemberWorkspace(member.id, liveTest);
@@ -104,6 +106,10 @@ const Identity = ({ member, liveTest = false }: Props) => {
           ))}
         </ul>
       </div>
+
+      {open === "edit" && (
+        <MemberEditLeaf member={member} liveTest={liveTest} onClose={() => setOpen(null)} />
+      )}
 
       {/* one modal, content depends on which button was clicked */}
       <Modal

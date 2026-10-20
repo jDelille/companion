@@ -3,6 +3,7 @@
 .companionRail {
   width: 100%; // fills the Companion slot, so Do For Me is the whole panel
   background: var(--panel);
+  border-left: 1px solid var(--line); // its edge against the page (and the edit leaf)
   height: 100%;
   padding: 0 1.25rem;
   display: flex;

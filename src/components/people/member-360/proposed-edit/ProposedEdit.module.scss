@@ -1,0 +1,225 @@
+@use "../../../../../styles/breakpoints" as bp;
+
+// Laid out like do-for-me-4: crumbs, big name + pill, the changes, Effects | Will not change,
+// then the buttons on the right
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 980px;
+  padding: 24px;
+  color: var(--text);
+
+  @include bp.compact {
+    padding: 16px;
+  }
+}
+
+.label {
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+
+  a {
+    color: var(--text-secondary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+}
+
+.kicker {
+  @extend .label;
+  color: var(--text-secondary);
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  h1 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.1;
+  }
+
+  p {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+}
+
+.pill {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--text-secondary);
+  border-radius: 999px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// The changes: one row per field, old value on the left, → new value on the right
+.changes {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.change {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px;
+
+  & + & {
+    border-top: 1px solid var(--line);
+  }
+
+  small {
+    @extend .label;
+  }
+}
+
+.values {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  font-size: 14px;
+
+  span {
+    color: var(--text-secondary);
+  }
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.cannot {
+  margin: 0;
+  color: var(--warning);
+  font-size: 12px;
+}
+
+// Effects | Will not change, side by side when there's room
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @include bp.workspace-split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  article {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    background: var(--panel);
+  }
+
+  small {
+    @extend .label;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.secondary,
+.primary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.secondary {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.primary {
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  a {
+    color: var(--text);
+  }
+}
+
+.error {
+  margin: 0;
+  color: var(--warning);
+  font-size: 13px;
+}
+
+.applied {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  font-size: 13px;
+
+  a {
+    color: var(--text);
+    font-weight: 600;
+  }
+}

@@ -133,6 +133,17 @@
     }
   }
 
+  // The staff request on the Proposed edit page
+  .request {
+    margin: 0;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: var(--text);
+    color: var(--canvas);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
   .note {
     color: var(--muted);
     font-size: 12px;
