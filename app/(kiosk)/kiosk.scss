@@ -8,7 +8,10 @@
 // Kiosk-only layout token. Every portrait screen sits in one centered column this wide.
 // Landscape (Check In left, Today right) will get its own layout later.
 :root {
-  --kiosk-column-width: none; // full screen like Paul's kiosk (20px side padding comes from the shell)
+  --kiosk-column-width: 56rem; // same width as my kiosk panel (max-w-4xl)
+  --font-display:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui,
+    sans-serif; // same font as my kiosk
 
   // Heading sizes. KioskShell shrinks them on phones, so every screen scales together.
   --kiosk-title-welcome: 3.5rem; // "Welcome to …"
@@ -32,12 +35,7 @@ body {
   background: var(--workspace-background);
   background-attachment: fixed;
   color: var(--text);
-  font-family:
-    var(--font-inter),
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-display);
   -webkit-font-smoothing: antialiased;
 }
 

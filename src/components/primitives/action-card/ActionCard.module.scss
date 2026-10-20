@@ -14,7 +14,9 @@
   border-radius: var(--radius-leaf);
   color: var(--text);
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 
   &:hover,
   &:active {
@@ -92,9 +94,9 @@
 // description and the arrow in a circle on the right, same as the Ask topics.
 .card.row {
   height: auto;
-  min-height: 76px;
-  gap: 4px;
-  padding: 14px 64px 14px 20px; // room on the right for the arrow
+  min-height: 104px; // taller card
+  gap: 6px;
+  padding: 24px 72px 24px 24px; // more room inside, space on the right for the arrow
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--panel);
@@ -103,13 +105,13 @@
   -webkit-backdrop-filter: none;
 
   .label {
-    font-size: var(--text-base);
+    font-size: 1.5rem; // bigger title, like my kiosk
     font-weight: 600;
   }
 
   .description {
     color: var(--text-secondary);
-    font-size: 13px;
+    font-size: 1rem; // was 13px
     line-height: 1.45;
   }
 
@@ -137,9 +139,9 @@
     }
   }
 
-  // Not available: dashed and see-through, so it doesn't look tappable
+  // not available: dashed and see-through, so it doesn't look tappable
   &:disabled {
-    padding-right: 20px;
+    padding-right: 24px;
     border-style: dashed;
     background: transparent;
     opacity: 1;
