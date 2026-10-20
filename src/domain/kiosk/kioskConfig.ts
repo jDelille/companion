@@ -4,63 +4,63 @@
 export const SCHOOL_NAME = "Dojang";
 
 export type SecondaryActionId =
-  | "classes"
-  | "events"
-  | "testing"
-  | "schedule"
-  | "staff";
+	| "classes"
+	| "events"
+	| "testing"
+	| "schedule"
+	| "staff";
 
 export type SecondaryAction = {
-  id: SecondaryActionId;
-  label: string;
-  prominence: "card" | "text"; // card under Check In, or a muted text link below
-  shown: boolean; // on the Welcome screen at all
-  available: boolean; // actually works when tapped
+	id: SecondaryActionId;
+	label: string;
+	prominence: "card" | "text"; // card under Check In, or a muted text link below
+	shown: boolean; // on the Welcome screen at all
+	available: boolean; // actually works when tapped
 };
 
 // Secondary buttons on the Welcome screen (K01). WelcomeScreen renders straight from this list.
 // Classes uses the same authoritative session-first journey as Check In.
 // Unsupported destinations stay explicitly unavailable.
 export const SECONDARY_ACTIONS: SecondaryAction[] = [
-  {
-    id: "classes",
-    label: "Classes",
-    prominence: "card",
-    shown: true,
-    available: true,
-  },
-  {
-    id: "events",
-    label: "Events",
-    prominence: "card",
-    shown: true,
-    available: false,
-  },
-  // Hidden until they exist: the handoff (K01) says Testing / Schedule / Staff only "where enabled".
-  // Classes and Events don't have that qualifier, so they stay as disabled cards.
-  {
-    id: "testing",
-    label: "Testing",
-    prominence: "text",
-    shown: false,
-    available: false,
-  },
-  {
-    id: "schedule",
-    label: "Schedule",
-    prominence: "text",
-    shown: false,
-    available: false,
-  },
-  // Hidden: a Staff entry on a public screen points at a feature that doesn't exist,
-  // and its security rules haven't been designed. Tracked here, not shown.
-  {
-    id: "staff",
-    label: "Staff",
-    prominence: "text",
-    shown: false,
-    available: false,
-  },
+	{
+		id: "classes",
+		label: "Classes",
+		prominence: "card",
+		shown: true,
+		available: true,
+	},
+	{
+		id: "events",
+		label: "Events",
+		prominence: "card",
+		shown: true,
+		available: false,
+	},
+	// Hidden until they exist: the handoff (K01) says Testing / Schedule / Staff only "where enabled".
+	// Classes and Events don't have that qualifier, so they stay as disabled cards.
+	{
+		id: "testing",
+		label: "Testing",
+		prominence: "text",
+		shown: false,
+		available: false,
+	},
+	{
+		id: "schedule",
+		label: "Schedule",
+		prominence: "text",
+		shown: false,
+		available: false,
+	},
+	// Hidden: a Staff entry on a public screen points at a feature that doesn't exist,
+	// and its security rules haven't been designed. Tracked here, not shown.
+	{
+		id: "staff",
+		label: "Staff",
+		prominence: "text",
+		shown: false,
+		available: false,
+	},
 ];
 
 // Read-only school help works with the scoped Odoo schedule in connected mode.

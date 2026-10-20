@@ -37,6 +37,7 @@ const IdleWarning = ({ secondsLeft, onStillHere }: Props) => {
 			description="The screen clears soon to keep your details private."
 			onClose={onStillHere}
 			hideClose
+			centered
 		>
 			<div className={styles.content}>
 				<p className={styles.countdown} aria-hidden="true">

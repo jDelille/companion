@@ -1,240 +1,263 @@
 @use "../../../../styles/breakpoints" as bp;
 
 .modal {
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--panel);
-  color: var(--text);
-  width: min(560px, 92vw);
-  margin: auto; // the global `* { margin: 0 }` reset removes the dialog's built-in centering
+	padding: 0;
+	border: 1px solid var(--line);
+	border-radius: var(--radius-card);
+	background: var(--panel);
+	color: var(--text);
+	width: min(560px, 92vw);
+	margin: auto; // the global `* { margin: 0 }` reset removes the dialog's built-in centering
 
-  &::backdrop {
-    background: color-mix(in srgb, var(--canvas) 60%, transparent);
-    backdrop-filter: blur(6px);
-  }
+	&::backdrop {
+		background: color-mix(in srgb, var(--canvas) 60%, transparent);
+		backdrop-filter: blur(6px);
+	}
 
-  // Phones: bottom sheet. Pinned to the bottom edge, full width, slides up when it opens.
-  @include bp.compact {
-    width: calc(100% - 2rem); // 1rem gap on each side
-    max-width: none; // the browser caps dialogs a bit narrower than the screen by default
-    max-height: 90dvh;
-    // auto top margin pushes it to the bottom; floats 1rem above it (plus the iPhone home bar)
-    margin: auto 1rem calc(1rem + env(safe-area-inset-bottom));
-    border-radius: var(--radius-tray); // all four corners, since the bottom is visible now
-    overflow-y: auto;
+	// Phones: bottom sheet. Pinned to the bottom edge, full width, slides up when it opens.
+	@include bp.compact {
+		width: calc(100% - 2rem); // 1rem gap on each side
+		max-width: none; // the browser caps dialogs a bit narrower than the screen by default
+		max-height: 90dvh;
+		// auto top margin pushes it to the bottom; floats 1rem above it (plus the iPhone home bar)
+		margin: auto 1rem calc(1rem + env(safe-area-inset-bottom));
+		border-radius: var(
+			--radius-tray
+		); // all four corners, since the bottom is visible now
+		overflow-y: auto;
 
-    // grab handle, like iOS sheets
-    &::before {
-      content: "";
-      display: block;
-      width: 36px;
-      height: 4px;
-      margin: 8px auto 0;
-      border-radius: 2px;
-      background: var(--line);
-    }
+		// grab handle, like iOS sheets
+		&::before {
+			content: "";
+			display: block;
+			width: 36px;
+			height: 4px;
+			margin: 8px auto 0;
+			border-radius: 2px;
+			background: var(--line);
+		}
 
-    &[open] {
-      animation: sheet-up 280ms cubic-bezier(0.32, 0.72, 0, 1); // iOS-like ease
-    }
+		&[open] {
+			animation: sheet-up 280ms cubic-bezier(0.32, 0.72, 0, 1); // iOS-like ease
+		}
 
-    &[open]::backdrop {
-      animation: backdrop-in 280ms ease;
-    }
-  }
+		&[open]::backdrop {
+			animation: backdrop-in 280ms ease;
+		}
+	}
 }
 
 @keyframes sheet-up {
-  from {
-    transform: translateY(calc(100% + 1rem)); // start fully below the screen, past the 1rem gap
-  }
+	from {
+		transform: translateY(
+			calc(100% + 1rem)
+		); // start fully below the screen, past the 1rem gap
+	}
 }
 
 @keyframes backdrop-in {
-  from {
-    opacity: 0;
-  }
+	from {
+		opacity: 0;
+	}
 }
 
 .inner {
-  display: flex;
-  flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 // Title area: eyebrow, title, description, close button; a line across the modal under it
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start; // close button lines up with the title, not the description
-  gap: 16px;
-  padding: 18px 22px;
-  border-bottom: 1px solid var(--line);
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start; // close button lines up with the title, not the description
+	gap: 16px;
+	padding: 18px 22px;
+	border-bottom: 1px solid var(--line);
 
-  .label {
-    display: block;
-    margin-bottom: 6px;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    font-family: var(--font-label);
-    color: var(--muted);
-  }
+	.label {
+		display: block;
+		margin-bottom: 6px;
+		font-size: 10px;
+		font-weight: 500;
+		letter-spacing: 0.16em;
+		text-transform: uppercase;
+		font-family: var(--font-label);
+		color: var(--muted);
+	}
 
-  h2 {
-    margin: 0;
-    font-size: 20px; // same as card titles
-    font-weight: 600;
-  }
+	h2 {
+		margin: 0;
+		font-size: 20px; // same as card titles
+		font-weight: 600;
+	}
 
-  p {
-    margin-top: 4px;
-    font-size: 13px;
-    color: var(--text-secondary);
-    line-height: 1.6;
-  }
+	p {
+		margin-top: 4px;
+		font-size: 13px;
+		color: var(--text-secondary);
+		line-height: 1.6;
+	}
 
-  // ✕: a small round button
-  button {
-    flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--line);
-    border-radius: 50%;
-    background: var(--raised);
-    color: var(--text-secondary);
-    font-size: 14px;
-    cursor: pointer;
-    transition: background 150ms ease, color 150ms ease;
+	// ✕: a small round button
+	button {
+		flex-shrink: 0;
+		display: grid;
+		place-items: center;
+		width: 36px;
+		height: 36px;
+		border: 1px solid var(--line);
+		border-radius: 50%;
+		background: var(--raised);
+		color: var(--text-secondary);
+		font-size: 14px;
+		cursor: pointer;
+		transition:
+			background 150ms ease,
+			color 150ms ease;
 
-    &:hover {
-      background: var(--interactive);
-      color: var(--text);
-    }
-  }
+		&:hover {
+			background: var(--interactive);
+			color: var(--text);
+		}
+	}
 }
 
 // Whatever body is passed in: fields full width, even spacing
 .body {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 20px 22px 22px;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 20px 22px 22px;
 
-  label {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-secondary);
-  }
+	label {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		font-size: 13px;
+		font-weight: 600;
+		color: var(--text-secondary);
+	}
 
-  input,
-  select,
-  textarea {
-    width: 100%;
-    min-height: 42px;
-    padding: 10px 12px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-control);
-    background: var(--raised); // same as every input in the app
-    color: var(--text);
-    font: inherit;
-    font-size: var(--input-text);
-    font-weight: 400;
-  }
+	input,
+	select,
+	textarea {
+		width: 100%;
+		min-height: 42px;
+		padding: 10px 12px;
+		border: 1px solid var(--line);
+		border-radius: var(--radius-control);
+		background: var(--raised); // same as every input in the app
+		color: var(--text);
+		font: inherit;
+		font-size: var(--input-text);
+		font-weight: 400;
+	}
 
-  textarea {
-    min-height: 117px;
-    resize: vertical;
-  }
+	textarea {
+		min-height: 117px;
+		resize: vertical;
+	}
 
-  ::placeholder {
-    color: var(--muted);
-    opacity: 1;
-  }
+	::placeholder {
+		color: var(--muted);
+		opacity: 1;
+	}
 
-  // A link on its own in a modal ("Manage this member in Hub →"): a quiet secondary button
-  > a {
-    display: inline-flex;
-    align-items: center;
-    align-self: flex-start;
-    min-height: var(--control-height);
-    padding: 0 14px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-control);
-    background: var(--raised);
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 150ms ease, border-color 150ms ease;
+	// A link on its own in a modal ("Manage this member in Hub →"): a quiet secondary button
+	> a {
+		display: inline-flex;
+		align-items: center;
+		align-self: flex-start;
+		min-height: var(--control-height);
+		padding: 0 14px;
+		border: 1px solid var(--line);
+		border-radius: var(--radius-control);
+		background: var(--raised);
+		color: var(--text);
+		font-size: 13px;
+		font-weight: 600;
+		text-decoration: none;
+		transition:
+			background 150ms ease,
+			border-color 150ms ease;
 
-    &:hover {
-      border-color: var(--text-secondary);
-      background: var(--interactive);
-    }
-  }
+		&:hover {
+			border-color: var(--text-secondary);
+			background: var(--interactive);
+		}
+	}
 }
 
 // Cancel + action row (ModalActions): on the right, main action last
 .actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 6px;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 6px;
 
-  button {
-    min-height: var(--control-height);
-    padding: 0 18px;
-    border-radius: var(--radius-control);
-    color: var(--text);
-    font: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 150ms ease, border-color 150ms ease;
+	button {
+		min-height: var(--control-height);
+		padding: 0 18px;
+		border-radius: var(--radius-control);
+		color: var(--text);
+		font: inherit;
+		font-size: 14px;
+		font-weight: 600;
+		cursor: pointer;
+		transition:
+			background 150ms ease,
+			border-color 150ms ease;
 
-    &:disabled {
-      cursor: not-allowed;
-      opacity: 0.5;
-    }
-  }
+		&:disabled {
+			cursor: not-allowed;
+			opacity: 0.5;
+		}
+	}
 
-  .confirm {
-    border: 1px solid var(--brand);
-    background: var(--brand); // red = action
+	.confirm {
+		border: 1px solid var(--brand);
+		background: var(--brand); // red = action
 
-    &:hover:not(:disabled) {
-      border-color: var(--brand-bright);
-      background: var(--brand-bright);
-    }
-  }
+		&:hover:not(:disabled) {
+			border-color: var(--brand-bright);
+			background: var(--brand-bright);
+		}
+	}
 
-  .cancel {
-    border: 1px solid var(--line);
-    background: transparent;
+	.cancel {
+		border: 1px solid var(--line);
+		background: transparent;
 
-    &:hover:not(:disabled) {
-      background: var(--raised);
-    }
-  }
+		&:hover:not(:disabled) {
+			background: var(--raised);
+		}
+	}
 }
 
 // Wider screens: a quick fade in (phones slide up as a sheet instead)
 @media (prefers-reduced-motion: no-preference) and (min-width: 600px) {
-  .modal[open] {
-    animation: modal-in 160ms ease;
-  }
+	.modal[open] {
+		animation: modal-in 160ms ease;
+	}
 }
 
 @keyframes modal-in {
-  from {
-    opacity: 0;
-  }
+	from {
+		opacity: 0;
+	}
+}
+
+// kiosk popups: centered on phones too, instead of a bottom sheet
+.modal.centered {
+	@include bp.compact {
+		margin: auto;
+		border-radius: var(--radius-card);
+
+		// no grab handle, since it isn't a sheet you drag
+		&::before {
+			display: none;
+		}
+	}
 }
