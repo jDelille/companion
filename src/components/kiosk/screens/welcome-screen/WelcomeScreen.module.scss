@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: 2rem 0; // breathing room under the header line
 
   // Greeting (small label) · Welcome to … · subtitle
   .heading {
@@ -116,5 +117,12 @@
 
   &:active {
     transform: scale(0.99);
+  }
+}
+
+// phones: Classes and Events stack instead of squeezing side by side
+@container kiosk (width < 540px) {
+  .screen .secondaryActions {
+    flex-direction: column;
   }
 }

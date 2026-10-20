@@ -21,7 +21,9 @@
     max-height: 90dvh;
     // auto top margin pushes it to the bottom; floats 1rem above it (plus the iPhone home bar)
     margin: auto 1rem calc(1rem + env(safe-area-inset-bottom));
-    border-radius: var(--radius-tray); // all four corners, since the bottom is visible now
+    border-radius: var(
+      --radius-tray
+    ); // all four corners, since the bottom is visible now
     overflow-y: auto;
 
     // grab handle, like iOS sheets
@@ -47,7 +49,9 @@
 
 @keyframes sheet-up {
   from {
-    transform: translateY(calc(100% + 1rem)); // start fully below the screen, past the 1rem gap
+    transform: translateY(
+      calc(100% + 1rem)
+    ); // start fully below the screen, past the 1rem gap
   }
 }
 
@@ -108,7 +112,9 @@
     color: var(--text-secondary);
     font-size: 14px;
     cursor: pointer;
-    transition: background 150ms ease, color 150ms ease;
+    transition:
+      background 150ms ease,
+      color 150ms ease;
 
     &:hover {
       background: var(--interactive);
@@ -172,7 +178,9 @@
     font-size: 13px;
     font-weight: 600;
     text-decoration: none;
-    transition: background 150ms ease, border-color 150ms ease;
+    transition:
+      background 150ms ease,
+      border-color 150ms ease;
 
     &:hover {
       border-color: var(--text-secondary);
@@ -198,7 +206,9 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: background 150ms ease, border-color 150ms ease;
+    transition:
+      background 150ms ease,
+      border-color 150ms ease;
 
     &:disabled {
       cursor: not-allowed;
@@ -236,5 +246,18 @@
 @keyframes modal-in {
   from {
     opacity: 0;
+  }
+}
+
+// kiosk popups: centered on phones too, instead of a bottom sheet
+.modal.centered {
+  @include bp.compact {
+    margin: auto;
+    border-radius: var(--radius-card);
+
+    // no grab handle, since it isn't a sheet you drag
+    &::before {
+      display: none;
+    }
   }
 }

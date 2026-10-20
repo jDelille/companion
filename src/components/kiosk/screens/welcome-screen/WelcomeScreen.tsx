@@ -10,6 +10,7 @@ type Props = {
   actions: SecondaryAction[]; // from kioskConfig; hidden ones are skipped
   onCheckIn: () => void; // just reports the tap, the flow decides what's next
   onAsk?: () => void; // the AI Concierge; leave out when it's turned off
+  onEvents?: () => void; // demo events list; leave out when events aren't connected
   onStaffHelp: () => void; // always there (Miro 09.13), AI or not
 };
 
@@ -18,6 +19,7 @@ const WelcomeScreen = ({
   actions,
   onCheckIn,
   onAsk,
+  onEvents,
   onStaffHelp,
 }: Props) => {
   const shownActions = actions.filter((action) => action.shown);
@@ -79,17 +81,31 @@ const WelcomeScreen = ({
       {/* Classes reuses the same live session selection, without requiring AI. */}
       {cardActions.length > 0 && (
         <div className={styles.secondaryActions}>
-          {cardActions.map((action) => (
-            <ActionCard
-              key={action.id}
-              label={action.label}
-              appearance="row"
-              description={action.id === 'classes' ? 'View today’s sessions and check in' : 'Not connected'}
-              disabled={!action.available || action.id !== 'classes'}
-              onClick={action.id === 'classes' ? onCheckIn : undefined}
-              className={styles.secondaryCard}
-            />
-          ))}
+          {cardActions.map((action) => {
+            const isClasses = action.id === "classes";
+            // events only works when a list is provided (demo mode)
+            const isEvents = action.id === "events" && Boolean(onEvents);
+
+            return (
+              <ActionCard
+                key={action.id}
+                label={action.label}
+                appearance="row"
+                description={
+                  isClasses
+                    ? "View today’s sessions and check in"
+                    : isEvents
+                      ? "See what’s coming up"
+                      : "Not connected"
+                }
+                disabled={!(isClasses && action.available) && !isEvents}
+                onClick={
+                  isClasses ? onCheckIn : isEvents ? onEvents : undefined
+                }
+                className={styles.secondaryCard}
+              />
+            );
+          })}
         </div>
       )}
 

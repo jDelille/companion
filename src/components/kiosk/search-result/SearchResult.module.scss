@@ -1,78 +1,78 @@
 // One name result on the Identify screen (K03): a solid card like the other kiosk options.
 // Avatar · name on the left, the arrow in a circle on the right.
 .result {
-	all: unset;
-	box-sizing: border-box; // all: unset resets this to content-box
-	display: flex;
-	align-items: center;
-	gap: 14px;
-	width: 100%;
-	min-height: 1.5rem; // bigger names
-	padding: 16px 24px;
-	border: 1px solid var(--line);
-	border-radius: var(--radius-card);
-	background: var(--panel);
-	color: var(--text);
-	cursor: pointer;
-	transition:
-		background 150ms ease,
-		border-color 150ms ease;
+  all: unset;
+  box-sizing: border-box; // all: unset resets this to content-box
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 1.5rem; // bigger names
+  padding: 16px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 
-	&:hover,
-	&:active {
-		border-color: var(--text-secondary);
-		background: var(--raised);
-	}
+  &:hover,
+  &:active {
+    border-color: var(--text-secondary);
+    background: var(--raised);
+  }
 
-	// The arrow circle lights up with the card
-	&:hover .arrow,
-	&:active .arrow {
-		border-color: var(--text-secondary);
-		background: var(--interactive);
-		color: var(--text);
-	}
+  // The arrow circle lights up with the card
+  &:hover .arrow,
+  &:active .arrow {
+    border-color: var(--text-secondary);
+    background: var(--interactive);
+    color: var(--text);
+  }
 
-	&:focus-visible {
-		outline: 2px solid var(--text-secondary);
-		outline-offset: 2px;
-	}
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
 }
 
 // Avatar: the darkest black with a thin border, like every avatar in the app
 .initials {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	width: 44px;
-	height: 44px;
-	border: 1px solid var(--line);
-	border-radius: 50%;
-	background: var(--canvas);
-	color: var(--text);
-	font-size: var(--text-sm);
-	font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--canvas);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
 }
 
 .name {
-	font-size: 1.5rem; // bigger names, like my kiosk
-	font-weight: 600;
+  font-size: 1.5rem; // bigger names, like my kiosk
+  font-weight: 600;
 }
 
 // ↗ in a circle, pushed to the right edge
 .arrow {
-	display: grid;
-	place-items: center;
-	flex-shrink: 0;
-	width: 36px;
-	height: 36px;
-	margin-left: auto;
-	border: 1px solid var(--line);
-	border-radius: 50%;
-	color: var(--text-secondary);
-	font-size: 1rem;
-	transition:
-		background 150ms ease,
-		border-color 150ms ease,
-		color 150ms ease;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
 }

@@ -12,6 +12,8 @@
 
 // The one centered column every screen lives in, so screens never set their own width
 .main {
+  --panel-pad-x: 3.5rem; // side padding inside the panel (header uses it too)
+  --panel-pad-y: 2.5rem; // top and bottom padding
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -20,7 +22,7 @@
     var(--kiosk-column-width)
   ); // 1rem gap each side on small screens
   margin: 2rem auto; // space above and below the panel
-  padding: 2.5rem 3.5rem;
+  padding: var(--panel-pad-y) var(--panel-pad-x);
   background: var(--panel); // slightly lighter than the page
   border: 1px solid var(--line);
   border-radius: 24px; // rounded panel like mine
@@ -52,5 +54,14 @@
   a {
     color: var(--text);
     text-decoration: none;
+  }
+}
+
+// phones: tighter panel so content has room
+@container kiosk (width < 540px) {
+  .main {
+    --panel-pad-x: 1.25rem;
+    --panel-pad-y: 1.25rem;
+    margin: 1rem auto;
   }
 }

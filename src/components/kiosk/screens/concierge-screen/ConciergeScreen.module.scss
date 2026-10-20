@@ -45,17 +45,17 @@
 }
 
 .headline {
-  font-size: var(--kiosk-title);
+  font-size: var(--kiosk-title-large); // bigger title, like my kiosk
 }
 
-// One-tap questions, two per row
+// one-tap questions, two per row
 .topics {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
-// One option per card: question on the left, ↗ on the right. Solid cards so they read as buttons.
+// one option per card: question on the left, arrow on the right
 .topic {
   all: unset;
   box-sizing: border-box; // all: unset resets this to content-box
@@ -63,18 +63,20 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 72px; // well over the 48px kiosk minimum
-  padding: 16px 18px 16px 20px;
+  min-height: 96px; // taller cards
+  padding: 20px 20px 20px 24px;
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--panel);
   color: var(--text);
-  font-size: 15px;
+  font-size: var(--text-lg); // bigger question text
   font-weight: 600;
   line-height: 1.35;
   text-align: left;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 
   &:hover:not(:disabled),
   &:active:not(:disabled) {
@@ -82,7 +84,7 @@
     background: var(--raised);
   }
 
-  // The arrow circle lights up with the card
+  // the arrow circle lights up with the card
   &:hover:not(:disabled) .topicArrow,
   &:active:not(:disabled) .topicArrow {
     border-color: var(--text-secondary);
@@ -103,28 +105,29 @@
 
 .askForm {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
-// Same large field as the name search on Identify
+// same rounded box as the name search on Find your name
 .field {
   all: unset;
   box-sizing: border-box;
   flex: 1;
   width: 100%;
-  min-height: calc(var(--touch-height) * 1.25);
-  padding: 0 1.75rem;
-  @include glass.flat;
-  border-radius: var(--radius-pill);
+  min-height: 64px;
+  padding: 0 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--canvas);
   color: var(--text);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
 
   &::placeholder {
     color: var(--muted);
   }
 
   &:focus-visible {
-    border-color: var(--glass-edge-strong);
+    border-color: var(--brand); // red focus ring
   }
 
   &:disabled {
@@ -132,23 +135,27 @@
   }
 }
 
+// red = the action
 .askButton {
   all: unset;
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  min-height: calc(var(--touch-height) * 1.25);
-  padding: 0 1.75rem;
-  @include glass.flat;
-  border-radius: var(--radius-pill);
+  min-height: 64px;
+  padding: 0 2rem;
+  border-radius: var(--radius-card);
+  background: var(--brand);
   color: var(--text);
+  font-size: var(--text-lg);
   font-weight: 600;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    opacity 150ms ease;
 
   &:hover:not(:disabled),
   &:active:not(:disabled) {
-    @include glass.card-active;
+    background: var(--brand-bright);
   }
 
   &:focus-visible {
@@ -157,7 +164,7 @@
   }
 
   &:disabled {
-    color: var(--muted);
+    opacity: 0.5;
     cursor: default;
   }
 }
@@ -165,11 +172,12 @@
 .thinking {
   min-height: 1.5rem; // keeps the layout still when the text appears
   color: var(--text-secondary);
+  font-size: var(--text-base);
 }
 
 .muted {
   color: var(--text-secondary);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-weight: 400;
 }
 
@@ -177,22 +185,26 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  padding: 1.25rem 1.5rem;
-  @include glass.flat;
-  border-radius: var(--radius-leaf);
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--canvas);
   // AI marker (--agent is AI context only): a clean inside edge, not a thick border
   box-shadow: inset 3px 0 0 var(--agent);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   line-height: 1.4;
 }
 
-// Label on the left, value on the right (same style as Confirm and Result)
+// label on the left, value next to it (same style as Confirm and Result)
 .schedule,
 .details {
   display: flex;
   flex-direction: column;
-  @include glass.flat;
-  border-radius: var(--radius-leaf);
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--canvas);
 }
 
 .scheduleRow,
@@ -201,15 +213,10 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
-  padding: 1.25rem;
-
-  & + & {
-    border-top: 1px solid var(--glass-edge);
-  }
 
   dt {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
+    font-size: var(--text-lg);
+    color: var(--muted);
     font-variant-numeric: tabular-nums;
   }
 
@@ -218,7 +225,7 @@
     flex-direction: column;
     align-items: flex-end;
     gap: 0.25rem;
-    font-size: var(--text-lg);
+    font-size: var(--text-xl);
     font-weight: 600;
     text-align: right;
   }
@@ -252,7 +259,9 @@
   font-size: var(--text-md);
   font-weight: 600;
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 
   &:hover {
     @include glass.card-active;

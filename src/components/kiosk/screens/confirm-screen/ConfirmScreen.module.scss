@@ -2,57 +2,71 @@
 
 // Width comes from the shell, like every kiosk screen
 .screen {
-	display: flex;
-	flex-direction: column;
-	gap: 1.5rem;
-	padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 0;
 }
 
 .topBar {
-	display: flex;
-	align-items: center;
-	min-height: var(--touch-height);
+  display: flex;
+  align-items: center;
+  min-height: var(--touch-height);
 }
 
 .heading {
-	margin-top: 1rem;
-	font-size: var(--kiosk-title-large); // bigger title, like my kiosk
+  margin-top: 1rem;
+  font-size: var(--kiosk-title-large); // bigger title, like my kiosk
 }
 
 // student and class: label on the left, value next to it (like my kiosk)
 .summary {
-	display: flex;
-	flex-direction: column;
-	gap: 0.75rem;
-	padding: 1.5rem;
-	border: 1px solid var(--line);
-	border-radius: var(--radius-card);
-	background: var(--canvas); // darker than the panel, so the card stands out
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--canvas); // darker than the panel, so the card stands out
 }
 
 .summaryRow {
-	display: grid;
-	grid-template-columns: 8rem 1fr; // label column | value column
-	align-items: baseline;
-	gap: 1rem;
+  display: grid;
+  grid-template-columns: 8rem 1fr; // label column | value column
+  align-items: baseline;
+  gap: 1rem;
 
-	dt {
-		font-size: var(--text-lg);
-		color: var(--muted);
-	}
+  dt {
+    font-size: var(--text-lg);
+    color: var(--muted);
+  }
 
-	dd {
-		font-size: var(--text-xl);
-		font-weight: 600;
-	}
+  dd {
+    font-size: var(--text-xl);
+    font-weight: 600;
+  }
 }
 
 // Read by screen readers, not shown on screen
 .visuallyHidden {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-	clip-path: inset(50%);
-	white-space: nowrap;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+// phones: label above value, same as Result
+@container kiosk (width < 540px) {
+  .summaryRow {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+
+    dd {
+      min-width: 0;
+      font-size: var(--text-lg);
+      overflow-wrap: anywhere;
+    }
+  }
 }

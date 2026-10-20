@@ -10,6 +10,7 @@ type Props = {
   onClose: () => void;
   children: ReactNode;
   hideClose?: boolean; // hide the small x (e.g. kiosk, where every target must be 48px+)
+  centered?: boolean; // phones: sit in the middle instead of pinned to the bottom (kiosk popups)
 };
 
 export default function Modal({
@@ -20,6 +21,7 @@ export default function Modal({
   onClose,
   children,
   hideClose = false,
+  centered = false,
 }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   const id = useId();
@@ -34,7 +36,7 @@ export default function Modal({
   return (
     <dialog
       ref={ref}
-      className={styles.modal}
+      className={centered ? `${styles.modal} ${styles.centered}` : styles.modal}
       aria-labelledby={`${id}-title`}
       aria-describedby={`${id}-description`}
       onCancel={(e) => {

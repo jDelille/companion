@@ -2,9 +2,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  // negative margins stretch the line across the whole panel
-  margin: -2.5rem -3.5rem 0;
-  padding: 1.25rem 2rem;
+  // negative margins stretch the line across the whole panel, whatever its padding
+  margin: calc(var(--panel-pad-y) * -1) calc(var(--panel-pad-x) * -1) 0;
+  padding: 1.25rem var(--panel-pad-x);
   border-bottom: 1px solid var(--line);
 }
 
