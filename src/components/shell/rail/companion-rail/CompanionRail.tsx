@@ -16,6 +16,7 @@ import { viewFromPath } from "@/integrations/companion";
 import styles from "./CompanionRail.module.scss";
 import doForMeStyles from "./DoForMe.module.scss";
 import type { Suggestion } from "@/domain/companion";
+import { ASK_AGENT_EVENT, type AskAgentDetail } from "@/components/shell/workspace/shellEvents";
 
 type Props = {
   children?: React.ReactNode;
@@ -73,6 +74,19 @@ const CompanionRail = ({ children }: Props) => {
     window.addEventListener("dojang:do-for-me", onDoForMe);
     return () => window.removeEventListener("dojang:do-for-me", onDoForMe);
   }, []);
+
+  // A question from the top bar's search box: ask it here, answer shows in Plan
+  const request = companion.request;
+  useEffect(() => {
+    const onAsk = (event: Event) => {
+      const text = (event as CustomEvent<AskAgentDetail>).detail?.text;
+      if (!text) return;
+      setDoForMe({ page: window.location.pathname, tab: "plan", suggestion: null, pageTop: false });
+      request(text);
+    };
+    window.addEventListener(ASK_AGENT_EVENT, onAsk);
+    return () => window.removeEventListener(ASK_AGENT_EVENT, onAsk);
+  }, [request]);
 
   const onThisPage = doForMe !== null && doForMe.page === pathname;
   const tab: Tab = onThisPage ? doForMe.tab : "plan";

@@ -35,6 +35,7 @@ const Member360View = ({ member, attendance, liveTest = false }: Props) => {
       />
       <Identity key={member.id} member={member} liveTest={liveTest} />
       <Tabs
+        memberId={member.id}
         panels={{
           Overview: (
             <MemberGrid

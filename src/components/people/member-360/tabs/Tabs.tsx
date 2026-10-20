@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { MEMBER_TAB_EVENT, type MemberTabDetail } from "@/components/shell/workspace/shellEvents";
 import styles from "./Tabs.module.scss";
 import { useOptionalWorkspaceActions } from "@/components/workspace/WorkspaceActions";
 
@@ -20,14 +21,27 @@ export const TAB_NAMES = [
 export type TabName = (typeof TAB_NAMES)[number];
 
 type Props = {
+  memberId: string;
   panels: Partial<Record<TabName, ReactNode>>; // tabs without a panel aren't built yet
 };
 
 const tabId = (tab: TabName) => `member-tab-${tab.toLowerCase()}`;
 
-const Tabs = ({ panels }: Props) => {
+const Tabs = ({ memberId, panels }: Props) => {
   const [activeTab, setActiveTab] = useState<TabName>("Overview");
   const locked = useOptionalWorkspaceActions()?.hasPending;
+
+  // The top bar's "Show household" switches to Family (only tabs that are built)
+  useEffect(() => {
+    const onTab = (event: Event) => {
+      const detail = (event as CustomEvent<MemberTabDetail>).detail;
+      if (detail?.memberId !== memberId || locked) return;
+      const tab = TAB_NAMES.find((name) => name === detail.tab);
+      if (tab && panels[tab]) setActiveTab(tab);
+    };
+    window.addEventListener(MEMBER_TAB_EVENT, onTab);
+    return () => window.removeEventListener(MEMBER_TAB_EVENT, onTab);
+  }, [memberId, panels, locked]);
   const panel = panels[activeTab];
 
   return (

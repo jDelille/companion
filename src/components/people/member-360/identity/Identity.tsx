@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Member } from "@/domain/member";
 import Modal from "@/components/primitives/modal/Modal";
 import {
@@ -10,6 +11,12 @@ import {
 import styles from "./Identity.module.scss";
 import Link from "@/components/primitives/AppLink";
 import { memberInitials } from "@/domain/member-presentation";
+import { MEMBER_ACTION_EVENT, type MemberActionDetail } from "@/components/shell/workspace/shellEvents";
+
+// Windows the top bar's search can open on this page (?action=book, or its event)
+const OPENABLE: ModalType[] = ["message", "book", "payment", "edit"];
+const openable = (action: string | null | undefined): ModalType | null =>
+  OPENABLE.find((name) => name === action) ?? null;
 
 type Props = {
   member: Member;
@@ -29,7 +36,22 @@ const btns: { label: string; modal?: ModalType }[] = [
 ];
 
 const Identity = ({ member, liveTest = false }: Props) => {
-  const [open, setOpen] = useState<ModalType | null>(null);
+  // Arriving from the top bar with ?action=book opens that window straight away
+  const params = useSearchParams();
+  const [open, setOpen] = useState<ModalType | null>(() => openable(params.get("action")));
+
+  // Already on this page: the top bar asks with an event instead
+  useEffect(() => {
+    const onAction = (event: Event) => {
+      const detail = (event as CustomEvent<MemberActionDetail>).detail;
+      if (detail?.memberId !== member.id) return;
+      const action = openable(detail.action);
+      if (action) setOpen(action);
+    };
+    window.addEventListener(MEMBER_ACTION_EVENT, onAction);
+    return () => window.removeEventListener(MEMBER_ACTION_EVENT, onAction);
+  }, [member.id]);
+
   const current = open ? getMemberModal(open, member) : null;
 
   const handleClick = (btn: (typeof btns)[number]) => {

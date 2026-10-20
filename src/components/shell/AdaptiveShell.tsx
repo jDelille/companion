@@ -8,6 +8,8 @@ import ConnectedNavigation from "./ConnectedNavigation";
 import ContextPane from "./ContextPane";
 import TodayContext from "./TodayContext";
 import WorkspaceTabs from "./workspace/WorkspaceTabs";
+import WorkspaceHeader from "./workspace/WorkspaceHeader";
+import { ASK_AGENT_EVENT } from "./workspace/shellEvents";
 // Loaded with the page, not separately: a separate load swapped the dock for a short
 // "Opening Companion…" line on every page load, which pushed the page content sideways.
 // The dock's own content still loads in afterwards, with placeholders.
@@ -129,7 +131,12 @@ export default function AdaptiveShell({
       setCompanionOpen(true);
     };
     window.addEventListener("dojang:do-for-me", onDoForMe);
-    return () => window.removeEventListener("dojang:do-for-me", onDoForMe);
+    // A question from the top bar goes to the Do For Me agent: show it
+    window.addEventListener(ASK_AGENT_EVENT, onDoForMe);
+    return () => {
+      window.removeEventListener("dojang:do-for-me", onDoForMe);
+      window.removeEventListener(ASK_AGENT_EVENT, onDoForMe);
+    };
   }, []);
 
   return (
@@ -190,24 +197,16 @@ export default function AdaptiveShell({
       </div>
 
       <div className={styles.workspaceSlot}>
-        <header className={styles.connectedHeader}>
-          <div>
-            <strong>{demoMode ? "Dojang Downtown" : "Dojang Companion"}</strong>
-            <span>{connectedTest ? "Test workspace" : "Staff workspace"}</span>
-          </div>
-          <button
-            ref={contextTrigger}
-            className={styles.contextTrigger}
-            aria-controls="workspace-context"
-            aria-expanded={contextOpen}
-            onClick={() => {
-              setCompanionOpen(false);
-              setContextOpen((open) => !open);
-            }}
-          >
-            {onToday ? "Views & filters" : "Workspace guide"}
-          </button>
-        </header>
+        <WorkspaceHeader
+          location={demoMode ? "Downtown" : connectedTest ? "Test workspace" : "Dojang"}
+          contextOpen={contextOpen}
+          contextLabel={onToday ? "Views & filters" : "Workspace guide"}
+          contextTriggerRef={contextTrigger}
+          onToggleContext={() => {
+            setCompanionOpen(false);
+            setContextOpen((open) => !open);
+          }}
+        />
         <WorkspaceTabs />
         {demoMode && (
           <div className={styles.demoBanner}>Preview · Sample data</div>
