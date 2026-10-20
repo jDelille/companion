@@ -348,3 +348,43 @@
   color: var(--warning);
   font-size: 13px;
 }
+
+// The completion receipt on the page (doc 46)
+.receipt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  font-size: 13px;
+
+  > small:first-child {
+    color: var(--success);
+  }
+
+  > strong {
+    font-size: 16px;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  code {
+    color: var(--text-secondary);
+    font-family: var(--font-label);
+    font-size: 12px;
+  }
+
+  a {
+    color: var(--text);
+    font-weight: 600;
+  }
+}

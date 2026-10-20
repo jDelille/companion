@@ -442,3 +442,134 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
+
+// A running plan: one row per step, its mark on the left
+.runSteps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+
+  li {
+    display: flex;
+    gap: 10px;
+  }
+
+  li > span:first-child {
+    width: 14px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+
+  li > span:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  small {
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  [data-status="done"] > span:first-child {
+    color: var(--success);
+  }
+
+  [data-status="running"] > span:first-child,
+  [data-status="waiting"] > span:first-child {
+    color: var(--agent);
+  }
+
+  [data-status="pending"],
+  [data-status="skipped"] {
+    color: var(--muted);
+  }
+
+  [data-status="failed"] {
+    color: var(--warning);
+  }
+}
+
+// Status line colours by state (the base look is .pageStatus)
+.pageStatus[data-state="paused"],
+.pageStatus[data-state="stopped"] {
+  color: var(--text-secondary);
+}
+
+.pageStatus[data-state="failed"] {
+  color: var(--warning);
+}
+
+.runControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+
+  button {
+    min-height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+// The completion receipt
+.runReceipt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--canvas);
+  font-size: 13px;
+
+  > small {
+    color: var(--success);
+    font-family: var(--font-label);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  > .runAuditLabel {
+    margin-top: 6px;
+    color: var(--muted);
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 4px 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  [data-ok="false"] {
+    color: var(--muted);
+  }
+
+  code {
+    color: var(--text-secondary);
+    font-family: var(--font-label);
+    font-size: 11px;
+  }
+
+  a {
+    color: var(--text);
+    font-weight: 600;
+  }
+}

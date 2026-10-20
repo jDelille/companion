@@ -46,6 +46,7 @@
     flex: 1;
     min-height: 0; // lets it shrink to the space left and scroll instead of growing
     overflow-y: auto;
+    padding-top: 16px; // room under the tabs' line, so the first text isn't on it
     padding-bottom: 12px; // breathing room above the composer
     scrollbar-width: none;
 

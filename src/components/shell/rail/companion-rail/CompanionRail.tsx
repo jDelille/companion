@@ -18,6 +18,8 @@ import doForMeStyles from "./DoForMe.module.scss";
 import type { Suggestion } from "@/domain/companion";
 import { ASK_AGENT_EVENT, type AskAgentDetail } from "@/components/shell/workspace/shellEvents";
 import { usePageEvidence } from "./pageEvidence";
+import { usePageRun } from "./pageRun";
+import RunView from "./RunView";
 import Link from "@/components/primitives/AppLink";
 
 type Props = {
@@ -92,9 +94,11 @@ const CompanionRail = ({ children }: Props) => {
 
   // A page with its own evidence (the Proposed edit page) opens on Evidence
   const pageEvidence = usePageEvidence();
+  // A page running a plan (Action contract) opens on Work, where the run is
+  const pageRun = usePageRun();
 
   const onThisPage = doForMe !== null && doForMe.page === pathname;
-  const tab: Tab = onThisPage ? doForMe.tab : pageEvidence ? "evidence" : "plan";
+  const tab: Tab = onThisPage ? doForMe.tab : pageRun ? "work" : pageEvidence ? "evidence" : "plan";
   const pickedOnThisPage = onThisPage ? doForMe.suggestion : null;
 
   const pageSuggestions = featured
@@ -168,9 +172,6 @@ const CompanionRail = ({ children }: Props) => {
       >
         {tab === "plan" && (
           <>
-            <p className={styles.contextNote}>
-              Ask a question or prepare an action for review.
-            </p>
             {/* Placeholders the size of the status pill and task rows (Today has its own in TodayBrief) */}
             {companion.contextStatus === "loading" && !onToday && (
               <div className={styles.skeletonGroup} role="status" aria-label="Loading suggestions">
@@ -255,7 +256,13 @@ const CompanionRail = ({ children }: Props) => {
           </>
         )}
 
-        {tab === "work" && (
+        {tab === "work" && pageRun && (
+          <div className={doForMeStyles.body}>
+            <RunView run={pageRun} />
+          </div>
+        )}
+
+        {tab === "work" && !pageRun && (
           <div className={doForMeStyles.body}>
             <WorkTab
               suggestion={picked}
@@ -324,7 +331,8 @@ const CompanionRail = ({ children }: Props) => {
 
         {tab === "history" && (
           <div className={doForMeStyles.body}>
-            {receipts.length === 0 && (
+            {pageRun?.receipt && <RunView run={pageRun} receiptOnly />}
+            {receipts.length === 0 && !pageRun?.receipt && (
               <p className={doForMeStyles.why}>Nothing has been done here yet.</p>
             )}
             {receipts.map((receipt) => (
