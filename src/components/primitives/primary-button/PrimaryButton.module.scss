@@ -1,61 +1,61 @@
 @use "../../../../styles/glass" as glass;
 
 .button {
-	all: unset;
-	box-sizing: border-box; // all: unset resets this to content-box
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 100%;
-	min-height: 80px;
-	padding: 0 2rem;
-	border: 1px solid transparent;
-	border-radius: var(--radius-card);
-	font-size: 1.875rem;
-	font-weight: 600;
-	cursor: pointer;
-	transition:
-		background 150ms ease,
-		border-color 150ms ease,
-		opacity 150ms ease;
+  all: unset;
+  box-sizing: border-box; // all: unset resets this to content-box
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 80px;
+  padding: 0 2rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-card);
+  font-size: 1.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease,
+    opacity 150ms ease;
 
-	&:focus-visible {
-		outline: 2px solid var(--text-secondary);
-		outline-offset: 3px;
-	}
+  &:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 3px;
+  }
 
-	&:disabled {
-		cursor: default;
-	}
+  &:disabled {
+    cursor: default;
+  }
 }
 
 // Brand red is for actions only (Build §18): the one committing action
 .brand {
-	background: var(--brand);
-	color: var(--text);
+  background: var(--brand);
+  color: var(--text);
 
-	&:hover:not(:disabled),
-	&:active:not(:disabled) {
-		background: color-mix(in srgb, var(--brand) 88%, white);
-	}
+  &:hover:not(:disabled),
+  &:active:not(:disabled) {
+    background: color-mix(in srgb, var(--brand) 88%, white);
+  }
 
-	// While sending: still clearly the same button, just paused
-	&:disabled {
-		opacity: 0.6;
-	}
+  // While sending: still clearly the same button, just paused
+  &:disabled {
+    opacity: 0.6;
+  }
 }
 
 // The main next step that doesn't commit anything (Done)
 .glass {
-	@include glass.flat;
-	color: var(--text);
+  @include glass.flat;
+  color: var(--text);
 
-	&:hover:not(:disabled),
-	&:active:not(:disabled) {
-		@include glass.card-active;
-	}
+  &:hover:not(:disabled),
+  &:active:not(:disabled) {
+    @include glass.card-active;
+  }
 
-	&:disabled {
-		color: var(--muted);
-	}
+  &:disabled {
+    color: var(--muted);
+  }
 }
