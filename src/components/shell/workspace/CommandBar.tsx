@@ -24,6 +24,43 @@ const MAX_PEOPLE = 5;
 
 type SearchMember = { id: string; name: string; detail: string };
 
+// Members from the Hub, with the staff member's own Odoo sign-in (only the parts used here)
+type HubContext = { members: { id: string; name: string; state?: string; rank?: string }[] };
+
+async function hubMembers(): Promise<SearchMember[] | null> {
+  try {
+    const response = await fetch("/api/hub", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify({ operation: "context", payload: {}, requestKey: null }),
+    });
+    if (!response.ok) return null;
+    const context = (await response.json()) as HubContext;
+    if (!Array.isArray(context.members)) return null;
+    return context.members.map((member) => ({
+      id: String(member.id),
+      name: String(member.name),
+      detail: [member.rank, member.state].filter(Boolean).join(" · ") || "Member",
+    }));
+  } catch {
+    return null;
+  }
+}
+
+// The paired staff device's member list first; if this browser isn't paired, the Hub's
+async function loadConnectedMembers(): Promise<SearchMember[] | null> {
+  const fromDevice = await listMembers(new AbortController().signal);
+  if (fromDevice) {
+    return fromDevice.map((member) => ({
+      id: member.id,
+      name: member.name,
+      detail: member.membershipState ? `Membership ${member.membershipState}` : "Member",
+    }));
+  }
+  return hubMembers();
+}
+
 // One row in the dropdown. Arrow keys move between them; Enter runs the highlighted one.
 type Option = {
   id: string;
@@ -46,6 +83,7 @@ const CommandBar = () => {
   const [open, setOpen] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
   const [members, setMembers] = useState<SearchMember[] | null>(null);
+  const [membersFailed, setMembersFailed] = useState(false);
   const [afterNavigation, setAfterNavigation] = useState<AfterNavigation | null>(null);
 
   // Ctrl+K (⌘K on a Mac) jumps to the search box from anywhere
@@ -83,8 +121,10 @@ const CommandBar = () => {
   }, [afterNavigation, pathname]);
 
   // Members load the first time the box is used, not on every page
+  // (and again next time if they couldn't be loaded)
   const loadMembers = () => {
     if (members !== null) return;
+    setMembersFailed(false);
     if (!CONNECTED) {
       setMembers(
         mockMembers.map((member) => ({
@@ -95,14 +135,9 @@ const CommandBar = () => {
       );
       return;
     }
-    listMembers(new AbortController().signal).then((list) => {
-      setMembers(
-        (list ?? []).map((member) => ({
-          id: member.id,
-          name: member.name,
-          detail: member.membershipState ? `Membership ${member.membershipState}` : "Member",
-        })),
-      );
+    loadConnectedMembers().then((list) => {
+      if (list) setMembers(list);
+      else setMembersFailed(true);
     });
   };
 
@@ -241,7 +276,7 @@ const CommandBar = () => {
         onPointerEnter={() => setHighlighted(index)}
       >
         {option.member && <Avatar name={option.member.name} size="small" />}
-        <span>
+        <span className={styles.commandText}>
           <strong>{option.label}</strong>
           {option.detail && <small>{option.detail}</small>}
         </span>
@@ -295,8 +330,13 @@ const CommandBar = () => {
                 {commands.map(renderOption)}
               </>
             )}
-            {search && members === null && CONNECTED && (
+            {search && members === null && CONNECTED && !membersFailed && (
               <li role="presentation" className={styles.commandNote}>Loading members…</li>
+            )}
+            {search && membersFailed && (
+              <li role="presentation" className={styles.commandNote}>
+                Members couldn’t be loaded. Sign in on the Hub page or connect this device, then try again.
+              </li>
             )}
             {search && members !== null && matches.length === 0 && (
               <li role="presentation" className={styles.commandNote}>No members match</li>

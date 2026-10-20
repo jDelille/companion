@@ -276,7 +276,8 @@
     border-radius: 8px;
     cursor: pointer;
 
-    span {
+    // The label and detail (not the avatar, which centers its own initials)
+    .commandText {
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -298,8 +299,9 @@
   // The first member's actions sit in a row of small buttons under their name
   .commandOption_actions {
     width: auto;
-    min-height: 32px;
-    padding: 6px 10px;
+    min-height: 34px;
+    margin: 6px 4px 6px 0; // room above and below the row of buttons
+    padding: 6px 12px;
     border: 1px solid var(--dark-border);
 
     strong {
