@@ -1,5 +1,5 @@
 // "Ask AI to edit": turns a staff request like
-// "Move Maya to Advanced and assign Master Kim" into a proposed edit.
+// "Move <member> to <program> and assign <instructor>" into a proposed edit.
 // For now this is keyword matching, not a language model: it looks for a program
 // name and an "assign <Name>" instructor in the request. Nothing is saved here.
 
@@ -38,7 +38,7 @@ function findProgram(request: string, programs: ProgramOption[], currentProgram:
   return null;
 }
 
-// "assign Master Kim", "assign to Sarah Park": up to three capitalised words after "assign"
+// "assign <Name>", "assign to <Name>": up to three capitalised words after "assign"
 function findInstructor(request: string): string | null {
   const match = request.match(/assign(?:\s+to)?\s+((?:[A-Z][a-z]+\s?){1,3})/);
   return match ? match[1].trim() : null;

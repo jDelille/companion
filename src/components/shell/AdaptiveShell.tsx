@@ -7,6 +7,7 @@ import styles from "./Shell.module.scss";
 import ConnectedNavigation from "./ConnectedNavigation";
 import ContextPane from "./ContextPane";
 import TodayContext from "./TodayContext";
+import WorkbenchContext from "./WorkbenchContext";
 import WorkspaceTabs from "./workspace/WorkspaceTabs";
 import WorkspaceHeader from "./workspace/WorkspaceHeader";
 import { ASK_AGENT_EVENT } from "./workspace/shellEvents";
@@ -54,7 +55,9 @@ export default function AdaptiveShell({
   const onClasses = pathname.startsWith("/ops");
   // Today has its own column: search, saved views, filters, object list (master shell layout)
   const onToday = pathname === "/";
-  const sectionPane = onPeople || onClasses || onToday;
+  // Intel is the AI Workbench (Action contracts)
+  const onIntel = pathname.startsWith("/intel");
+  const sectionPane = onPeople || onClasses || onToday || onIntel;
 
   // Shared-device privacy: hide staff pages when the browser restores them from history,
   // and follow other tabs to the kiosk when one switches to public mode.
@@ -174,6 +177,8 @@ export default function AdaptiveShell({
         </button>
         {onToday ? (
           <TodayContext />
+        ) : onIntel ? (
+          <WorkbenchContext />
         ) : sectionPane ? (
           <ContextPane section={onPeople ? "people" : "classes"}>{undefined}</ContextPane>
         ) : context ?? (

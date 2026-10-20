@@ -1,0 +1,350 @@
+@use "../../../styles/breakpoints" as bp;
+
+// Laid out like do-for-me-5: crumbs, big goal + pill, Scope, Will do | Will not,
+// the approval checkpoint, then Inspect / Edit / Approve on the right
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%; // the whole workspace width, no max-width
+  padding: 24px;
+  color: var(--text);
+
+  @include bp.compact {
+    padding: 16px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.1;
+  }
+}
+
+.label {
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.kicker {
+  @extend .label;
+  color: var(--text-secondary);
+}
+
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+
+  a {
+    color: var(--text-secondary);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--text);
+    }
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+}
+
+.pill {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  border: 1px solid var(--text-secondary);
+  border-radius: 999px;
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+// Shared card look
+.scope,
+.inspect,
+.edit,
+.cards article,
+.review {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+}
+
+.scope {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  > div {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  strong {
+    font-size: 22px;
+    white-space: nowrap;
+  }
+}
+
+.inspect {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  a {
+    color: var(--text);
+  }
+
+  span {
+    color: var(--muted);
+  }
+}
+
+.edit {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+
+  @include bp.workspace-split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .wide {
+    grid-column: 1 / -1;
+  }
+
+  select,
+  textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+  }
+
+  select {
+    height: 44px;
+  }
+}
+
+// Will do | Will not, side by side when there's room
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+
+  @include bp.workspace-split {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  article {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+
+  li {
+    display: flex;
+    gap: 8px;
+
+    > span:last-child {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+  }
+}
+
+.yes {
+  color: var(--success);
+}
+
+.pending {
+  color: var(--muted);
+}
+
+.off {
+  color: var(--muted);
+}
+
+.no {
+  margin-right: 8px;
+  color: var(--text-secondary);
+}
+
+// "Human checkpoint": a darker band, like the mockup
+.checkpoint {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px;
+  background: var(--raised);
+  border-radius: var(--radius-card);
+
+  strong {
+    font-size: 13px;
+  }
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+
+  p {
+    margin: 0;
+    color: var(--text-secondary);
+  }
+}
+
+.goalForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  input {
+    flex: 1;
+    min-width: 240px;
+    height: 44px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--raised);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.secondary,
+.primary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.secondary {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.primary {
+  border: 1px solid var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+.note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+
+  a {
+    color: var(--text);
+  }
+}
+
+.error {
+  margin: 0;
+  color: var(--warning);
+  font-size: 13px;
+}

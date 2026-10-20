@@ -251,7 +251,7 @@ export default function MemberEditLeaf({ member, liveTest, onClose }: Props) {
                 value={request}
                 maxLength={300}
                 rows={4}
-                placeholder={`Move ${member.name.split(" ")[0]} to Advanced and assign Master Kim.`}
+                placeholder="Describe the change: a program to move to, or an instructor to assign."
                 onChange={(event) => setRequest(event.target.value)}
                 autoFocus
               />

@@ -10,6 +10,10 @@ export type EvidenceItem = { title: string; detail: string };
 export type PageEvidence = {
   items: EvidenceItem[];
   sourcesHref?: string; // "Inspect sources →"
+  status?: string; // a state line above the items, e.g. "Waiting for approval"
+  heading?: string; // e.g. the contract's goal
+  numbered?: boolean; // show the items as numbered steps
+  footnote?: string; // e.g. "No changes have executed."
 };
 
 let current: PageEvidence | null = null;

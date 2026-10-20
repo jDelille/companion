@@ -278,15 +278,38 @@ const CompanionRail = ({ children }: Props) => {
           <div className={doForMeStyles.body}>
             {pageEvidence ? (
               <>
-                <p className={doForMeStyles.label}>Evidence</p>
-                <dl className={doForMeStyles.pageEvidence}>
-                  {pageEvidence.items.map((item) => (
-                    <div key={item.title}>
-                      <dt>{item.title}</dt>
-                      <dd>{item.detail}</dd>
-                    </div>
-                  ))}
-                </dl>
+                {pageEvidence.status ? (
+                  <p className={doForMeStyles.pageStatus}>
+                    <i aria-hidden="true" />
+                    {pageEvidence.status}
+                  </p>
+                ) : (
+                  <p className={doForMeStyles.label}>Evidence</p>
+                )}
+                {pageEvidence.heading && <h3 className={doForMeStyles.pageHeading}>{pageEvidence.heading}</h3>}
+                {pageEvidence.numbered ? (
+                  <ol className={doForMeStyles.steps}>
+                    {pageEvidence.items.map((item, index) => (
+                      <li key={item.title}>
+                        <span className={doForMeStyles.stepNumber}>{index + 1}</span>
+                        <span>
+                          <strong>{item.title}</strong>
+                          <small>{item.detail}</small>
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <dl className={doForMeStyles.pageEvidence}>
+                    {pageEvidence.items.map((item) => (
+                      <div key={item.title}>
+                        <dt>{item.title}</dt>
+                        <dd>{item.detail}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+                {pageEvidence.footnote && <p className={doForMeStyles.pageFootnote}>{pageEvidence.footnote}</p>}
                 {pageEvidence.sourcesHref && (
                   <Link href={pageEvidence.sourcesHref} className={doForMeStyles.sources}>
                     Inspect sources <span aria-hidden="true">→</span>

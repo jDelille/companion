@@ -10,6 +10,7 @@ import { listMembers } from "@/integrations/staff-members";
 import { mockMembers } from "@/integrations/mock/members";
 import type { MemberAction } from "@/domain/member-presentation";
 import { openWorkspaceTab } from "./openTabs";
+import { recognizeGoal } from "@/components/workbench/contractRules";
 import {
   ASK_AGENT_EVENT,
   DO_FOR_ME_EVENT,
@@ -233,6 +234,15 @@ const CommandBar = () => {
         run: () => onMemberPage(first, MEMBER_TAB_EVENT, { memberId: first.id, tab: "Family" }),
       });
     }
+  }
+  // A goal Do For Me can plan ("invite testing candidates") opens an Action contract
+  if (recognizeGoal(query)) {
+    options.push({
+      id: "contract",
+      group: "ask",
+      label: `✦ Prepare action contract: “${query.trim()}”`,
+      run: () => goTo(`/intel?goal=${encodeURIComponent(query.trim())}`),
+    });
   }
   // Anything typed can go to Do For Me (live views aren't built yet)
   if (search.length >= 2) {

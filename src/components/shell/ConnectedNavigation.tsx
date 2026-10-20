@@ -29,6 +29,8 @@ const items: {
   },
   { href: "/hub?view=crm", label: "Sales", icon: "sales", matches: (p, view) => p === "/hub" && view === "crm" },
   { href: "/hub", label: "Inbox", icon: "followups", matches: (p, view) => p === "/hub" && ["", "messages"].includes(view) },
+  // AI Workbench: Action contracts
+  { href: "/intel", label: "Intel", icon: "companion", matches: (p) => p.startsWith("/intel") },
   { href: "/hub?view=instructor", label: "Instructor", icon: "classes", matches: (p, view) => p === "/hub" && view === "instructor", desktopOnly: true },
   { href: "/hub?view=attendance", label: "Attendance", icon: "classes", matches: (p, view) => p === "/hub" && view === "attendance", desktopOnly: true },
   { href: "/hub?view=testing", label: "Testing", icon: "classes", matches: (p, view) => p === "/hub" && view === "testing", desktopOnly: true },
