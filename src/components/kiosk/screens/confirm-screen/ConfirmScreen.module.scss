@@ -56,3 +56,17 @@
 	clip-path: inset(50%);
 	white-space: nowrap;
 }
+
+// phones: label above value, same as Result
+@container kiosk (width < 540px) {
+	.summaryRow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.25rem;
+
+		dd {
+			min-width: 0;
+			font-size: var(--text-lg);
+			overflow-wrap: anywhere;
+		}
+	}
+}

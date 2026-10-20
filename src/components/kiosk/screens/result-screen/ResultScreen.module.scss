@@ -95,3 +95,18 @@
 		margin-bottom: 0.5rem;
 	}
 }
+
+// phones: label above value, so long values and the Late tag have the full width
+@container kiosk (width < 540px) {
+	.detailRow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.25rem;
+
+		dd {
+			flex-wrap: wrap; // the Late tag drops below instead of running off the side
+			min-width: 0;
+			font-size: var(--text-lg);
+			overflow-wrap: anywhere;
+		}
+	}
+}
