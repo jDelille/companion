@@ -76,6 +76,29 @@
   border: 1px solid var(--line);
   border-radius: var(--radius-card);
   background: var(--panel);
+  outline: none; // focused by "Review all"; the flash below shows it instead
+
+  // "Review all" in the Do For Me brief landed here: a brief agent-coloured ring
+  &[data-flash="true"] {
+    animation: flash 1.4s ease;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &[data-flash="true"] {
+      animation: none;
+      box-shadow: 0 0 0 2px var(--agent);
+    }
+  }
+}
+
+@keyframes flash {
+  0%,
+  60% {
+    box-shadow: 0 0 0 2px var(--agent);
+  }
+  100% {
+    box-shadow: 0 0 0 2px transparent;
+  }
 }
 
 .note {

@@ -269,9 +269,10 @@
 .todayBrief {
   display: grid;
   gap: 10px;
-  margin-top: 1.5rem;
+  margin-top: 0; // the tab area already has room at the top
 
   h3 {
+    margin: 0; // not the rail headings' 1.5rem: the greeting sits at the top
     color: var(--text);
     font-size: 1.125rem;
     font-weight: 600;
@@ -283,26 +284,42 @@
     line-height: 1.5;
   }
 
+  // What needs attention: one row per item (dot, then the text), a line under each
   ul {
+    margin: 6px 0 0;
+    padding: 0;
     list-style: none;
-    border-top: 1px solid var(--line);
+  }
+
+  li:not(:last-child) {
+    border-bottom: 1px solid var(--line);
   }
 
   li a {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
     padding: 10px 0;
-    border-bottom: 1px solid var(--line);
     color: var(--text);
     font-size: 13px;
     font-weight: 600;
+    line-height: 1.4;
     text-decoration: none;
+    transition: background 150ms ease;
 
-    &:hover {
-      color: var(--text-secondary); // no red on hover
+    i {
+      flex-shrink: 0; // the dot keeps its size next to long text
+    }
+
+    &:hover,
+    &:focus-visible {
+      background: var(--raised);
     }
   }
 
   button {
+    margin-top: 6px; // a little apart from the list
     justify-self: start;
     min-height: 36px;
     padding: 0 14px;
@@ -319,6 +336,11 @@
       border-color: var(--text-secondary);
     }
   }
+}
+
+// Below the "Connected Odoo records" pill: room between it and the greeting
+.statusLine + .todayBrief {
+  margin-top: 16px;
 }
 
 .todayBriefNote a {

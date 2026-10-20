@@ -21,8 +21,16 @@ export default function TodayBrief() {
   const [hour, setHour] = useState<number | null>(null);
   useEffect(() => setHour(new Date().getHours()), []);
 
-  const reviewAll = () =>
-    document.getElementById("today-decisions")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // Review all: go to Today's Service queue. It's often already on screen, so it also
+  // takes focus and flashes briefly, so the click visibly lands somewhere.
+  const reviewAll = () => {
+    const queue = document.getElementById("today-decisions");
+    if (!queue) return;
+    queue.scrollIntoView({ behavior: "smooth", block: "start" });
+    queue.focus({ preventScroll: true });
+    queue.dataset.flash = "true";
+    setTimeout(() => delete queue.dataset.flash, 1400);
+  };
 
   return (
     <section className={styles.todayBrief} aria-label="Today brief">
