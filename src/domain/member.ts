@@ -18,6 +18,18 @@ export type Member = {
   testReadiness?: number; // 0–100, computed from belt tests later
   attendanceRate: number; // 0–1
   bookings?: MemberBooking[]; // absent = unavailable; [] = no registered sessions
+  // Member 360's Training card and Member story. Only the sample data has these so far:
+  // Odoo's member read doesn't send them yet (the page shows "Not recorded").
+  training?: MemberTraining;
+  joinedOn?: string; // "2025-01-14"
+  classesAttended?: number; // all-time count
+};
+
+export type MemberTraining = {
+  program?: string; // "Children Advanced"
+  primaryInstructor?: string; // "Master Kim"
+  team?: string; // "Tournament Candidate"
+  homeLocation?: string; // "Downtown"
 };
 
 export type MemberBooking = {

@@ -1,17 +1,30 @@
-import type { Member, MemberAttendance, CheckIn } from "@/domain/member";
+"use client";
+
+import type { Member, MemberAttendance } from "@/domain/member";
 import { membershipLabel } from "@/domain/member-presentation";
-import LocalTime from "@/components/primitives/local-time/LocalTime";
-import type { ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
+import { useMemberWorkspace } from "../memberWorkspace";
+import {
+  MEMBER_ACTION_EVENT,
+  MEMBER_TAB_EVENT,
+  sendShellEvent,
+} from "@/components/shell/workspace/shellEvents";
 import styles from "./MemberGrid.module.scss";
 
-type Stat = { label: string; value: ReactNode };
+// Member 360's Overview, laid out like the mockup: Member story on the left,
+// Training and Progression on the right. Member intelligence is in the Do For Me rail.
+
+const NOT_RECORDED = "Not recorded";
+
+type Stat = { label: string; value: ReactNode; action?: ReactNode };
 const StatList = ({ stats }: { stats: Stat[] }) => (
   <ul className={`${styles.statList} ${styles.rows}`}>
     {stats.map((stat) => (
       <li key={stat.label}>
         {stat.label}
         <div className={styles.value}>
-          <span>{stat.value}</span>
+          <span className={stat.value === NOT_RECORDED ? styles.missing : ""}>{stat.value}</span>
+          {stat.action}
         </div>
       </li>
     ))}
@@ -26,10 +39,47 @@ function storyHeadline(member: Member, attendance: MemberAttendance) {
   return `${state} · ${count} ${count === 1 ? "check-in" : "check-ins"} this week.`;
 }
 
-// Newest first, at most three. Falls back to the latest check-in when there's no history.
-function recentCheckIns(attendance: MemberAttendance): CheckIn[] {
-  if (attendance.history?.length) return attendance.history.slice(0, 3);
-  return attendance.latest ? [attendance.latest] : [];
+// "Jan 2025"
+function joinDate(iso?: string) {
+  if (!iso) return NOT_RECORDED;
+  return new Date(`${iso}T12:00:00`).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+// "Today" or "Aug 31", in the viewer's time zone (worked out in the browser only)
+const noSubscription = () => () => {};
+function DayLabel({ iso }: { iso: string }) {
+  const text = useSyncExternalStore(
+    noSubscription,
+    () => {
+      const day = new Date(iso);
+      if (day.toDateString() === new Date().toDateString()) return "Today";
+      return day.toLocaleDateString([], { month: "short", day: "numeric" });
+    },
+    () => "",
+  );
+  return <time dateTime={iso}>{text}</time>;
+}
+
+type RecentItem = { key: string; at: string; text: string; late?: boolean };
+
+// Check-ins, plus the Hub's recorded actions when connected. Newest first, at most three.
+function recentItems(attendance: MemberAttendance, timeline: { id: string; action: string; at: string }[]): RecentItem[] {
+  const checkIns = attendance.history?.length
+    ? attendance.history
+    : attendance.latest
+      ? [attendance.latest]
+      : [];
+  const items: RecentItem[] = checkIns.map((checkIn) => ({
+    key: `checkin-${checkIn.checkedInAt}`,
+    at: checkIn.checkedInAt,
+    text: `Checked in · ${checkIn.sessionTitle}`,
+    late: checkIn.late,
+  }));
+  for (const entry of timeline) {
+    const action = entry.action.replaceAll("_", " ");
+    items.push({ key: `action-${entry.id}`, at: entry.at, text: action.charAt(0).toUpperCase() + action.slice(1) });
+  }
+  return items.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)).slice(0, 3);
 }
 
 export default function MemberGrid({
@@ -41,7 +91,28 @@ export default function MemberGrid({
   attendance: MemberAttendance;
   liveTest?: boolean;
 }) {
-  const recent = recentCheckIns(attendance);
+  const workspace = useMemberWorkspace(member.id, liveTest);
+  const recent = recentItems(attendance, workspace?.timeline ?? []);
+
+  // Odoo: the program is the member's course in the Hub. Sample data has its own.
+  const program = liveTest
+    ? workspace?.courses.length
+      ? workspace.courses.map((course) => course.name).join(", ")
+      : NOT_RECORDED
+    : member.training?.program ?? NOT_RECORDED;
+
+  // ✎ opens the member's Edit window, where each change is reviewed before it's saved
+  const editButton = (field: string) => (
+    <button
+      type="button"
+      className={styles.editBtn}
+      aria-label={`Edit ${field}`}
+      onClick={() => sendShellEvent(MEMBER_ACTION_EVENT, { memberId: member.id, action: "edit" })}
+    >
+      ✎
+    </button>
+  );
+
   return (
     <div className={styles.memberGrid}>
       <article>
@@ -52,70 +123,59 @@ export default function MemberGrid({
         </header>
         <StatList
           stats={[
-            { label: "Check-ins (7 days)", value: attendance.lastSevenDays },
+            { label: "Attendance", value: `${Math.round(member.attendanceRate * 100)}%` },
+            { label: "Classes", value: member.classesAttended ?? NOT_RECORDED },
             { label: "Current rank", value: member.rank.name },
-            { label: "Stripes", value: member.rank.stripes },
-            { label: "Member number", value: member.memberNumber },
+            { label: "Join date", value: joinDate(member.joinedOn) },
           ]}
         />
-        <span className={styles.label}>
-          {liveTest ? "Recent verified check-ins" : "Recent check-ins"}
-        </span>
+        <span className={styles.label}>Recent</span>
         {recent.length ? (
           <ul className={styles.recent}>
-            {recent.map((checkIn) => (
-              <li key={checkIn.checkedInAt}>
+            {recent.map((item) => (
+              <li key={item.key}>
                 <strong>
-                  <LocalTime iso={checkIn.checkedInAt} />
+                  <DayLabel iso={item.at} />
                 </strong>
-                <span>{checkIn.sessionTitle}</span>
-                {checkIn.late && <em className={styles.latePill}>Late</em>}
+                <span>{item.text}</span>
+                {item.late && <em className={styles.latePill}>Late</em>}
               </li>
             ))}
           </ul>
         ) : (
-          <p className={styles.empty}>No check-ins yet.</p>
+          <p className={styles.empty}>Nothing recorded yet.</p>
         )}
       </article>
 
       <article>
         <header className={styles.cardHeader}>
-          <span className={styles.label}>Membership</span>
+          <span className={styles.label}>Training</span>
         </header>
         <StatList
           stats={[
-            { label: "Status", value: `${membershipLabel(member)} membership` },
-            { label: "Household", value: member.householdName || "Not provided" },
-            ...(member.nextClass
-              ? [{ label: "Next class", value: member.nextClass }]
-              : []),
+            { label: "Program", value: program, action: editButton("program") },
+            { label: "Primary instructor", value: member.training?.primaryInstructor ?? NOT_RECORDED, action: editButton("primary instructor") },
+            { label: "Team", value: member.training?.team ?? NOT_RECORDED, action: editButton("team") },
+            { label: "Home location", value: member.training?.homeLocation ?? NOT_RECORDED, action: editButton("home location") },
           ]}
         />
-        <span className={styles.label}>Today&apos;s bookings</span>
-        <StatList
-          stats={
-            member.bookings === undefined
-              ? [{ label: "Bookings", value: "Not connected" }]
-              : member.bookings.length
-                ? member.bookings.map((booking) => ({
-                    label: booking.title,
-                    value: <LocalTime iso={booking.startsAt} />,
-                  }))
-                : [{ label: "Bookings", value: "No classes booked today" }]
-          }
-        />
         <span className={styles.label}>Progression</span>
+        {/* Rank has no edit pencil: it changes through a reviewed rank award */}
         <StatList
           stats={[
             {
               label: "Current rank",
-              value: member.rank.stripes
-                ? `${member.rank.name} · ${member.rank.stripes} ${member.rank.stripes === 1 ? "stripe" : "stripes"}`
-                : member.rank.name,
+              value: member.rank.name,
+              action: liveTest ? (
+                <button
+                  type="button"
+                  className={styles.openBtn}
+                  onClick={() => sendShellEvent(MEMBER_TAB_EVENT, { memberId: member.id, tab: "Progress" })}
+                >
+                  Open Progression
+                </button>
+              ) : undefined,
             },
-            ...(member.testReadiness !== undefined
-              ? [{ label: "Test readiness", value: `${member.testReadiness}%` }]
-              : []),
           ]}
         />
       </article>

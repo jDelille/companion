@@ -12,6 +12,7 @@ import styles from "./Identity.module.scss";
 import Link from "@/components/primitives/AppLink";
 import { memberInitials } from "@/domain/member-presentation";
 import { MEMBER_ACTION_EVENT, type MemberActionDetail } from "@/components/shell/workspace/shellEvents";
+import { useMemberWorkspace } from "../memberWorkspace";
 
 // Windows the top bar's search can open on this page (?action=book, or its event)
 const OPENABLE: ModalType[] = ["message", "book", "payment", "edit"];
@@ -23,16 +24,16 @@ type Props = {
   liveTest?: boolean;
 };
 
-// Each button says which modal it opens
-const btns: { label: string; modal?: ModalType }[] = [
-  { label: "Check in" },
+// The doc's row: Check In, Message, Book, Payment, ✎ Edit, •••, ✦ Do For Me.
+// Each button says which modal it opens. "Companion context" is in the ••• menu.
+const btns: { label: string; modal?: ModalType; ariaLabel?: string }[] = [
+  { label: "Check In" },
   { label: "Message", modal: "message" },
   { label: "Book", modal: "book" },
   { label: "Payment", modal: "payment" },
-  { label: "Profile details", modal: "edit" },
-  { label: "...", modal: "quickActions" }, // the hold-menu from the member card
-  { label: "Companion context", modal: "ask" },
-  { label: "Do For Me" }, // opens the Companion's Do For Me panel, not a modal
+  { label: "✎ Edit", modal: "edit" },
+  { label: "•••", modal: "quickActions", ariaLabel: "More actions" }, // the hold-menu from the member card
+  { label: "✦ Do For Me" }, // opens the Companion's Do For Me panel, not a modal
 ];
 
 const Identity = ({ member, liveTest = false }: Props) => {
@@ -54,9 +55,16 @@ const Identity = ({ member, liveTest = false }: Props) => {
 
   const current = open ? getMemberModal(open, member) : null;
 
+  // "Children Advanced · Chen Family": program (the member's course in the Hub) and household
+  const workspace = useMemberWorkspace(member.id, liveTest);
+  const program = liveTest
+    ? workspace?.courses.map((course) => course.name).join(", ")
+    : member.training?.program;
+  const subtitle = [program, member.householdName].filter(Boolean).join(" · ") || member.memberNumber;
+
   const handleClick = (btn: (typeof btns)[number]) => {
     // The shell opens the Companion and the rail shows this member's suggestion in Do For Me
-    if (btn.label === "Do For Me") {
+    if (btn.label === "✦ Do For Me") {
       window.dispatchEvent(new CustomEvent("dojang:do-for-me", { detail: { memberId: member.id } }));
     }
     if (btn.modal) setOpen(btn.modal);
@@ -71,11 +79,7 @@ const Identity = ({ member, liveTest = false }: Props) => {
           <div className={styles.memberName}>
             <div className={styles.text}>
               <h2>{member.name}</h2>
-              <p>
-                {[member.memberNumber, member.householdName]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
+              <p>{subtitle}</p>
             </div>
             <div className={styles.status}>
               {member.membershipState} · {member.rank.name}
@@ -87,12 +91,14 @@ const Identity = ({ member, liveTest = false }: Props) => {
         <ul>
           {btns.map((btn) => (
             <li key={btn.label}>
-              {btn.label === "Check in" ? (
+              {btn.label === "Check In" ? (
                 <Link href="/kiosk" className={styles.checkInBtn}>
-                  Open check-in
+                  Check In
                 </Link>
               ) : (
-                <button onClick={() => handleClick(btn)}>{btn.label}</button>
+                <button onClick={() => handleClick(btn)} aria-label={btn.ariaLabel}>
+                  {btn.label}
+                </button>
               )}
             </li>
           ))}

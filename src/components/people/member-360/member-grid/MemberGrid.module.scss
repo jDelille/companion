@@ -88,12 +88,38 @@
     gap: 8px;
   }
 
+  // A field with nothing in it yet: dimmer than a real value
+  .missing {
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  // "Open Progression": a small outlined button, same height as the ✎ buttons
+  .openBtn {
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--raised);
+    }
+  }
+
   .editBtn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
     border: 1px solid var(--line);
     border-radius: 6px;
     background: transparent;
@@ -152,7 +178,7 @@
     }
 
     strong {
-      min-width: 7.5rem;
+      min-width: 4.5rem; // "Today", "Aug 31"
       color: var(--text);
       font-weight: 600;
     }

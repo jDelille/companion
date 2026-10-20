@@ -19,6 +19,14 @@ export const mockMembers: Member[] = [
     nextClass: "5:45 PM",
     testReadiness: 92,
     attendanceRate: 0.88,
+    training: {
+      program: "Children Advanced",
+      primaryInstructor: "Master Kim",
+      team: "Tournament Candidate",
+      homeLocation: "Downtown",
+    },
+    joinedOn: "2025-01-14",
+    classesAttended: 48,
   },
   {
     tenantId: TENANT,
@@ -31,6 +39,9 @@ export const mockMembers: Member[] = [
     nextClass: "5:00 PM",
     testReadiness: 64,
     attendanceRate: 0.72,
+    training: { program: "Children Beginner", primaryInstructor: "Sarah Park", homeLocation: "Downtown" },
+    joinedOn: "2025-06-02",
+    classesAttended: 21,
   },
   {
     tenantId: TENANT,

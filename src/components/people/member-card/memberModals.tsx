@@ -149,12 +149,34 @@ const EditBody = ({ member, liveTest }: BodyProps) => (
         <dt>Household</dt>
         <dd>{member.householdName || "Not provided"}</dd>
       </div>
+      {/* Training (Member 360's ✎ buttons open this window) */}
+      {!liveTest && (
+        <>
+          <div>
+            <dt>Program</dt>
+            <dd>{member.training?.program || "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt>Primary instructor</dt>
+            <dd>{member.training?.primaryInstructor || "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt>Team</dt>
+            <dd>{member.training?.team || "Not recorded"}</dd>
+          </div>
+          <div>
+            <dt>Home location</dt>
+            <dd>{member.training?.homeLocation || "Not recorded"}</dd>
+          </div>
+        </>
+      )}
     </dl>
     <p className={styles.note}>
-      {liveTest ? "Managers and owners can review contact changes and rank awards in the authenticated Hub. Your individual Odoo access is checked before any change."
+      {liveTest ? "Managers and owners can review contact changes and rank awards in the authenticated Hub. A program change is a reviewed course assignment. Your individual Odoo access is checked before any change."
         : "Profile changes are not connected in this preview."}
     </p>
     {liveTest && <Link href={`/hub?memberId=${encodeURIComponent(member.id)}&view=manage`}>Manage this member in Hub →</Link>}
+    {liveTest && <Link href="/hub?view=courses">Change program in Course rosters →</Link>}
   </>
 );
 
@@ -252,6 +274,11 @@ const contextMenu: { label: string; hint: string; modal: ModalType }[] = [
     label: "Message draft",
     hint: "Preview a message for this member",
     modal: "message",
+  },
+  {
+    label: "Companion context",
+    hint: "What the Companion knows about this member",
+    modal: "ask",
   },
 ];
 const QuickActionsBody = ({ onOpen }: BodyProps) => (
