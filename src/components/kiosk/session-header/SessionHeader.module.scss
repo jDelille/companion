@@ -2,73 +2,73 @@
 
 // Same grid, border and type as SessionCard, so the morph from the card looks like one object
 .header {
-  display: grid;
-  grid-template-columns: 8rem 1fr auto; // time | name + duration | Change class
-  align-items: center;
-  gap: 2rem;
-  width: 100%;
-  padding: 1.25rem 1.25rem;
-  @include glass.card;
-  border-radius: var(--radius-leaf);
+	display: grid;
+	grid-template-columns: 8rem 1fr auto; // time | name + duration | Change class
+	align-items: center;
+	gap: 2rem;
+	width: 100%;
+	padding: 1.25rem 1.5rem;
+	border: 1px solid var(--line);
+	border-radius: var(--radius-card);
+	background: var(--canvas); // darker than the panel, like my kiosk cards
 }
 
 .time {
-  font-size: var(--text-xl);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
+	font-size: var(--text-xl);
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
 }
 
 .period {
-  margin-left: 0.35rem;
-  font-size: var(--text-base);
-  font-weight: 500;
-  color: var(--muted);
+	margin-left: 0.35rem;
+	font-size: var(--text-base);
+	font-weight: 500;
+	color: var(--muted);
 }
 
 .details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+	min-width: 0;
 }
 
 .title {
-  font-size: var(--text-lg);
-  font-weight: 600;
+	font-size: var(--text-xl); // bigger class name
+	font-weight: 600;
 }
 
 .duration {
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+	font-size: var(--text-base);
+	color: var(--text-secondary);
 }
 
 // Phones: narrower time column and gaps, so the class name gets the room.
 // A name that still doesn't fit ends in "…" instead of wrapping.
 @container kiosk (width < 540px) {
-  .header {
-    grid-template-columns: 4.75rem minmax(0, 1fr) auto;
-    gap: 1.75rem;
-    padding-inline: 1rem;
-  }
+	.header {
+		grid-template-columns: 4.75rem minmax(0, 1fr) auto;
+		gap: 1.75rem;
+		padding-inline: 1rem;
+	}
 
-  .time {
-    font-size: var(--text-lg);
-  }
+	.time {
+		font-size: var(--text-lg);
+	}
 
-  .period {
-    font-size: var(--text-sm);
-    margin-left: 0.2rem;
-  }
+	.period {
+		font-size: var(--text-sm);
+		margin-left: 0.2rem;
+	}
 
-  .title {
-    font-size: var(--text-md);
-  }
-
+	.title {
+		font-size: var(--text-md);
+	}
 }
 
 .title {
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }

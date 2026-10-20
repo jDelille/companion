@@ -1,89 +1,89 @@
 .screen {
-  padding: 2rem 0; // width comes from the shell
-  display: flex;
-  flex-direction: column;
+	padding: 2rem 0; // width comes from the shell
+	display: flex;
+	flex-direction: column;
 
-  .topBar {
-    display: flex;
-    align-items: center;
-    min-height: var(
-      --touch-height
-    ); // keeps the layout still when Back is hidden
-  }
+	.topBar {
+		display: flex;
+		align-items: center;
+		min-height: var(
+			--touch-height
+		); // keeps the layout still when Back is hidden
+	}
 
-  .heading {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 2rem;
-    h1 {
-      font-size: var(--kiosk-title-large);
-    }
-  }
+	.heading {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		margin-top: 2rem;
+		h1 {
+			font-size: var(--kiosk-title-large);
+		}
+	}
 
-  .today {
-    margin-top: 2.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--line);
-    font-size: var(--text-xs);
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--text-secondary);
-  }
+	.today {
+		margin-top: 2.5rem;
+		padding-bottom: 1rem;
+		border-bottom: 1px solid var(--line);
+		font-size: var(--text-xs);
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		color: var(--text-secondary);
+	}
 
-  // Classes as a grid of cards, like Paul's HTML kiosk
-  .list {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); // same sizing as Paul's kiosk
-    gap: 18px;
-    margin-top: 1rem;
-  }
+	// Classes as a grid of cards, like Paul's HTML kiosk
+	.list {
+		list-style: none;
+		display: grid;
+		grid-template-columns: 1fr; // one class per row, like my kiosk
+		gap: 12px;
+		margin-top: 1rem;
+	}
 
-  // Loading placeholders, same size and layout as SessionCard
-  .skeletonRow {
-    display: grid;
-    grid-template-columns: 8rem 1fr;
-    align-items: center;
-    gap: 2rem;
-    padding: 1.75rem 1.25rem;
-    border: 1px solid var(--glass-edge);
-    border-radius: var(--radius-leaf);
-    background: var(--glass-fill);
-    animation: pulse 1.6s ease-in-out infinite;
-  }
+	// Loading placeholders, same size and layout as SessionCard
+	.skeletonRow {
+		display: grid;
+		grid-template-columns: 8rem 1fr;
+		align-items: center;
+		gap: 2rem;
+		padding: 1.75rem 1.25rem;
+		border: 1px solid var(--glass-edge);
+		border-radius: var(--radius-leaf);
+		background: var(--glass-fill);
+		animation: pulse 1.6s ease-in-out infinite;
+	}
 
-  .skeletonTime,
-  .skeletonTitle,
-  .skeletonDuration {
-    display: block;
-    border-radius: var(--radius-control);
-    background: var(--raised);
-  }
+	.skeletonTime,
+	.skeletonTitle,
+	.skeletonDuration {
+		display: block;
+		border-radius: var(--radius-control);
+		background: var(--raised);
+	}
 
-  .skeletonTime {
-    width: 5rem;
-    height: 1.75rem;
-  }
+	.skeletonTime {
+		width: 5rem;
+		height: 1.75rem;
+	}
 
-  .skeletonDetails {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.6rem;
-    min-height: 3.4rem; // same height as a real row's name + duration, so nothing jumps on load
-  }
+	.skeletonDetails {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 0.6rem;
+		min-height: 3.4rem; // same height as a real row's name + duration, so nothing jumps on load
+	}
 
-  .skeletonTitle {
-    width: 40%;
-    height: 1.25rem;
-  }
+	.skeletonTitle {
+		width: 40%;
+		height: 1.25rem;
+	}
 
-  .skeletonDuration {
-    width: 15%;
-    height: 0.9rem;
-  }
+	.skeletonDuration {
+		width: 15%;
+		height: 0.9rem;
+	}
 }
 
 // Coming Back from identify: the class header slides back into its card (the
@@ -94,47 +94,47 @@
 // no longer staggers the cards in either: the list just appears.
 
 @keyframes after-morph {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
+	from {
+		opacity: 0;
+		transform: translateY(0.5rem);
+	}
 }
 
 // Phones: same shape as the tighter class cards
 @container kiosk (width < 540px) {
-  .screen .skeletonRow {
-    grid-template-columns: 4.75rem 1fr;
-    gap: 1.75rem;
-    padding-inline: 1rem;
-  }
+	.screen .skeletonRow {
+		grid-template-columns: 4.75rem 1fr;
+		gap: 1.75rem;
+		padding-inline: 1rem;
+	}
 }
 
 // Subtle pulse is allowed by the motion rules. Off for people who ask for less motion.
 @keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.55;
-  }
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.55;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .screen .skeletonRow,
-  .returning .heading,
-  .returning .today,
-  .returning .list > li {
-    animation: none;
-  }
+	.screen .skeletonRow,
+	.returning .heading,
+	.returning .today,
+	.returning .list > li {
+		animation: none;
+	}
 }
 
 // Read by screen readers, not shown on screen
 .visuallyHidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
 }

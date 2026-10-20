@@ -1,62 +1,62 @@
 // One card for every kiosk message (no match, empty, unavailable, loading),
 // with its next steps right inside it. Same solid card as the other kiosk options.
 .status {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  margin-top: 1.5rem;
-  padding: 20px 22px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--panel);
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	margin-top: 1.5rem;
+	padding: 24px;
+	border: 1px solid var(--line);
+	border-radius: var(--radius-card);
+	background: var(--canvas); // darker card, like my kiosk
 }
 
 .text {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
 }
 
 // What happened
 .message {
-  color: var(--text);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  line-height: 1.35;
+	color: var(--text);
+	font-size: var(--text-xl); // bigger message
+	font-weight: 600;
+	line-height: 1.35;
 }
 
 // Where to go
 .detail {
-  color: var(--text-secondary);
-  font-size: var(--text-base);
+	color: var(--text-secondary);
+	font-size: var(--text-base);
 }
 
 // Next steps: side by side, sharing the width on narrow screens
 .actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
 }
 
 // Quiet buttons that always look like buttons (a touch screen has no hover).
 // `.actions .action` outranks the button's own plain style.
 .actions .action {
-  display: inline-flex;
-  flex: 1 1 auto;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--touch-height); // 48px kiosk minimum
-  padding: 0 20px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  background: var(--raised);
-  color: var(--text);
-  font-size: var(--text-base);
-  font-weight: 600;
+	display: inline-flex;
+	flex: 1 1 auto;
+	align-items: center;
+	justify-content: center;
+	min-height: 64px; // bigger touch targets
+	padding: 0 24px;
+	border: 1px solid var(--line);
+	border-radius: var(--radius-card); // rounded box, not small corners
+	background: var(--raised);
+	color: var(--text);
+	font-size: var(--text-lg);
+	font-weight: 600;
 
-  &:hover,
-  &:active {
-    border-color: var(--text-secondary);
-    background: var(--interactive);
-  }
+	&:hover,
+	&:active {
+		border-color: var(--text-secondary);
+		background: var(--interactive);
+	}
 }
