@@ -8,7 +8,7 @@
 // Kiosk-only layout token. Every portrait screen sits in one centered column this wide.
 // Landscape (Check In left, Today right) will get its own layout later.
 :root {
-  --kiosk-column-width: 56rem; // same width as my kiosk panel (max-w-4xl)
+  --kiosk-column-width: 73.75rem; // same width as my kiosk panel (max-w-4xl)
   --font-display:
     -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, system-ui,
     sans-serif; // same font as my kiosk

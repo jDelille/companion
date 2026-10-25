@@ -13,6 +13,8 @@ import GuardianCheckIn from "@/components/kiosk/guardian/GuardianCheckIn";
 import SessionSelectScreen from "@/components/kiosk/screens/session-select-screen/SessionSelectScreen";
 import WelcomeScreen from "@/components/kiosk/screens/welcome-screen/WelcomeScreen";
 import EventsScreen from "@/components/kiosk/screens/events-screen/EventsScreen";
+import KioskHeader from "@/components/kiosk/kiosk-header/KioskHeader";
+import DemoFlow from "@/components/kiosk/demo-flow/DemoFlow";
 import {
   checkInFlowReducer,
   initialCheckInFlow,
@@ -25,7 +27,6 @@ import {
   IDLE_WARNING_SECONDS,
   RESULT_AUTO_RETURN_SECONDS,
   SCHOOL_NAME,
-  SECONDARY_ACTIONS,
 } from "@/domain/kiosk/kioskConfig";
 import { searchRoster } from "@/domain/kiosk/rosterSearch";
 import type { SessionOption } from "@/contracts/kiosk-attendance";
@@ -48,6 +49,8 @@ function KioskJourney() {
   const [flow, dispatch] = useReducer(checkInFlowReducer, initialCheckInFlow);
   // demo-only Events screen: a simple on/off switch, separate from the check-in flow
   const [showEvents, setShowEvents] = useState(false);
+  // demo-only walkthrough (Jodi's screens): null = off, otherwise the screen number it opens on
+  const [demoStart, setDemoStart] = useState<number | null>(null);
 
   // The last class list we loaded. Going Back from identify shows it straight
   // away while a fresh one loads, so the class header has a card to slide back
@@ -174,7 +177,7 @@ function KioskJourney() {
   // check-in timeout already bounds it), and when the result returns on its own anyway
   const idle = useIdleTimer({
     active:
-      (flow.step !== "welcome" || showEvents) &&
+      (flow.step !== "welcome" || showEvents || demoStart !== null) &&
       flow.step !== "sending" &&
       !autoReturnDue,
     restartKey: flow.step,
@@ -182,6 +185,7 @@ function KioskJourney() {
     warningSeconds: IDLE_WARNING_SECONDS,
     onTimeout: () => {
       setShowEvents(false); // idle reset also closes Events
+      setDemoStart(null); // ...and the demo walkthrough
       dispatch({ type: "reset" });
     },
   });
@@ -190,7 +194,10 @@ function KioskJourney() {
   // last visitor's screen, so start clean instead
   useEffect(() => {
     const resetIfRestored = (event: PageTransitionEvent) => {
-      if (event.persisted) dispatch({ type: "reset" });
+      if (event.persisted) {
+        dispatch({ type: "reset" });
+        setDemoStart(null);
+      }
     };
     window.addEventListener("pageshow", resetIfRestored);
     return () => window.removeEventListener("pageshow", resetIfRestored);
@@ -199,6 +206,16 @@ function KioskJourney() {
   // One screen per step. Every reset is a plain dispatch, never startTransition,
   // so it switches instantly and no snapshot of the previous person lingers.
   const renderScreen = () => {
+    // the demo walkthrough draws its own top bar
+    if (demoStart !== null) {
+      return (
+        <DemoFlow
+          key={demoStart}
+          startAt={demoStart}
+          onExit={() => setDemoStart(null)}
+        />
+      );
+    }
     if (flow.step === "welcome" && showEvents) {
       return <EventsScreen onBack={() => setShowEvents(false)} />;
     }
@@ -206,8 +223,10 @@ function KioskJourney() {
       return (
         <WelcomeScreen
           schoolName={SCHOOL_NAME}
-          actions={SECONDARY_ACTIONS}
           onCheckIn={() => dispatch({ type: "start" })}
+          // demo-only cards: Jodi's new member + family screens (off outside demo mode)
+          onNewHere={DEMO ? () => setDemoStart(4) : undefined}
+          onFamily={DEMO ? () => setDemoStart(2) : undefined}
           onEvents={DEMO ? () => setShowEvents(true) : undefined}
           // AI is optional: with the Concierge off there's no card, and check-in is unchanged
           onAsk={
@@ -338,8 +357,34 @@ function KioskJourney() {
     return unhandled;
   };
 
+  // top bar label: one word per screen, like Jodi's
+  const headerLabel =
+    showEvents && flow.step === "welcome"
+      ? "Events"
+      : flow.step === "session"
+        ? "Check in"
+        : flow.step === "identify"
+          ? "Identify"
+          : flow.step === "confirm" || flow.step === "sending"
+            ? "Confirm"
+            : flow.step === "result"
+              ? "Complete"
+              : flow.step === "concierge"
+                ? "Assist"
+                : "Arrival";
+
   return (
     <>
+      {demoStart === null && (
+        <KioskHeader
+          label={headerLabel}
+          showDemoPill={DEMO}
+          onReset={() => {
+            setShowEvents(false);
+            dispatch({ type: "reset" });
+          }}
+        />
+      )}
       {renderScreen()}
       <IdleWarning
         secondsLeft={idle.secondsLeft}

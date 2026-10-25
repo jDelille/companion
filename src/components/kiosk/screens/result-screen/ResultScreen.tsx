@@ -3,12 +3,13 @@ import type {
   RosterMember,
   SessionOption,
 } from "@/contracts/kiosk-attendance";
+import KioskButton from "@/components/kiosk/kiosk-button/KioskButton";
+import ScreenHead from "@/components/kiosk/screen-head/ScreenHead";
+import SuccessMark from "@/components/kiosk/success-mark/SuccessMark";
 import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
 import StatusMessage, {
   type StatusAction,
 } from "@/components/kiosk/status-message/StatusMessage";
-import PrimaryButton from "@/components/primitives/primary-button/PrimaryButton";
-import SuccessMark from "@/components/kiosk/success-mark/SuccessMark";
 import type { CheckInOutcome } from "@/domain/kiosk/checkInOutcome";
 import { formatClockTime } from "@/domain/kiosk/sessionFormat";
 import styles from "./ResultScreen.module.scss";
@@ -34,12 +35,16 @@ const ResultScreen = ({
   onChooseClass,
   onStaffHelp,
 }: Props) => {
-  return (
-    <div className={styles.screen}>
-      {outcome.kind !== "success" && outcome.kind !== "alreadyCheckedIn" && (
-        <SessionHeader session={session} />
-      )}
+  const isReceipt =
+    outcome.kind === "success" || outcome.kind === "alreadyCheckedIn";
 
+  return (
+    // the receipt is centered like Jodi's "You're all set"; the rest read left to right
+    <div
+      className={[styles.screen, isReceipt && styles.successScreen]
+        .filter(Boolean)
+        .join(" ")}
+    >
       {outcome.kind === "success" && (
         <Receipt
           headline="You're checked in"
@@ -66,6 +71,7 @@ const ResultScreen = ({
         <Refusal
           headline="Please see the front desk"
           message="We couldn't finish your check-in here."
+          session={session}
           actions={[
             { label: "Get help from staff", onClick: onStaffHelp },
             { label: "Done", onClick: onDone },
@@ -77,6 +83,7 @@ const ResultScreen = ({
         <Refusal
           headline="This class can't take check-ins"
           message="Please choose a class from today's list."
+          session={session}
           actions={[
             { label: "Choose a class", onClick: onChooseClass },
             { label: "Done", onClick: onDone },
@@ -89,6 +96,7 @@ const ResultScreen = ({
           headline="Check-in isn't available here"
           message="This kiosk can't check you in right now."
           detail="Please see the front desk."
+          session={session}
           actions={[{ label: "Done", onClick: onDone }]}
         />
       )}
@@ -99,6 +107,7 @@ const ResultScreen = ({
           headline="Check-in not confirmed"
           message="We couldn't confirm your check-in."
           detail="Try again, or see the front desk."
+          session={session}
           actions={[
             { label: "Try again", onClick: onRetry },
             { label: "Done", onClick: onDone },
@@ -111,14 +120,15 @@ const ResultScreen = ({
 
 type ReceiptProps = {
   headline: string;
-  animate: boolean;
+  animate: boolean; // draw the check in on a new check-in, not on "already checked in"
   session: SessionOption;
   member: RosterMember;
   receipt: AttendanceReceipt;
   onDone: () => void;
 };
 
-// Success and already-checked-in: the receipt always names the selected session
+// Success and already-checked-in: Jodi's "You're all set". The receipt always
+// names the selected session.
 const Receipt = ({
   headline,
   animate,
@@ -128,49 +138,39 @@ const Receipt = ({
   onDone,
 }: ReceiptProps) => {
   return (
-    <>
-      <div
-        className={`${styles.titles} ${styles.receiptHeading}`}
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
+    <div
+      className={styles.successContent}
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <div className={styles.markWrap}>
         <SuccessMark animate={animate} />
-        <h1 className={styles.headline}>{headline}</h1>
+      </div>
+      <div className={styles.eyebrow}>Complete</div>
+      <h1 className={styles.headline}>{headline}</h1>
+
+      <div className={styles.nextAction}>
+        <small>Checked in</small>
+        <strong>{session.title}</strong>
+        <p>
+          {member.displayName} · {formatClockTime(session.startsAt)} class ·
+          checked in at {formatClockTime(receipt.checkedInAt)}
+          {/* Neutral, just information: not a warning */}
+          {receipt.status === "late" && (
+            <span className={styles.tag}>Late</span>
+          )}
+        </p>
       </div>
 
-      <dl className={styles.details}>
-        <div className={styles.detailRow}>
-          <dt>Student</dt>
-          <dd>{member.displayName}</dd>
-        </div>
-        <div className={styles.detailRow}>
-          <dt>Class</dt>
-          <dd>{session.title}</dd>
-        </div>
-        <div className={styles.detailRow}>
-          <dt>Time</dt>
-          <dd>{formatClockTime(session.startsAt)}</dd>
-        </div>
-        <div className={styles.detailRow}>
-          <dt>Checked in at</dt>
-          <dd>
-            {formatClockTime(receipt.checkedInAt)}
-            {/* Neutral, just information: not a warning */}
-            {receipt.status === "late" && (
-              <span className={styles.tag}>Late</span>
-            )}
-          </dd>
-        </div>
-      </dl>
-
-      <div className={styles.done}>
-        <PrimaryButton tone="brand" onClick={onDone}>
-          Done
-        </PrimaryButton>
-        <p className={styles.doneHint}>Clears the screen for the next person</p>
+      <div className={styles.actions}>
+        <KioskButton onClick={onDone}>Done</KioskButton>
       </div>
-    </>
+
+      <p className={styles.privacyNote}>
+        This kiosk will reset automatically for privacy.
+      </p>
+    </div>
   );
 };
 
@@ -178,17 +178,22 @@ type RefusalProps = {
   headline: string;
   message: string;
   detail?: string;
+  session: SessionOption;
   actions: StatusAction[];
 };
 
 // Everything that isn't a receipt: neutral wording, never a reason
-const Refusal = ({ headline, message, detail, actions }: RefusalProps) => {
+const Refusal = ({
+  headline,
+  message,
+  detail,
+  session,
+  actions,
+}: RefusalProps) => {
   return (
     <>
-      <div className={styles.titles}>
-        <p className={styles.eyebrow}>Check-in</p>
-        <h1 className={styles.headline}>{headline}</h1>
-      </div>
+      <ScreenHead eyebrow="Check-in" title={headline} />
+      <SessionHeader session={session} />
       <StatusMessage message={message} detail={detail} actions={actions} />
     </>
   );

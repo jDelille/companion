@@ -1,0 +1,676 @@
+// Jodi's kiosk mockup (slides 2-8) rebuilt with our dark palette.
+// Sizes, spacing and type are copied from her CSS; colours come from styles/_variables.scss.
+
+.root {
+  // Her names -> our tokens. Red (--brand) takes the place of her black "active" colour.
+  --accent: var(--brand);
+  --on-accent: #fff;
+  --card: var(--raised);
+  --soft: var(--interactive);
+  --line-strong: #3a3a48; // from the doc's dark-border-strong
+  --radius: 14px;
+  --radius-sm: 9px;
+  --sans:
+    var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --mono: var(--font-label);
+
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  color: var(--text);
+  font-family: var(--sans);
+
+  // :where keeps these at zero specificity, so the button classes below still win
+  :where(button, input) {
+    font: inherit;
+  }
+
+  :where(button) {
+    color: inherit;
+  }
+
+  // keyboard focus ring everywhere
+  button:focus-visible,
+  input:focus-visible,
+  a:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+  }
+}
+
+// ---------- screen + type ----------
+.screen {
+  flex: 1;
+  // the panel has its own padding; cancel it so these screens use Jodi's spacing
+  margin: 0 calc(var(--panel-pad-x) * -1) calc(var(--panel-pad-y) * -1);
+  padding: clamp(34px, 6vw, 72px) clamp(24px, 7vw, 92px);
+  animation: enter 0.28s ease both;
+
+  h1 {
+    max-width: 830px;
+    margin-bottom: 18px;
+    font-size: clamp(42px, 6vw, 76px);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.058em;
+
+    &.compact {
+      font-size: clamp(38px, 5vw, 62px);
+    }
+  }
+
+  h2 {
+    margin-bottom: 14px;
+    font-size: 22px;
+    letter-spacing: -0.02em;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen {
+    animation: none;
+  }
+}
+
+.eyebrow {
+  margin-bottom: 20px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 680px;
+  margin-bottom: 0;
+  color: var(--text-secondary);
+  font-size: 18px;
+  line-height: 1.55;
+}
+
+// ---------- buttons ----------
+.backButton,
+.textButton {
+  min-height: 42px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+
+  &:hover {
+    background: var(--soft);
+    color: var(--text);
+  }
+}
+
+.backButton {
+  margin: -16px 0 30px -12px;
+}
+
+.primaryButton,
+.secondaryButton {
+  min-height: 50px;
+  padding: 0 22px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.primaryButton {
+  background: var(--accent);
+  color: var(--on-accent);
+
+  &:hover {
+    background: var(--brand-bright);
+  }
+}
+
+.secondaryButton {
+  border-color: var(--line-strong);
+  background: var(--card);
+  color: var(--text);
+
+  &:hover {
+    background: var(--soft);
+  }
+}
+
+.wideButton {
+  width: 100%;
+}
+
+.screenActions {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// ---------- 2 · identify ----------
+.methodGrid,
+.planGrid {
+  margin-top: 38px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.methodCard {
+  min-height: 112px;
+  padding: 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--card);
+  cursor: pointer;
+  text-align: left;
+
+  strong {
+    display: block;
+    font-size: 19px;
+  }
+
+  small {
+    display: block;
+    margin-top: 8px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  &.isActive {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+
+    small {
+      color: rgb(255 255 255 / 75%);
+    }
+  }
+}
+
+.methodPanel {
+  min-height: 156px;
+  margin-top: 12px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--soft);
+  display: grid;
+  align-items: center;
+}
+
+.scanState {
+  min-height: 106px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+
+  p {
+    margin: 5px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+}
+
+.scanBox {
+  width: 72px;
+  height: 72px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-align: center;
+}
+
+.searchField {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+
+  input {
+    min-width: 0;
+    height: 54px;
+    padding: 0 16px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    color: var(--text);
+    font-size: 16px;
+  }
+}
+
+.secureRow {
+  margin: 12px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 18px;
+
+  p {
+    margin: 5px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  button {
+    white-space: nowrap;
+  }
+}
+
+// ---------- 3 · household ----------
+.profileList {
+  margin-top: 40px;
+  display: grid;
+  gap: 10px;
+}
+
+.profileCard {
+  width: 100%;
+  padding: 18px 20px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--card);
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+
+  &:hover {
+    background: var(--soft);
+  }
+}
+
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+
+.profileCopy {
+  strong {
+    display: block;
+    font-size: 16px;
+  }
+
+  small {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+.selectLabel {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.policyStrip {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-left: 3px solid var(--accent);
+  background: var(--soft);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+// ---------- 4 · onboarding ----------
+.stepper {
+  margin: 28px 0 38px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+
+  span {
+    padding-top: 10px;
+    border-top: 2px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  span.isActive {
+    border-color: var(--accent);
+    color: var(--text);
+  }
+}
+
+.choiceGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.choiceCard {
+  min-height: 82px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  cursor: pointer;
+  text-align: left;
+  font-weight: 650;
+
+  &:hover,
+  &.isSelected {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+}
+
+.aiNote {
+  margin-top: 12px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--soft);
+
+  p {
+    margin: 5px 0 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+}
+
+.aiLabel {
+  margin-bottom: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+// ---------- 5 · plans ----------
+.planCard {
+  position: relative;
+  min-height: 250px;
+  padding: 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--card);
+  display: flex;
+  flex-direction: column;
+
+  &.isSelected {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  h3 {
+    margin: 24px 0 7px;
+  }
+
+  > p {
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+.planTag {
+  min-height: 26px;
+  align-self: flex-start;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: var(--soft);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.price {
+  margin: auto 0 20px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+
+  small {
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+}
+
+// ---------- 6 · requirements ----------
+.requirementsLayout {
+  margin-top: 38px;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.75fr) minmax(340px, 1.25fr);
+  gap: 16px;
+}
+
+.requirementList,
+.requirementPanel {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--card);
+}
+
+.requirementList {
+  padding: 8px;
+  align-self: start;
+}
+
+.requirementItem {
+  padding: 14px;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  font-size: 13px;
+
+  &.isActive {
+    background: var(--soft);
+  }
+}
+
+.requirementState {
+  color: var(--text-secondary);
+  font-family: var(--mono);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.requirementPanel {
+  padding: 26px;
+}
+
+.radioStack {
+  margin: 22px 0;
+  display: grid;
+  gap: 9px;
+}
+
+.radioOption {
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+
+  input {
+    accent-color: var(--accent);
+  }
+}
+
+// ---------- 7 · review ----------
+.reviewList {
+  margin-top: 36px;
+  border-top: 1px solid var(--line);
+}
+
+.reviewRow {
+  min-height: 58px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+  align-items: center;
+
+  dt {
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+}
+
+// ---------- 8 · all set ----------
+.successScreen {
+  min-height: 600px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.successContent {
+  width: min(620px, 100%);
+
+  h1 {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.successMark {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 28px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+}
+
+.nextAction {
+  margin: 34px 0 18px;
+  padding: 22px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--card);
+  text-align: left;
+
+  small {
+    color: var(--text-secondary);
+    font-family: var(--mono);
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  strong {
+    display: block;
+    margin-top: 14px;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+}
+
+.centered {
+  justify-content: center;
+}
+
+.privacyNote {
+  margin-top: 18px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+// ---------- smaller screens ----------
+@media (max-width: 900px) {
+  .methodGrid,
+  .planGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .requirementsLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .screen {
+    padding: 34px 20px;
+  }
+
+  .choiceGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .secureRow {
+    grid-template-columns: 1fr;
+  }
+
+  .reviewRow {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .scanState {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .searchField {
+    grid-template-columns: 1fr;
+  }
+}

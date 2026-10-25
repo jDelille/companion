@@ -2,10 +2,10 @@
 
 import { useEffect, useRef } from "react";
 import type { RosterMember, SessionOption } from "@/contracts/kiosk-attendance";
+import ScreenHead from "@/components/kiosk/screen-head/ScreenHead";
 import SearchResult from "@/components/kiosk/search-result/SearchResult";
 import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
 import StatusMessage from "@/components/kiosk/status-message/StatusMessage";
-import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import type { RosterLoad } from "@/domain/kiosk/checkInFlow";
 import type { RosterSearch } from "@/domain/kiosk/rosterSearch";
 import styles from "./IdentifyScreen.module.scss";
@@ -50,33 +50,38 @@ const IdentifyScreen = ({
   }, [canSearch, roster]);
   const filter = query.trim().toLocaleLowerCase();
   const tiles = (roster ?? [])
-    .filter((member) => !filter || member.displayName.toLocaleLowerCase().startsWith(filter))
+    .filter(
+      (member) =>
+        !filter || member.displayName.toLocaleLowerCase().startsWith(filter),
+    )
     .sort((a, b) => a.displayName.localeCompare(b.displayName));
 
   return (
     <div className={styles.screen}>
-      <div className={styles.topBar}>
-        <PlainButton flush onClick={onBack}>
-          ← Back
-        </PlainButton>
-      </div>
+      <ScreenHead
+        eyebrow="Identify"
+        title={roster ? "Tap your name" : "Find your name"}
+        titleId="find-your-name"
+        lead={
+          roster
+            ? "Tap your name to continue."
+            : "Start typing your first name."
+        }
+        onBack={onBack}
+      />
 
       <SessionHeader session={session} onChangeSession={onChangeSession} />
 
-      {/* Fades in just after the class card lands in the header, so the card
-          never slides over the heading and search field */}
       <div className={styles.body}>
-        <h1 id="find-your-name" className={styles.heading}>
-          {roster ? "Tap your name" : "Find your name"}
-        </h1>
-
         <input
           ref={searchField}
           className={styles.search}
           type="text"
           value={query}
           onChange={(event) => onQueryChange(event.target.value)}
-          placeholder={roster ? "Type to filter names" : "Start typing your first name"}
+          placeholder={
+            roster ? "Type to filter names" : "Start typing your first name"
+          }
           aria-labelledby="find-your-name"
           disabled={!canSearch}
           autoComplete="off"
@@ -103,35 +108,48 @@ const IdentifyScreen = ({
             />
           )}
 
-          {roster && rosterStatus === "ready" && (tiles.length ? (
-            <ul className={styles.grid} aria-label="Students in this class">
-              {tiles.map((member) => (
-                <li key={member.memberId} className={styles.tile}>
-                  <SearchResult candidate={member} onSelect={() => onSelectMember(member)} />
-                  {member.attendanceState === "present" && <span className={styles.badge}>Checked in</span>}
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <StatusMessage
-              message={roster.length ? "No names match that filter." : `No students are booked in ${session.title} yet.`}
-              actions={[
-                { label: "Change class", onClick: onChangeSession },
-                { label: "Get help from staff", onClick: onStaffHelp },
-              ]}
-            />
-          ))}
+          {roster &&
+            rosterStatus === "ready" &&
+            (tiles.length ? (
+              <ul className={styles.grid} aria-label="Students in this class">
+                {tiles.map((member) => (
+                  <li key={member.memberId} className={styles.tile}>
+                    <SearchResult
+                      candidate={member}
+                      onSelect={() => onSelectMember(member)}
+                    />
+                    {member.attendanceState === "present" && (
+                      <span className={styles.badge}>Checked in</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <StatusMessage
+                message={
+                  roster.length
+                    ? "No names match that filter."
+                    : `No students are booked in ${session.title} yet.`
+                }
+                actions={[
+                  { label: "Change class", onClick: onChangeSession },
+                  { label: "Get help from staff", onClick: onStaffHelp },
+                ]}
+              />
+            ))}
 
-          {!roster && rosterStatus === "ready" && search.status === "noMatch" && (
-            <StatusMessage
-              message={`We couldn't find that name in ${session.title}.`}
-              detail="Check the spelling, or get help from staff."
-              actions={[
-                { label: "Change class", onClick: onChangeSession },
-                { label: "Get help from staff", onClick: onStaffHelp },
-              ]}
-            />
-          )}
+          {!roster &&
+            rosterStatus === "ready" &&
+            search.status === "noMatch" && (
+              <StatusMessage
+                message={`We couldn't find that name in ${session.title}.`}
+                detail="Check the spelling, or get help from staff."
+                actions={[
+                  { label: "Change class", onClick: onChangeSession },
+                  { label: "Get help from staff", onClick: onStaffHelp },
+                ]}
+              />
+            )}
 
           {!roster && rosterStatus === "ready" && search.status === "found" && (
             <ul className={styles.matches} aria-label="Matching names">

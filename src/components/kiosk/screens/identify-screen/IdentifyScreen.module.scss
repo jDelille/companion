@@ -1,71 +1,33 @@
-@use "../../../../../styles/glass" as glass;
-
-// Width comes from the shell, like every kiosk screen
+// Jodi's spacing: the screen cancels the panel padding and uses her own
 .screen {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem 0;
+  flex: 1;
+  margin: 0 calc(var(--panel-pad-x) * -1) calc(var(--panel-pad-y) * -1);
+  padding: clamp(34px, 6vw, 72px) clamp(24px, 7vw, 92px);
 }
 
-// Everything under the class header: same spacing as the screen. It waits
-// until the class card has mostly landed in the header (the 350ms morph in
-// kiosk.scss), then fades up, so the card never slides across it.
 .body {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  animation: after-morph 220ms ease-out 260ms both;
+  margin-top: 12px;
 }
 
-@keyframes after-morph {
-  from {
-    opacity: 0;
-    transform: translateY(0.5rem);
-  }
-}
-
-// No fade or slide for people who ask for less motion: it's just there
-@media (prefers-reduced-motion: reduce) {
-  .body {
-    animation: none;
-  }
-}
-
-.topBar {
-  display: flex;
-  align-items: center;
-  min-height: var(--touch-height);
-}
-
-.heading {
-  margin-top: 1rem;
-  font-size: var(--kiosk-title-large); // bigger title, like my kiosk
-}
-
-// one large field, the only thing to do on this screen
+// Jodi's search field: 54px tall, 9px corners, strong border
 .search {
-  all: unset;
-  box-sizing: border-box; // all: unset resets this to content-box
   width: 100%;
-  min-height: 64px;
-  padding: 0 1.5rem 0 3.75rem; // left room for the magnifier icon
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card); // rounded box instead of a pill
-  background-color: var(--canvas);
-  // magnifier icon drawn in css (muted grey), so no component change is needed
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23717184' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: 1.25rem center;
-  background-size: 1.5rem;
+  min-width: 0;
+  height: 54px;
+  padding: 0 16px;
+  border: 1px solid #3a3a48;
+  border-radius: 9px;
+  background: var(--raised);
   color: var(--text);
-  font-size: 1.5rem; // bigger typing, like my kiosk
+  font: inherit;
+  font-size: 16px; // never under 16px (iOS zooms into smaller fields)
 
   &::placeholder {
     color: var(--muted);
   }
 
   &:focus-visible {
+    outline: none;
     border-color: var(--brand); // red focus ring
   }
 
@@ -75,80 +37,38 @@
 }
 
 .results {
-  // StatusMessage brings its own padding; keep the gap under the field small
-  margin-top: -1.5rem;
+  margin-top: 12px;
 }
 
+// matches stacked like her household list
 .matches {
   list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 12px; // same gap as the other kiosk cards
-  margin-top: 1.5rem;
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-// Phones: a bit smaller still, but never under 16px (iOS zooms into smaller fields)
-@container kiosk (width < 540px) {
-  .search {
-    font-size: var(--text-md);
-  }
-}
-
+/* ---------- Tap-your-name grid (only when the roster grid flag is on) ---------- */
 .grid {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
-  gap: 12px; // same gap as the other kiosk cards
-  margin-top: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .tile {
   position: relative;
 }
 
-.badge {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.75rem;
-  padding: 2px 10px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-pill);
-  background: var(
-    --interactive
-  ); // a readable pill, like the other status pills
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-size: var(--text-sm, 0.85rem);
-  pointer-events: none;
-}
-
-/* ---------- Tap-your-name grid, laid out like Paul's HTML kiosk ----------
-   Each tile: a large avatar circle, the name centred under it; checked-in students get a
-   green border and a green "Checked in" pill. Doc token colours only. */
-.grid {
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(220px, 1fr)
-  ); // Paul's kiosk: ~220px per card, more columns on wider screens
-  gap: 18px;
-}
-
 .tile > button {
-  flex-direction: column;
-  justify-content: center;
-  gap: 12px;
+  grid-template-columns: 1fr;
+  justify-items: center;
   min-height: 170px;
   padding: 20px 12px 40px;
   text-align: center;
 
-  // the avatar circle, larger
-  > span:first-child {
-    width: 72px;
-    height: 72px;
-    font-size: var(--text-lg);
-  }
-
-  // no arrow on a tile: the whole tile is the button
+  // no "Select →" on a tile: the whole tile is the button
   > span:last-child {
     display: none;
   }
@@ -161,17 +81,26 @@
 }
 
 // "Checked in" pill: green, under the name
-.tile .badge {
-  top: auto;
-  right: auto;
+.badge {
+  position: absolute;
   bottom: 14px;
   left: 50%;
   transform: translateX(-50%);
-  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+  padding: 2px 10px;
+  border: 1px solid color-mix(in srgb, var(--success) 40%, transparent);
+  border-radius: 999px;
   background: color-mix(in srgb, var(--success) 14%, transparent);
   color: var(--success);
   font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
+  pointer-events: none;
+}
+
+@container kiosk (width < 540px) {
+  .screen {
+    padding: 34px 20px;
+  }
 }

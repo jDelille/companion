@@ -1,7 +1,7 @@
 import type { RosterMember, SessionOption } from "@/contracts/kiosk-attendance";
+import KioskButton from "@/components/kiosk/kiosk-button/KioskButton";
+import ScreenHead from "@/components/kiosk/screen-head/ScreenHead";
 import SessionHeader from "@/components/kiosk/session-header/SessionHeader";
-import PrimaryButton from "@/components/primitives/primary-button/PrimaryButton";
-import PlainButton from "@/components/primitives/plain-button/PlainButton";
 import { formatStartTime } from "@/domain/kiosk/sessionFormat";
 import styles from "./ConfirmScreen.module.scss";
 
@@ -14,8 +14,9 @@ type Props = {
   onChangeSession: () => void;
 };
 
-// K05: one last look before checking in. Eligibility (K04) is decided by the
-// server when this is submitted, so nothing here says "you're allowed".
+// K05: one last look before checking in, laid out like Jodi's Review screen.
+// Eligibility (K04) is decided by the server when this is submitted, so
+// nothing here says "you're allowed".
 const ConfirmScreen = ({
   session,
   member,
@@ -28,11 +29,12 @@ const ConfirmScreen = ({
 
   return (
     <div className={styles.screen}>
-      <div className={styles.topBar}>
-        <PlainButton flush onClick={onBack} disabled={isSending}>
-          ← Back
-        </PlainButton>
-      </div>
+      <ScreenHead
+        eyebrow="Review"
+        title="Review your check-in"
+        onBack={onBack}
+        backDisabled={isSending}
+      />
 
       <SessionHeader
         session={session}
@@ -40,14 +42,12 @@ const ConfirmScreen = ({
         changeDisabled={isSending}
       />
 
-      <h1 className={styles.heading}>Check in</h1>
-
-      <dl className={styles.summary}>
-        <div className={styles.summaryRow}>
+      <dl className={styles.reviewList}>
+        <div className={styles.reviewRow}>
           <dt>Student</dt>
           <dd>{member.displayName}</dd>
         </div>
-        <div className={styles.summaryRow}>
+        <div className={styles.reviewRow}>
           <dt>Class</dt>
           <dd>
             {session.title} · {time} {period}
@@ -56,9 +56,11 @@ const ConfirmScreen = ({
       </dl>
 
       {/* The one committing action on this screen */}
-      <PrimaryButton tone="brand" disabled={isSending} onClick={onConfirm}>
-        {isSending ? "Checking in…" : "Confirm check-in"}
-      </PrimaryButton>
+      <div className={styles.actions}>
+        <KioskButton disabled={isSending} onClick={onConfirm}>
+          {isSending ? "Checking in…" : "Confirm check-in"}
+        </KioskButton>
+      </div>
 
       {/* The button's text changes silently; this tells screen readers it's working */}
       <p className={styles.visuallyHidden} role="status">
