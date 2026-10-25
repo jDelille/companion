@@ -1,112 +1,134 @@
-// Width comes from the shell, like every kiosk screen.
+// Jodi's spacing: the screen cancels the panel padding and uses her own.
 // No top bar: the Result screen has no Back.
 .screen {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  padding: 2rem 0;
+  flex: 1;
+  margin: 0 calc(var(--panel-pad-x) * -1) calc(var(--panel-pad-y) * -1);
+  padding: clamp(34px, 6vw, 72px) clamp(24px, 7vw, 92px);
 }
 
-.titles {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
+// receipt: centered, like her "You're all set"
+.successScreen {
+  min-height: 600px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.successContent {
+  width: min(620px, 100%);
+}
+
+// the animated check (SuccessMark), sized down a little from its 120px default
+.markWrap > div {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 24px;
 }
 
 .eyebrow {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  margin-bottom: 20px;
+  color: var(--muted);
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--text-secondary);
 }
 
 .headline {
-  font-size: var(--kiosk-title-large); // bigger title, like my kiosk
+  margin: 0 auto 18px;
+  font-size: clamp(38px, 5vw, 62px);
+  font-weight: 700;
+  line-height: 0.98;
+  letter-spacing: -0.058em;
 }
 
-// student, class, time: label on the left, value next to it (same as Confirm)
-.details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.5rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--canvas);
-}
+.nextAction {
+  margin: 34px 0 18px;
+  padding: 22px;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  background: var(--raised);
+  text-align: left;
 
-.detailRow {
-  display: grid;
-  grid-template-columns: 9rem 1fr; // label column | value column
-  align-items: baseline;
-  gap: 1rem;
-
-  dt {
-    font-size: var(--text-lg);
-    color: var(--muted);
+  small {
+    color: var(--text-secondary);
+    font-family: var(--font-label);
+    font-size: 10px;
+    text-transform: uppercase;
   }
 
-  dd {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: var(--text-xl);
-    font-weight: 600;
+  strong {
+    display: block;
+    margin-top: 14px;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 6px 0 0;
+    color: var(--text-secondary);
+    font-size: 14px;
   }
 }
 
 // small amber tag, e.g. "Late"
 .tag {
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-pill);
+  margin-left: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
   background: color-mix(in srgb, var(--warning) 15%, transparent);
   color: var(--warning);
-  font-size: var(--text-base);
+  font-size: 12px;
   font-weight: 600;
 }
 
-// Done and the line under it
-.done {
+.actions {
+  margin-top: 28px;
   display: flex;
-  flex-direction: column;
-  align-items: stretch; // button spans the full width
-  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.doneHint {
-  text-align: center;
-  font-size: var(--text-base);
-  color: var(--muted);
+.privacyNote {
+  margin-top: 18px;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
-// success heading: left-aligned with a smaller check mark, like my kiosk
-.receiptHeading {
-  align-items: flex-start;
-  text-align: left;
-  margin-block: 1rem 0.5rem;
+// after the check draws, the card and button rise in (off for reduced motion)
+@media (prefers-reduced-motion: no-preference) {
+  .eyebrow,
+  .headline,
+  .nextAction,
+  .actions,
+  .privacyNote {
+    animation: rise 420ms var(--ease-out) 350ms both;
+  }
 
-  // the first child is the check mark
-  > *:first-child {
-    width: 80px;
-    height: 80px;
-    margin-left: 0;
-    margin-bottom: 0.5rem;
+  .headline {
+    animation-delay: 420ms;
+  }
+
+  .nextAction {
+    animation-delay: 520ms;
+  }
+
+  .actions,
+  .privacyNote {
+    animation-delay: 620ms;
   }
 }
 
-// phones: label above value, so long values and the Late tag have the full width
-@container kiosk (width < 540px) {
-  .detailRow {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.25rem;
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
 
-    dd {
-      flex-wrap: wrap; // the Late tag drops below instead of running off the side
-      min-width: 0;
-      font-size: var(--text-lg);
-      overflow-wrap: anywhere;
-    }
+@container kiosk (width < 540px) {
+  .screen {
+    padding: 34px 20px;
   }
 }

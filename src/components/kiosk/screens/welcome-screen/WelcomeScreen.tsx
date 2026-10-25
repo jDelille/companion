@@ -1,5 +1,9 @@
-import PlainButton from "@/components/primitives/plain-button/PlainButton";
+import Link from "@/components/primitives/AppLink";
 import styles from "./WelcomeScreen.module.scss";
+
+// Jodi's extra utility buttons (Business Companion link, Language, Accessibility)
+// only show in demo mode: on a real kiosk they would lead nowhere
+const DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 type Props = {
   schoolName: string;
@@ -60,9 +64,49 @@ const WelcomeScreen = ({
       </div>
 
       <div className={styles.utilityRow}>
-        {onAsk && <PlainButton onClick={onAsk}>Ask a question</PlainButton>}
-        {onEvents && <PlainButton onClick={onEvents}>Events</PlainButton>}
-        <PlainButton onClick={onStaffHelp}>Need staff help?</PlainButton>
+        {DEMO && (
+          <Link
+            href="/"
+            className={`${styles.utilityButton} ${styles.utilityPrimary}`}
+          >
+            Open Business Companion →
+          </Link>
+        )}
+        {onAsk && (
+          <button
+            type="button"
+            className={styles.utilityButton}
+            onClick={onAsk}
+          >
+            Ask a question
+          </button>
+        )}
+        {onEvents && (
+          <button
+            type="button"
+            className={styles.utilityButton}
+            onClick={onEvents}
+          >
+            Events
+          </button>
+        )}
+        {DEMO && (
+          <>
+            <button type="button" className={styles.utilityButton}>
+              Language
+            </button>
+            <button type="button" className={styles.utilityButton}>
+              Accessibility
+            </button>
+          </>
+        )}
+        <button
+          type="button"
+          className={styles.utilityButton}
+          onClick={onStaffHelp}
+        >
+          Need staff help?
+        </button>
       </div>
     </div>
   );

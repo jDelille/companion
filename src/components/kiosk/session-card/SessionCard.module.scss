@@ -1,90 +1,68 @@
-// class card as a full-width row, like my kiosk: time | class + details | arrow
+// Jodi's profile-card: 18px 20px, 14px corners, strong border, soft hover
 .card {
-  all: unset;
-  box-sizing: border-box; // all: unset resets this to content-box
-  display: grid;
-  grid-template-columns: 11rem minmax(0, 1fr) auto; // time | name + details | arrow
-  align-items: center;
-  gap: 1.5rem;
   width: 100%;
-  min-height: 104px;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  background: var(--panel);
+  padding: 18px 20px;
+  border: 1px solid #3a3a48;
+  border-radius: 14px;
+  background: var(--raised);
   color: var(--text);
+  font: inherit;
   cursor: pointer;
-  transition:
-    background 150ms ease,
-    border-color 150ms ease;
+  display: grid;
+  grid-template-columns: 9.5rem minmax(0, 1fr) auto; // time | name + details | Select
+  align-items: center;
+  gap: 16px;
+  text-align: left;
 
-  &:hover,
-  &:active {
-    border-color: var(--text-secondary);
-    background: var(--raised);
+  &:hover {
+    background: var(--interactive);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--text-secondary);
-    outline-offset: -2px;
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
   }
 }
 
 .time {
-  font-size: var(--text-lg);
-  font-weight: 600;
+  font-family: var(--font-label);
+  font-size: 13px;
   font-variant-numeric: tabular-nums;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .period {
-  margin-left: 0.25rem;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--muted);
+  color: var(--text-secondary);
 }
 
 .details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0; // lets a long class name shrink instead of pushing the layout
-}
+  min-width: 0; // a long class name shrinks instead of pushing the layout
 
-.title {
-  font-size: var(--text-xl);
-  font-weight: 600;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis; // a very long name ends in "…"
-}
-
-.duration {
-  font-size: var(--text-base);
-  color: var(--text-secondary);
-}
-
-// circle arrow, same as the welcome cards
-.arrow {
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-}
-
-// phones: narrower time column so the class name gets the room
-@container kiosk (width < 540px) {
-  .card {
-    grid-template-columns: 6rem minmax(0, 1fr) auto;
-    gap: 1rem;
-    padding-inline: 1rem;
+  strong {
+    display: block;
+    font-size: 16px;
   }
 
-  .title {
-    font-size: var(--text-md);
+  small {
+    display: block;
+    margin-top: 5px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+}
+
+.select {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+// phones: time on top, so the class name gets the full width
+@container kiosk (width < 540px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .time {
+    grid-column: 1 / -1;
   }
 }
