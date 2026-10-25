@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import Link from "@/components/primitives/AppLink";
-import styles from "./DemoKiosk.module.scss";
+import { useEffect, useRef, useState } from "react";
+import KioskHeader from "@/components/kiosk/kiosk-header/KioskHeader";
+import styles from "./DemoFlow.module.scss";
 
-// Demo-only kiosk: Jodi's slides 1-8, local state only. No API calls, fake data.
-// Open it at /kiosk/demo
+// Demo-only walkthrough of Jodi's screens 2-8 (household, onboarding, plans,
+// requirements, review, all set). Local state only: no API calls, fake data.
+// /kiosk opens it from the "I'm new here" and "Family arrival" cards (demo mode).
 
 type Method = "qr" | "pin" | "name";
 
@@ -19,14 +20,6 @@ const STEP_NAMES = [
   "Requirements",
   "Review",
   "Complete",
-];
-
-// each card says which step it opens
-const INTENTS = [
-  { title: "Check in", note: "Existing member", go: 2 },
-  { title: "I'm new here", note: "Trial or join", go: 4 },
-  { title: "Family arrival", note: "Check in household", go: 2 },
-  { title: "Find a class", note: "Browse eligible sessions", go: 5 },
 ];
 
 const METHODS: { id: Method; title: string; note: string }[] = [
@@ -101,18 +94,21 @@ const REVIEW = [
   { label: "Documents", value: "Waiver signed · Emergency contact complete" },
 ];
 
-// the kiosk panel from the layout is narrower than Jodi's frame, so widen it
-// and hide the layout's own header (this page draws its own top bar)
-const SHELL_OVERRIDE = `
-  :root:has([data-jodi]) { --kiosk-column-width: 1180px; }
-  main:has([data-jodi]) { padding: 0; border-radius: 18px; overflow: hidden; }
-  main:has([data-jodi]) > header { display: none; }
-`;
+type Props = {
+  startAt: number; // screen to open on (2 = identify, 4 = onboarding)
+  onExit: () => void; // back to the Welcome screen
+};
 
-export default function DemoKioskPage() {
+export default function DemoFlow({ startAt, onExit }: Props) {
   // trail of visited steps, so Back goes to where you really came from
-  const [trail, setTrail] = useState<number[]>([1]);
+  const [trail, setTrail] = useState<number[]>([startAt]);
   const step = trail[trail.length - 1];
+
+  // keep the latest onExit without making the timer below restart on every render
+  const exitRef = useRef(onExit);
+  useEffect(() => {
+    exitRef.current = onExit;
+  });
 
   const [method, setMethod] = useState<Method>("qr");
   const [goal, setGoal] = useState(0);
@@ -120,22 +116,16 @@ export default function DemoKioskPage() {
   const [payer, setPayer] = useState(PAYERS[0]);
 
   const go = (next: number) => setTrail((t) => [...t, next]);
-  const back = () => setTrail((t) => (t.length > 1 ? t.slice(0, -1) : t));
-  // back to Welcome and forget the last person's picks
-  const reset = useCallback(() => {
-    setTrail([1]);
-    setMethod("qr");
-    setGoal(0);
-    setPlan(0);
-    setPayer(PAYERS[0]);
-  }, []);
+  // Back on the first screen leaves the demo
+  const back = () =>
+    trail.length > 1 ? setTrail((t) => t.slice(0, -1)) : onExit();
 
   // "This kiosk will reset automatically": back to Welcome after 20s on the last screen
   useEffect(() => {
     if (step !== 8) return;
-    const timer = setTimeout(reset, 20000);
+    const timer = setTimeout(() => exitRef.current(), 20000);
     return () => clearTimeout(timer);
-  }, [step, reset]);
+  }, [step]);
 
   const backButton = (
     <button type="button" className={styles.backButton} onClick={back}>
@@ -144,83 +134,14 @@ export default function DemoKioskPage() {
   );
 
   return (
-    <div className={styles.root} data-jodi>
-      <style>{SHELL_OVERRIDE}</style>
-
-      {/* top bar: logo + current screen name, reset on the right */}
-      <div className={styles.topbar}>
-        <button type="button" className={styles.brand} onClick={reset}>
-          <span className={styles.brandWord}>DOJANG</span>
-          <span className={styles.brandContext}>{STEP_NAMES[step - 1]}</span>
-        </button>
-        <span className={styles.spacer} />
-        <span className={styles.pill}>
-          <i /> Premium design pass
-        </span>
-        <button
-          type="button"
-          className={styles.iconButton}
-          aria-label="Reset preview"
-          onClick={reset}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M20 7h-9a5 5 0 0 0-5 5" />
-            <path d="m16 3 4 4-4 4" />
-            <path d="M4 17h9a5 5 0 0 0 5-5" />
-            <path d="m8 21-4-4 4-4" />
-          </svg>
-        </button>
-      </div>
+    <div className={styles.root}>
+      <KioskHeader label={STEP_NAMES[step - 1]} showDemoPill onReset={onExit} />
 
       {/* key={step} replays the fade-in each time the screen changes */}
       <section
         key={step}
         className={`${styles.screen} ${step === 8 ? styles.successScreen : ""}`}
       >
-        {/* 1 · Welcome */}
-        {step === 1 && (
-          <>
-            <div className={styles.eyebrow}>Arrival</div>
-            <h1>Welcome to Dojang</h1>
-            <p className={styles.lead}>What would you like to do today?</p>
-
-            <div className={styles.intentGrid}>
-              {INTENTS.map((item) => (
-                <button
-                  key={item.title}
-                  type="button"
-                  className={styles.intentCard}
-                  onClick={() => go(item.go)}
-                >
-                  <span>
-                    <strong>{item.title}</strong>
-                    <small>{item.note}</small>
-                  </span>
-                  <span className={styles.arrow}>→</span>
-                </button>
-              ))}
-            </div>
-
-            <div className={styles.utilityRow}>
-              <Link
-                href="/"
-                className={`${styles.utilityButton} ${styles.utilityPrimary}`}
-              >
-                Open Business Companion →
-              </Link>
-              <button type="button" className={styles.utilityButton}>
-                Language
-              </button>
-              <button type="button" className={styles.utilityButton}>
-                Accessibility
-              </button>
-              <button type="button" className={styles.utilityButton}>
-                Need staff help?
-              </button>
-            </div>
-          </>
-        )}
-
         {/* 2 · Identify */}
         {step === 2 && (
           <>
@@ -577,7 +498,7 @@ export default function DemoKioskPage() {
               <button
                 type="button"
                 className={styles.primaryButton}
-                onClick={reset}
+                onClick={onExit}
               >
                 Check in / view class
               </button>

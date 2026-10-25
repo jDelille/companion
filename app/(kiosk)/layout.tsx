@@ -4,7 +4,6 @@ import { Inter } from "next/font/google";
 import { SCHOOL_NAME } from "@/domain/kiosk/kioskConfig";
 import styles from "./KioskShell.module.scss";
 import "./kiosk.scss";
-import KioskHeader from "@/components/kiosk/kiosk-header/KioskHeader";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,10 +26,7 @@ export default function KioskLayout({ children }: LayoutProps<"/">) {
               <span>Sample check-ins · Preview</span>
             </div>
           )}
-          <main className={styles.main}>
-            <KioskHeader />
-            {children}
-          </main>
+          <main className={styles.main}>{children}</main>
         </div>
       </body>
     </html>

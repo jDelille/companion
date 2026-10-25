@@ -1,4 +1,4 @@
-// Jodi's kiosk mockup (slides 1-8) rebuilt with our dark palette.
+// Jodi's kiosk mockup (slides 2-8) rebuilt with our dark palette.
 // Sizes, spacing and type are copied from her CSS; colours come from styles/_variables.scss.
 
 .root {
@@ -15,9 +15,8 @@
   --mono: var(--font-label);
 
   flex: 1;
-  display: grid;
-  grid-template-rows: 64px 1fr; // top bar, then the screen
-  min-height: 0;
+  display: flex;
+  flex-direction: column;
   color: var(--text);
   font-family: var(--sans);
 
@@ -39,93 +38,11 @@
   }
 }
 
-// ---------- top bar ----------
-.topbar {
-  min-width: 0;
-  padding: 0 22px;
-  border-bottom: 1px solid var(--line);
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.brand {
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.brandWord {
-  font-family: var(--mono);
-  font-size: 15px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-}
-
-.brandContext {
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.spacer {
-  flex: 1;
-}
-
-.pill {
-  padding: 7px 10px;
-  border: 1px solid var(--line-strong);
-  border-radius: 999px;
-  color: var(--text-secondary);
-  font-family: var(--mono);
-  font-size: 10px;
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-
-  i {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--success);
-  }
-}
-
-.iconButton {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--card);
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-
-  svg {
-    width: 19px;
-    fill: none;
-    stroke: currentcolor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  &:hover {
-    background: var(--soft);
-  }
-}
-
 // ---------- screen + type ----------
 .screen {
-  min-height: 100%;
+  flex: 1;
+  // the panel has its own padding; cancel it so these screens use Jodi's spacing
+  margin: 0 calc(var(--panel-pad-x) * -1) calc(var(--panel-pad-y) * -1);
   padding: clamp(34px, 6vw, 72px) clamp(24px, 7vw, 92px);
   animation: enter 0.28s ease both;
 
@@ -190,8 +107,7 @@
 
 // ---------- buttons ----------
 .backButton,
-.textButton,
-.utilityButton {
+.textButton {
   min-height: 42px;
   padding: 0 13px;
   border: 0;
@@ -210,17 +126,6 @@
 
 .backButton {
   margin: -16px 0 30px -12px;
-}
-
-.utilityButton {
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.utilityPrimary {
-  border: 1px solid var(--text);
-  color: var(--text);
 }
 
 .primaryButton,
@@ -261,65 +166,6 @@
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-// ---------- 1 · welcome ----------
-.intentGrid {
-  margin-top: 52px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.intentCard {
-  min-height: 130px;
-  padding: 24px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--card);
-  cursor: pointer;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 16px;
-  text-align: left;
-  transition: 0.16s;
-
-  strong {
-    display: block;
-    font-size: 19px;
-  }
-
-  small {
-    display: block;
-    margin-top: 8px;
-    color: var(--text-secondary);
-    font-size: 13px;
-  }
-
-  // her hover inverts to black; ours fills red
-  &:hover {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--on-accent);
-    transform: translateY(-2px);
-
-    small {
-      color: rgb(255 255 255 / 75%);
-    }
-  }
-}
-
-.arrow {
-  font-size: 28px;
-  font-weight: 300;
-}
-
-.utilityRow {
-  margin-top: 30px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
 }
 
 // ---------- 2 · identify ----------
@@ -806,7 +652,6 @@
     padding: 34px 20px;
   }
 
-  .intentGrid,
   .choiceGrid {
     grid-template-columns: 1fr;
   }
@@ -827,9 +672,5 @@
 
   .searchField {
     grid-template-columns: 1fr;
-  }
-
-  .pill {
-    display: none;
   }
 }

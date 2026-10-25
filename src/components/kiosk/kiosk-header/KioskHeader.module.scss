@@ -1,21 +1,101 @@
+// Jodi's top bar: 64px tall, logo + screen name left, reset right
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 14px;
+  height: 64px;
   // negative margins stretch the line across the whole panel, whatever its padding
   margin: calc(var(--panel-pad-y) * -1) calc(var(--panel-pad-x) * -1) 0;
-  padding: 1.25rem var(--panel-pad-x);
+  padding: 0 22px;
   border-bottom: 1px solid var(--line);
 }
 
-.logo {
-  font-family: var(--font-label); // small mono text like my kiosk
-  font-size: 14px;
-  letter-spacing: 0.25em;
+.brand {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
 }
 
-.clock {
+.brandWord {
+  font-family: var(--font-label);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+}
+
+.brandContext {
   color: var(--text-secondary);
-  font-size: var(--text-base);
-  font-variant-numeric: tabular-nums; // digits don't jiggle as time changes
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.pill {
+  padding: 7px 10px;
+  border: 1px solid #3a3a48; // doc's dark-border-strong
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-family: var(--font-label);
+  font-size: 10px;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+}
+
+.iconButton {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--raised);
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+
+  svg {
+    width: 19px;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: var(--interactive);
+  }
+
+  &:focus-visible,
+  .brand:focus-visible {
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+  }
+}
+
+// phones: the demo tag would crowd the bar
+@container kiosk (width < 540px) {
+  .pill {
+    display: none;
+  }
 }

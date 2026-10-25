@@ -1,128 +1,69 @@
-import React from "react";
-import Greeting from "@/components/kiosk/greeting/Greeting";
-import ActionCard from "@/components/primitives/action-card/ActionCard";
 import PlainButton from "@/components/primitives/plain-button/PlainButton";
-import type { SecondaryAction } from "@/domain/kiosk/kioskConfig";
 import styles from "./WelcomeScreen.module.scss";
 
 type Props = {
   schoolName: string;
-  actions: SecondaryAction[]; // from kioskConfig; hidden ones are skipped
   onCheckIn: () => void; // just reports the tap, the flow decides what's next
+  onNewHere?: () => void; // demo walkthrough; leave out and the card is disabled
+  onFamily?: () => void; // demo walkthrough; leave out and the card is disabled
   onAsk?: () => void; // the AI Concierge; leave out when it's turned off
   onEvents?: () => void; // demo events list; leave out when events aren't connected
   onStaffHelp: () => void; // always there (Miro 09.13), AI or not
 };
 
+// K01: Jodi's welcome. Four intent cards, then small text buttons.
+// Check in and Find a class both start the real class-first check-in.
 const WelcomeScreen = ({
   schoolName,
-  actions,
   onCheckIn,
+  onNewHere,
+  onFamily,
   onAsk,
   onEvents,
   onStaffHelp,
 }: Props) => {
-  const shownActions = actions.filter((action) => action.shown);
-  const cardActions = shownActions.filter(
-    (action) => action.prominence === "card",
-  );
-  const textActions = shownActions.filter(
-    (action) => action.prominence === "text",
-  );
+  const cards = [
+    { title: "Check in", note: "Existing member", onClick: onCheckIn },
+    { title: "I'm new here", note: "Trial or join", onClick: onNewHere },
+    { title: "Family arrival", note: "Check in household", onClick: onFamily },
+    {
+      title: "Find a class",
+      note: "Browse eligible sessions",
+      onClick: onCheckIn,
+    },
+  ];
 
   return (
     <div className={styles.screen}>
-      <div className={styles.heading}>
-        <Greeting />
-        <h1>Welcome to {schoolName}</h1>
-        <p>What would you like to do today?</p>
-      </div>
+      <div className={styles.eyebrow}>Arrival</div>
+      <h1>Welcome to {schoolName}</h1>
+      <p className={styles.lead}>What would you like to do today?</p>
 
-      {/* check in call to action */}
-
-      <div className={styles.checkIn}>
-        <button
-          type="button"
-          onClick={onCheckIn}
-          className={styles.checkInButton}
-        >
-          Check in
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
+      <div className={styles.intentGrid}>
+        {cards.map((card) => (
+          <button
+            key={card.title}
+            type="button"
+            className={styles.intentCard}
+            onClick={card.onClick}
+            disabled={!card.onClick} // not connected yet: can't be tapped or focused
           >
-            <path
-              d="M5 12h14m-6-6 6 6-6 6"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
+            <span>
+              <strong>{card.title}</strong>
+              <small>{card.note}</small>
+            </span>
+            <span className={styles.arrow} aria-hidden="true">
+              →
+            </span>
+          </button>
+        ))}
       </div>
 
-      {/* Optional AI Concierge: questions, trial requests, calling staff */}
-      {onAsk && (
-        <ActionCard
-          label="Ask a question"
-          appearance="row"
-          description="Classes, trying a class, directions, or getting help"
-          onClick={onAsk}
-          className={styles.ask}
-        />
-      )}
-
-      {/* Secondary Classes / Events; Testing / Schedule / Staff where enabled  */}
-
-      {/* Classes reuses the same live session selection, without requiring AI. */}
-      {cardActions.length > 0 && (
-        <div className={styles.secondaryActions}>
-          {cardActions.map((action) => {
-            const isClasses = action.id === "classes";
-            // events only works when a list is provided (demo mode)
-            const isEvents = action.id === "events" && Boolean(onEvents);
-
-            return (
-              <ActionCard
-                key={action.id}
-                label={action.label}
-                appearance="row"
-                description={
-                  isClasses
-                    ? "View today’s sessions and check in"
-                    : isEvents
-                      ? "See what’s coming up"
-                      : "Not connected"
-                }
-                disabled={!(isClasses && action.available) && !isEvents}
-                onClick={
-                  isClasses ? onCheckIn : isEvents ? onEvents : undefined
-                }
-                className={styles.secondaryCard}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      <PlainButton onClick={onStaffHelp} className={styles.staffHelp}>
-        Get help from staff
-      </PlainButton>
-
-      {/* Muted placeholders: disabled so they can't be tapped or focused */}
-      {textActions.length > 0 && (
-        <div className={styles.tertiaryActions}>
-          {textActions.map((action) => (
-            <button key={action.id} type="button" disabled={!action.available}>
-              {action.label}
-            </button>
-          ))}
-        </div>
-      )}
+      <div className={styles.utilityRow}>
+        {onAsk && <PlainButton onClick={onAsk}>Ask a question</PlainButton>}
+        {onEvents && <PlainButton onClick={onEvents}>Events</PlainButton>}
+        <PlainButton onClick={onStaffHelp}>Need staff help?</PlainButton>
+      </div>
     </div>
   );
 };

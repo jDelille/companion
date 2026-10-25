@@ -1,25 +1,42 @@
-"use client"; // has a live clock, which only works in the browser
-
-import { useEffect, useState } from "react";
 import styles from "./KioskHeader.module.scss";
 
-// logo on the left, clock on the right. sits at the top of every kiosk screen
-const KioskHeader = () => {
-  // null first so the server and browser agree (avoids a time mismatch error)
-  const [now, setNow] = useState<Date | null>(null);
+type Props = {
+  label: string; // small word next to the logo: Arrival, Identify, Complete...
+  onReset: () => void; // logo and the circle-arrows button go back to Welcome
+  showDemoPill?: boolean; // "Premium design pass" tag, demo mode only
+};
 
-  useEffect(() => {
-    setNow(new Date());
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id); // stop ticking when the page goes away
-  }, []);
-
+// Jodi's top bar: DOJANG + current screen name on the left, reset on the right.
+// Each page renders it itself so it can show the right label.
+const KioskHeader = ({ label, onReset, showDemoPill = false }: Props) => {
   return (
     <header className={styles.header}>
-      <span className={styles.logo}>DOJANG</span>
-      <span className={styles.clock}>
-        {now?.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}
-      </span>
+      <button type="button" className={styles.brand} onClick={onReset}>
+        <span className={styles.brandWord}>DOJANG</span>
+        <span className={styles.brandContext}>{label}</span>
+      </button>
+
+      <span className={styles.spacer} />
+
+      {showDemoPill && (
+        <span className={styles.pill}>
+          <i /> Premium design pass
+        </span>
+      )}
+
+      <button
+        type="button"
+        className={styles.iconButton}
+        aria-label="Reset preview"
+        onClick={onReset}
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 7h-9a5 5 0 0 0-5 5" />
+          <path d="m16 3 4 4-4 4" />
+          <path d="M4 17h9a5 5 0 0 0 5-5" />
+          <path d="m8 21-4-4 4-4" />
+        </svg>
+      </button>
     </header>
   );
 };
